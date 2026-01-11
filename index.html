@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Webmail (Arufkuy)</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:#0b0f17;
+      color:#e8eefc;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* --- Header --- */
+    header {
+      padding: 0 16px;
+      height: 56px;
+      border-bottom:1px solid #1b2640;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background:#0b0f17;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand b { font-size:15px; letter-spacing:.02em; font-weight: 600; }
+    .right { display:flex; align-items:center; gap:12px; }
+
+    /* --- Buttons --- */
+    button {
+      background:#1a2a52;
+      border:1px solid #2a3f75;
+      color:#e8eefc;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor:pointer;
+      white-space:nowrap;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.15s ease;
+    }
+    button:hover { background: #223460; border-color: #4e7dff; }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity:.5; cursor:not-allowed; transform: none; }
+
+    .btn-icon {
+      padding: 8px;
+      background: transparent;
+      border-color: transparent;
+      color: #8db0ff;
+    }
+    .btn-icon:hover { background: #152248; border-color: transparent; color: #fff; }
+
+    .btn-danger {
+      background: #2a0f0f; border-color: #5a1a1a; color: #ff9b9b;
+    }
+    .btn-danger:hover { background: #3f1515; border-color: #ff4d4d; }
+
+    /* Inputs */
+    input {
+      background:#0f1626; color:#e8eefc; border:1px solid #223055;
+      border-radius: 6px;
+      padding:10px 12px; outline:none;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color:#4e7dff; }
+
+    /* --- Layout --- */
+    .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      background:#0f1626;
+      border-right:1px solid #1b2640;
+      display: flex; flex-direction: column; flex-shrink: 0;
+      transition: margin-left 0.3s ease;
+    }
+    .sidebar.collapsed { margin-left: -320px; }
+
+    .sidebar-header {
+      padding: 12px;
+      border-bottom:1px solid #1b2640;
+      background: #0b0f17;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .msg-list { flex: 1; overflow-y: auto; }
+    .msg-item {
+      padding:14px 16px;
+      border-bottom:1px solid #1b2640;
+      cursor:pointer;
+      display:flex; flex-direction:column; gap:4px;
+      transition: background 0.1s;
+    }
+    .msg-item:hover { background:#111c33; }
+    .msg-item.active { background:#152248; border-left:3px solid #4e7dff; }
+
+    .msg-header { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; margin-bottom: 2px; }
+    .msg-subject { font-weight: 600; font-size: 14px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .msg-snippet { font-size: 13px; opacity: 0.6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Reading Pane */
+    .reading-pane {
+      flex: 1;
+      display: flex; flex-direction: column;
+      background:#0b0f17;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .msg-content-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex; flex-direction: column;
+    }
+
+    .msg-meta {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #1b2640;
+    }
+    .msg-title { font-size: 20px; font-weight: 600; margin: 0 0 16px 0; color: #fff; line-height: 1.4; }
+    .msg-info { display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; }
+    .sender-avatar {
+      width: 40px; height: 40px; border-radius: 6px; background: #1a2a52;
+      color: #8db0ff; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; margin-right: 12px; border: 1px solid #2a3f75; font-size: 16px;
+    }
+
+    /* Toolbar inside Meta */
+    .meta-toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px; padding-top: 12px; border-top: 1px dashed #1b2640;
+    }
+
+    .msg-body {
+      background: #0b0f17; /* Dark background */
+      border-radius: 6px;
+      min-height: 200px;
+      display: block;
+    }
+
+    /* OTP Chip */
+    .otp-chip {
+      display: inline-flex; align-items: center;
+      background: #152248; color: #4e7dff; border: 1px solid #2a3f75;
+      padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      margin-top: 12px; cursor: pointer; font-family: monospace; letter-spacing: 0.5px;
+    }
+    .otp-chip:hover { border-color: #4e7dff; background: #1a2a52; }
+
+    /* Login View */
+    .login-container {
+      display: flex; align-items: center; justify-content: center; height: 100%;
+      padding: 20px;
+    }
+    .login-box {
+      background:#0f1626; padding: 32px; border-radius: 8px;
+      border: 1px solid #1b2640; width: 100%; max-width: 380px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    /* Utils */
+    .hidden { display: none !important; }
+    .muted { opacity: 0.6; }
+    .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+
+    .status-badge {
+      font-size:11px; padding:4px 8px; border-radius:4px;
+      background: #152248; color: #8db0ff; border: 1px solid #2a3f75; font-weight: 600;
+    }
+    .status-badge.ok { border-color:#2f6a3b; color:#4caf50; background: #0f1f15; }
+    .status-badge.warn { border-color:#7a5b2a; color:#ffc107; background: #1f1a0b; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a3f75; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4e7dff; }
+
+    /* --- RESPONSIVE --- */
+    #btnBackList { display: none; }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; margin-left: 0 !important; }
+      .reading-pane { display: none; }
+
+      .main-layout.view-mode .sidebar { display: none; }
+      .main-layout.view-mode .reading-pane { display: flex; }
+
+      .msg-content-wrapper { padding: 16px; }
+      .msg-title { font-size: 18px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<header>
+  <div class="brand">
+    <button id="btnToggleSidebar" class="btn-icon" title="Toggle Sidebar">☰</button>
+    <button id="btnBackList" class="btn-icon" title="Back to List" style="display:none">←</button>
+    <b>Webmail</b>
+    <span id="badge" class="status-badge warn">Signed out</span>
+  </div>
+  <div class="right">
+    <span id="userEmail" class="muted" style="font-size: 12px; display: none;"></span>
+    <button id="btnLogout" class="btn-danger hidden" style="padding: 6px 12px; font-size: 12px;">Logout</button>
+  </div>
+</header>
+
+<!-- Login View -->
+<section id="loginView" class="login-container">
+  <div class="login-box">
+    <h2 style="margin-top:0; text-align:center; font-weight:500;">Login</h2>
+    <div class="muted" style="margin-bottom: 20px; text-align: center; font-size: 13px;">Access your secure inbox</div>
+
+    <div style="margin-bottom: 12px;">
+      <input id="emailInput" style="width: 100%;" placeholder="Email address" type="email" autocomplete="username" />
+    </div>
+    <div style="margin-bottom: 24px;">
+      <input id="passwordInput" style="width: 100%;" placeholder="Password" type="password" autocomplete="current-password" />
+    </div>
+
+    <button id="btnLogin" style="width: 100%; padding: 10px;">Sign In</button>
+    <div id="loginError" style="color: #ff9b9b; font-size: 13px; margin-top: 16px; text-align: center;"></div>
+  </div>
+</section>
+
+<!-- App View -->
+<main id="appView" class="main-layout hidden">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div id="inboxAddress" class="mono" style="font-size: 12px; color: #8db0ff; background: #152248; padding: 4px 8px; border-radius: 4px;">loading...</div>
+        <div style="display: flex; gap: 2px;">
+          <button id="btnRefresh" class="btn-icon" title="Refresh">↻</button>
+          <button id="btnAuto" class="btn-icon" title="Auto Refresh" style="font-size: 10px; width: auto;">AUTO</button>
+        </div>
+      </div>
+      <input id="searchBox" style="width: 100%;" placeholder="Search mail..." />
+    </div>
+    <div id="msgList" class="msg-list">
+      <!-- Message items will go here -->
+    </div>
+  </aside>
+
+  <!-- Reading Pane -->
+  <section class="reading-pane">
+    <div id="emptyState" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #2a3f75; flex-direction: column; text-align: center; padding: 20px;">
+      <div style="font-size: 48px; opacity: 0.5; margin-bottom: 16px;">📬</div>
+      <div style="font-size: 16px; font-weight: 500;">No message selected</div>
+      <div class="muted" style="font-size: 13px; margin-top: 8px;">Select an item from the list to read</div>
+    </div>
+
+    <div id="msgContent" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
+
+      <div class="msg-content-wrapper">
+        <div class="msg-meta">
+          <h1 id="rSubject" class="msg-title">Subject</h1>
+          <div class="msg-info">
+            <div style="display: flex; align-items: center;">
+              <div id="rAvatar" class="sender-avatar">?</div>
+              <div class="sender-details">
+                <div id="rFrom" style="font-weight: 600; color: #e8eefc;">Sender Name</div>
+                <div id="rTo" class="muted" style="font-size: 12px;">to me</div>
+              </div>
+            </div>
+            <div id="rDate" class="muted" style="font-size: 12px;">Date</div>
+          </div>
+
+          <div id="rOtpContainer"></div>
+
+          <!-- Toolbar moved here -->
+          <div class="meta-toolbar">
+            <div style="display: flex; gap: 4px;">
+              <button id="btnViewHtml" class="btn-icon" title="View HTML" style="color: #fff; background: #2a3f75;">HTML</button>
+              <button id="btnViewText" class="btn-icon" title="View Text">TXT</button>
+              <button id="btnViewJson" class="btn-icon" title="View JSON">JSON</button>
+            </div>
+            <button id="btnDelete" class="btn-danger" style="padding: 6px 10px; font-size: 12px;">Delete</button>
+          </div>
+        </div>
+
+        <div id="rBody" class="msg-body">
+          <!-- Content iframe will be injected here -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
+    authDomain: "webmail-arufkuy.firebaseapp.com",
+    projectId: "webmail-arufkuy",
+    storageBucket: "webmail-arufkuy.firebasestorage.app",
+    messagingSenderId: "608495162500",
+    appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
+    measurementId: "G-JXST3Z88R7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const WORKER_API = "https://api.arufkuy.workers.dev";
+
+  // State
+  let fbUser = null;
+  let fbToken = localStorage.getItem("fb_token");
+  let inboxUser = localStorage.getItem("inboxUser");
+  let inboxAddress = localStorage.getItem("inboxAddress");
+  let messagesCache = [];
+  let selectedMessageId = null;
+  let autoTimer = null;
+  let currentViewMode = "html"; // html | text | json
+
+  // DOM Elements
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    loginView: $("loginView"),
+    appView: $("appView"),
+    sidebar: $("sidebar"),
+    emailInput: $("emailInput"),
+    passwordInput: $("passwordInput"),
+    btnLogin: $("btnLogin"),
+    loginError: $("loginError"),
+    btnLogout: $("btnLogout"),
+    userEmail: $("userEmail"),
+    inboxAddress: $("inboxAddress"),
+    msgList: $("msgList"),
+    searchBox: $("searchBox"),
+    emptyState: $("emptyState"),
+    msgContent: $("msgContent"),
+    rSubject: $("rSubject"),
+    rFrom: $("rFrom"),
+    rTo: $("rTo"),
+    rDate: $("rDate"),
+    rBody: $("rBody"),
+    rAvatar: $("rAvatar"),
+    rOtpContainer: $("rOtpContainer"),
+    btnRefresh: $("btnRefresh"),
+    btnAuto: $("btnAuto"),
+    btnDelete: $("btnDelete"),
+    btnViewHtml: $("btnViewHtml"),
+    btnViewText: $("btnViewText"),
+    btnViewJson: $("btnViewJson"),
+    badge: $("badge"),
+    btnToggleSidebar: $("btnToggleSidebar"),
+    btnBackList: $("btnBackList")
+  };
+
+  // --- Auth Functions ---
+  async function ensureToken(force = false) {
+    if (!auth.currentUser) throw new Error("Not authenticated");
+    fbToken = await auth.currentUser.getIdToken(force);
+    localStorage.setItem("fb_token", fbToken);
+    return fbToken;
+  }
+
+  async function loadProfile(uid) {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (!snap.exists()) throw new Error("User profile not found in Firestore.");
+    const data = snap.data();
+    inboxUser = (data.inboxUser || "").toLowerCase();
+    inboxAddress = data.email || `${inboxUser}@arufkuy.me`;
+
+    if (!inboxUser) throw new Error("Inbox user not assigned.");
+
+    localStorage.setItem("inboxUser", inboxUser);
+    localStorage.setItem("inboxAddress", inboxAddress);
+    return { inboxUser, inboxAddress };
+  }
+
+  async function login() {
+    els.loginError.textContent = "";
+    els.btnLogin.textContent = "Signing in...";
+    els.btnLogin.disabled = true;
+
+    try {
+      const cred = await signInWithEmailAndPassword(auth, els.emailInput.value, els.passwordInput.value);
+      fbUser = cred.user;
+      await ensureToken(true);
+      await loadProfile(fbUser.uid);
+      initApp();
+    } catch (e) {
+      console.error(e);
+      els.loginError.textContent = e.message;
+      els.btnLogin.disabled = false;
+      els.btnLogin.textContent = "Sign In";
+    }
+  }
+
+  function logout() {
+    signOut(auth);
+    localStorage.clear();
+    location.reload();
+  }
+
+  function initApp() {
+    els.loginView.classList.add("hidden");
+    els.appView.classList.remove("hidden");
+    els.btnLogout.classList.remove("hidden");
+    els.userEmail.textContent = fbUser.email;
+    els.userEmail.style.display = "inline";
+    els.inboxAddress.textContent = inboxAddress;
+    els.badge.textContent = "Signed in";
+    els.badge.className = "status-badge ok";
+    loadInbox();
+  }
+
+  // --- Worker API ---
+  async function api(path, method = "GET") {
+    const token = await ensureToken();
+    const res = await fetch(`${WORKER_API}${path}`, {
+      method,
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (res.status === 401) {
+      await ensureToken(true);
+      return api(path, method); // retry once
+    }
+
+    if (!res.ok) throw new Error(`API Error: ${res.status}`);
+    return res.json();
+  }
+
+  // --- Inbox Logic ---
+  async function loadInbox(silent = false) {
+    if (!silent) els.msgList.innerHTML = '<div style="padding:20px;text-align:center;color:#888;">Loading...</div>';
+
+    try {
+      const data = await api("/inbox");
+      messagesCache = data.messages || [];
+      renderList();
+    } catch (e) {
+      console.error(e);
+      if (!silent) els.msgList.innerHTML = `<div style="padding:20px;text-align:center;color:#ff9b9b;">Error: ${e.message}</div>`;
+    }
+  }
+
+  function renderList() {
+    const q = els.searchBox.value.toLowerCase();
+    const list = messagesCache.filter(m =>
+      !q || (m.subject+m.from+m.snippet).toLowerCase().includes(q)
+    );
+
+    els.msgList.innerHTML = "";
+    if (list.length === 0) {
+      els.msgList.innerHTML = '<div style="padding:20px;text-align:center;color:#888;">No messages found</div>';
+      return;
+    }
+
+    list.forEach(m => {
+      const el = document.createElement("div");
+      el.className = `msg-item ${selectedMessageId === m.id ? 'active' : ''}`;
+      el.onclick = () => openMessage(m.id);
+
+      const date = new Date(m.receivedAt).toLocaleDateString(undefined, {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+
+      el.innerHTML = `
+        <div class="msg-header">
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">${esc(m.from)}</span>
+          <span>${date}</span>
+        </div>
+        <div class="msg-subject">${esc(m.subject || '(No Subject)')}</div>
+        <div class="msg-snippet">${esc(m.snippet)}</div>
+      `;
+      els.msgList.appendChild(el);
+    });
+  }
+
+  // --- Message Reader ---
+  async function openMessage(id) {
+    selectedMessageId = id;
+    renderList(); // update active state
+
+    // Mobile Logic: Switch view
+    els.appView.classList.add("view-mode");
+    updateMobileHeader(true);
+
+    els.emptyState.classList.add("hidden");
+    els.msgContent.classList.remove("hidden");
+    els.rBody.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;">Loading content...</div>';
+
+    try {
+      // Fetch full JSON first to get metadata
+      const data = await api(`/message?id=${id}&format=json`);
+      const msg = data.message;
+
+      // Update Header
+      els.rSubject.textContent = msg.subject || "(No Subject)";
+      els.rFrom.textContent = msg.from;
+      els.rTo.textContent = `to ${msg.to}`;
+      els.rDate.textContent = new Date(msg.receivedAt).toLocaleString();
+      els.rAvatar.textContent = (msg.from || "?")[0].toUpperCase();
+
+      // OTP Chips
+      els.rOtpContainer.innerHTML = "";
+      if (msg.otpCandidates && msg.otpCandidates.length > 0) {
+        msg.otpCandidates.forEach(otp => {
+          const chip = document.createElement("div");
+          chip.className = "otp-chip";
+          chip.textContent = `OTP: ${otp}`;
+          chip.onclick = () => {
+            navigator.clipboard.writeText(otp);
+            chip.textContent = "COPIED";
+            setTimeout(() => chip.textContent = `OTP: ${otp}`, 1000);
+          };
+          els.rOtpContainer.appendChild(chip);
+        });
+      }
+
+      renderBody(msg);
+
+    } catch (e) {
+      els.rBody.innerHTML = `<div style="padding:20px;color:#ff9b9b;">Failed to load message: ${e.message}</div>`;
+    }
+  }
+
+  function renderBody(msg) {
+    els.rBody.innerHTML = "";
+
+    if (currentViewMode === "json") {
+      const pre = document.createElement("pre");
+      pre.style.padding = "20px";
+      pre.style.overflow = "auto";
+      pre.style.color = "#e8eefc";
+      pre.textContent = JSON.stringify(msg, null, 2);
+      els.rBody.appendChild(pre);
+      return;
+    }
+
+    if (currentViewMode === "text") {
+      const pre = document.createElement("pre");
+      pre.style.padding = "20px";
+      pre.style.whiteSpace = "pre-wrap";
+      pre.style.fontFamily = "monospace";
+      pre.style.color = "#e8eefc";
+      pre.textContent = msg.text || "(No text content)";
+      els.rBody.appendChild(pre);
+      return;
+    }
+
+    // HTML Mode (Default)
+    const iframe = document.createElement("iframe");
+    iframe.style.width = "100%";
+    iframe.style.border = "none";
+    iframe.style.overflow = "hidden"; // Hide scrollbar inside iframe
+    iframe.scrolling = "no";
+    iframe.style.backgroundColor = "#0b0f17"; // Force dark background on iframe element
+    els.rBody.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+
+    let content = msg.html || "";
+    if(!content) {
+        let text = (msg.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        text = text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" target="_blank">$1</a>');
+        content = `<body style="font-family:sans-serif;padding:20px;color:#e8eefc;">${text.replace(/\n/g, "<br>")}</body>`;
+    }
+
+    // Inject Dark Mode styles for iframe
+    content += `
+      <style>
+        :root { color-scheme: dark; }
+        html, body {
+          margin: 0;
+          overflow: hidden;
+          color: #e8eefc !important;
+          background-color: #0b0f17 !important; /* Force dark background */
+          font-family: system-ui, -apple-system, sans-serif;
+        }
+        /* Override white backgrounds aggressively */
+        [style*="background-color: white"], [style*="background-color: #ffffff"], [style*="background-color: #fff"],
+        [style*="background: white"], [style*="background: #ffffff"], [style*="background: #fff"],
+        [bgcolor="white"], [bgcolor="#ffffff"], [bgcolor="#fff"] {
+            background-color: #0b0f17 !important;
+        }
+        /* Force text color on common elements */
+        p, span, div, td, h1, h2, h3, h4, h5, h6, li, b, strong {
+          color: #e8eefc !important;
+        }
+        a { color: #8db0ff !important; }
+      </style>
+      <script>
+        // Force links to open in new tab
+        document.addEventListener('DOMContentLoaded', function() {
+            var links = document.getElementsByTagName('a');
+            for (var i = 0; i < links.length; i++) {
+                links[i].setAttribute('target', '_blank');
+            }
+        });
+
+        function resize() {
+          const body = document.body;
+          const html = document.documentElement;
+          const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+          if(window.frameElement) {
+            window.frameElement.style.height = height + 'px';
+          }
+        }
+        window.addEventListener('load', resize);
+        setInterval(resize, 500);
+      <\/script>
+    `;
+
+    doc.write(content);
+    doc.close();
+  }
+
+  async function deleteMessage() {
+    if (!selectedMessageId || !confirm("Delete this message?")) return;
+    try {
+      await api(`/message?id=${selectedMessageId}`, "DELETE");
+      selectedMessageId = null;
+
+      // If mobile, go back to list
+      els.appView.classList.remove("view-mode");
+      updateMobileHeader(false);
+
+      els.msgContent.classList.add("hidden");
+      els.emptyState.classList.remove("hidden");
+      loadInbox(true);
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  // --- Event Listeners ---
+  els.btnLogin.onclick = login;
+  els.btnLogout.onclick = logout;
+  els.searchBox.oninput = renderList;
+  els.btnRefresh.onclick = () => loadInbox();
+  els.btnDelete.onclick = deleteMessage;
+
+  // View Modes
+  const setViewMode = (mode, btn) => {
+    currentViewMode = mode;
+    [els.btnViewHtml, els.btnViewText, els.btnViewJson].forEach(b => {
+      b.style.background = "transparent";
+      b.style.color = "#8db0ff";
+    });
+    btn.style.background = "#2a3f75";
+    btn.style.color = "#fff";
+    if(selectedMessageId) openMessage(selectedMessageId);
+  };
+
+  els.btnViewHtml.onclick = () => setViewMode("html", els.btnViewHtml);
+  els.btnViewText.onclick = () => setViewMode("text", els.btnViewText);
+  els.btnViewJson.onclick = () => setViewMode("json", els.btnViewJson);
+
+  // Sidebar Toggle (Desktop)
+  els.btnToggleSidebar.onclick = () => {
+    els.sidebar.classList.toggle("collapsed");
+  };
+
+  // Back Button (Mobile)
+  els.btnBackList.onclick = () => {
+    els.appView.classList.remove("view-mode");
+    updateMobileHeader(false);
+  };
+
+  function updateMobileHeader(isViewMode) {
+    if (window.innerWidth <= 768) {
+      els.btnToggleSidebar.style.display = isViewMode ? "none" : "inline-flex";
+      els.btnBackList.style.display = isViewMode ? "inline-flex" : "none";
+    }
+  }
+
+  els.btnAuto.onclick = () => {
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+      els.btnAuto.style.color = "#e8eefc";
+      els.btnAuto.style.borderColor = "transparent";
+    } else {
+      autoTimer = setInterval(() => loadInbox(true), 5000);
+      els.btnAuto.style.color = "#4e7dff";
+      els.btnAuto.style.borderColor = "#4e7dff";
+      loadInbox(true);
+    }
+  };
+
+  // --- Init ---
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      fbUser = user;
+      if (inboxUser) initApp();
+      else loadProfile(user.uid).then(initApp).catch(e => {
+        console.error(e);
+        logout();
+      });
+    } else {
+      els.loginView.classList.remove("hidden");
+      els.appView.classList.add("hidden");
+      els.btnLogout.classList.add("hidden");
+      els.badge.textContent = "Signed out";
+      els.badge.className = "status-badge warn";
+    }
+  });
+
+  function esc(s) {
+    return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+</script>
+
+</body>
+</html>
