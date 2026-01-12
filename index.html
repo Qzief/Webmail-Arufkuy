@@ -2,18 +2,34 @@
 <html lang="id">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Webmail (Arufkuy)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+  <!-- SEO & Meta Tags -->
+  <title>Webmail (Arufkuy) - Secure Inbox</title>
+  <meta name="description" content="Arufkuy Webmail Client. Akses email aman, cepat, dan responsif dengan mode gelap." />
+  <meta name="keywords" content="webmail, email client, arufkuy, secure email, dark mode" />
+  <meta name="author" content="Arufkuy" />
+  <meta name="theme-color" content="#0b0f17" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Webmail (Arufkuy)" />
+  <meta property="og:description" content="Secure and fast webmail client." />
+  <meta property="og:url" content="https://webmail.arufkuy.me/" />
+  <meta property="og:site_name" content="Arufkuy Webmail" />
+
   <style>
     :root { color-scheme: dark; }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       margin:0;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background:#0b0f17;
       color:#e8eefc;
-      height: 100vh;
+      height: 100vh; /* Fallback */
+      height: 100dvh; /* Dynamic Viewport Height for Mobile */
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -22,40 +38,42 @@
     /* --- Header --- */
     header {
       padding: 0 16px;
-      height: 56px;
+      height: 60px; /* Sedikit lebih tinggi untuk mobile */
       border-bottom:1px solid #1b2640;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       background:#0b0f17;
       flex-shrink: 0;
-      z-index: 10;
+      z-index: 20;
     }
     .brand { display:flex; align-items:center; gap:12px; }
-    .brand b { font-size:15px; letter-spacing:.02em; font-weight: 600; }
-    .right { display:flex; align-items:center; gap:12px; }
+    .brand b { font-size:16px; letter-spacing:.02em; font-weight: 600; }
+    .right { display:flex; align-items:center; gap:8px; }
 
     /* --- Buttons --- */
     button {
       background:#1a2a52;
       border:1px solid #2a3f75;
       color:#e8eefc;
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 8px 14px; /* Touch friendly padding */
+      border-radius: 8px;
       cursor:pointer;
       white-space:nowrap;
       font-size: 13px;
       font-weight: 500;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
     }
     button:hover { background: #223460; border-color: #4e7dff; }
-    button:active { transform: translateY(1px); }
+    button:active { transform: scale(0.96); }
     button:disabled { opacity:.5; cursor:not-allowed; transform: none; }
 
     .btn-icon {
-      padding: 8px;
+      padding: 10px; /* Larger touch target */
       background: transparent;
       border-color: transparent;
       color: #8db0ff;
+      min-width: 40px; min-height: 40px; /* Minimum touch area */
     }
     .btn-icon:hover { background: #152248; border-color: transparent; color: #fff; }
 
@@ -67,9 +85,9 @@
     /* Inputs */
     input {
       background:#0f1626; color:#e8eefc; border:1px solid #223055;
-      border-radius: 6px;
-      padding:10px 12px; outline:none;
-      font-size: 13px;
+      border-radius: 8px;
+      padding:12px 14px; outline:none;
+      font-size: 14px; /* Prevent zoom on iOS */
       transition: border-color 0.2s;
     }
     input:focus { border-color:#4e7dff; }
@@ -79,35 +97,40 @@
 
     /* Sidebar */
     .sidebar {
-      width: 320px;
+      width: 340px;
       background:#0f1626;
       border-right:1px solid #1b2640;
       display: flex; flex-direction: column; flex-shrink: 0;
-      transition: margin-left 0.3s ease;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10;
     }
-    .sidebar.collapsed { margin-left: -320px; }
+    /* Desktop Collapsed State */
+    .sidebar.collapsed { margin-left: -340px; }
 
     .sidebar-header {
-      padding: 12px;
+      padding: 12px 16px;
       border-bottom:1px solid #1b2640;
       background: #0b0f17;
-      display: flex; flex-direction: column; gap: 10px;
+      display: flex; flex-direction: column; gap: 12px;
     }
 
-    .msg-list { flex: 1; overflow-y: auto; }
+    .msg-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .msg-item {
-      padding:14px 16px;
+      padding:16px;
       border-bottom:1px solid #1b2640;
       cursor:pointer;
-      display:flex; flex-direction:column; gap:4px;
+      display:flex; flex-direction:column; gap:6px;
       transition: background 0.1s;
+      position: relative;
     }
     .msg-item:hover { background:#111c33; }
     .msg-item.active { background:#152248; border-left:3px solid #4e7dff; }
+    /* Ripple effect placeholder */
+    .msg-item:active { background: #1a2642; }
 
     .msg-header { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; margin-bottom: 2px; }
-    .msg-subject { font-weight: 600; font-size: 14px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .msg-snippet { font-size: 13px; opacity: 0.6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .msg-subject { font-weight: 600; font-size: 15px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .msg-snippet { font-size: 13px; opacity: 0.6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; }
 
     /* Reading Pane */
     .reading-pane {
@@ -116,6 +139,7 @@
       background:#0b0f17;
       overflow: hidden;
       min-width: 0;
+      position: relative;
     }
 
     .msg-content-wrapper {
@@ -123,6 +147,7 @@
       overflow-y: auto;
       padding: 24px;
       display: flex; flex-direction: column;
+      -webkit-overflow-scrolling: touch;
     }
 
     .msg-meta {
@@ -130,25 +155,27 @@
       padding-bottom: 16px;
       border-bottom: 1px solid #1b2640;
     }
-    .msg-title { font-size: 20px; font-weight: 600; margin: 0 0 16px 0; color: #fff; line-height: 1.4; }
+    .msg-title { font-size: 22px; font-weight: 600; margin: 0 0 16px 0; color: #fff; line-height: 1.3; }
     .msg-info { display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; }
     .sender-avatar {
-      width: 40px; height: 40px; border-radius: 10px; background: #1a2a52;
+      width: 42px; height: 42px; border-radius: 8px; background: #1a2a52;
       color: #8db0ff; display: flex; align-items: center; justify-content: center;
-      font-weight: bold; margin-right: 12px; font-size: 16px;
+      font-weight: bold; margin-right: 12px; border: 1px solid #2a3f75; font-size: 18px; flex-shrink: 0;
     }
 
     /* Toolbar inside Meta */
     .meta-toolbar {
       display: flex; justify-content: space-between; align-items: center;
-      margin-top: 12px; padding-top: 12px; border-top: 1px dashed #1b2640;
+      margin-top: 16px; padding-top: 16px; border-top: 1px dashed #1b2640;
+      flex-wrap: wrap; gap: 10px;
     }
 
     .msg-body {
-      background: #0b0f17; /* Dark background */
+      background: #0b0f17;
       border-radius: 6px;
       min-height: 200px;
       display: block;
+      flex: 1;
     }
 
     /* Login View */
@@ -157,10 +184,27 @@
       padding: 20px;
     }
     .login-box {
-      background:#0f1626; padding: 32px; border-radius: 8px;
+      background:#0f1626; padding: 32px; border-radius: 12px;
       border: 1px solid #1b2640; width: 100%; max-width: 380px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+      padding: 20px;
+    }
+    .modal-box {
+      background: #0f1626; padding: 24px; border-radius: 16px;
+      border: 1px solid #1b2640; width: 100%; max-width: 360px;
+      display: flex; flex-direction: column; gap: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 
     /* Utils */
     .hidden { display: none !important; }
@@ -179,18 +223,36 @@
     ::-webkit-scrollbar-thumb { background: #2a3f75; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #4e7dff; }
 
-    /* --- RESPONSIVE --- */
+    /* --- RESPONSIVE & MOBILE --- */
     #btnBackList { display: none; }
 
     @media (max-width: 768px) {
-      .sidebar { width: 100%; margin-left: 0 !important; }
-      .reading-pane { display: none; }
+      /* Layout Transformation */
+      .sidebar { width: 100%; position: absolute; height: 100%; margin-left: 0; transform: translateX(0); }
+      .sidebar.collapsed { margin-left: 0; transform: translateX(-100%); } /* Mobile uses transform for performance */
 
-      .main-layout.view-mode .sidebar { display: none; }
-      .main-layout.view-mode .reading-pane { display: flex; }
+      .reading-pane {
+        position: absolute; width: 100%; height: 100%;
+        transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 15;
+        background: #0b0f17;
+      }
 
+      /* View Mode Logic */
+      .main-layout.view-mode .sidebar { transform: translateX(-20%); opacity: 0; pointer-events: none; }
+      .main-layout.view-mode .reading-pane { transform: translateX(0); display: flex; }
+
+      /* UI Adjustments */
       .msg-content-wrapper { padding: 16px; }
       .msg-title { font-size: 18px; }
+      .brand b { font-size: 18px; }
+
+      /* Hide non-essential elements on mobile */
+      #userEmail { display: none !important; }
+      #btnToggleSidebar { display: none; } /* Sidebar is always full width on mobile */
+
+      /* Ensure buttons are easy to tap */
+      .btn-icon { padding: 12px; }
     }
   </style>
 </head>
@@ -200,14 +262,15 @@
 <!-- Header -->
 <header>
   <div class="brand">
-    <button id="btnToggleSidebar" class="btn-icon" title="Toggle Sidebar">☰</button>
-    <button id="btnBackList" class="btn-icon" title="Back to List" style="display:none">←</button>
+    <button id="btnToggleSidebar" class="btn-icon" aria-label="Toggle Sidebar" title="Toggle Sidebar"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+    <button id="btnBackList" class="btn-icon" aria-label="Back to List" title="Back to List" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
     <b>Webmail</b>
     <span id="badge" class="status-badge warn">Signed out</span>
   </div>
   <div class="right">
     <span id="userEmail" class="muted" style="font-size: 12px; display: none;"></span>
-    <button id="btnLogout" class="btn-danger hidden" style="padding: 6px 12px; font-size: 12px;">Logout</button>
+    <button id="btnSettings" class="btn-icon hidden" aria-label="Settings" title="Settings"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+    <button id="btnLogout" class="btn-danger hidden" aria-label="Logout" style="padding: 8px 14px; font-size: 12px;">Logout</button>
   </div>
 </header>
 
@@ -218,13 +281,13 @@
     <div class="muted" style="margin-bottom: 20px; text-align: center; font-size: 13px;">Access your secure inbox</div>
 
     <div style="margin-bottom: 12px;">
-      <input id="emailInput" style="width: 100%;" placeholder="Email address" type="email" autocomplete="username" />
+      <input id="emailInput" style="width: 100%;" placeholder="Email address" type="email" autocomplete="username" aria-label="Email Address" />
     </div>
     <div style="margin-bottom: 24px;">
-      <input id="passwordInput" style="width: 100%;" placeholder="Password" type="password" autocomplete="current-password" />
+      <input id="passwordInput" style="width: 100%;" placeholder="Password" type="password" autocomplete="current-password" aria-label="Password" />
     </div>
 
-    <button id="btnLogin" style="width: 100%; padding: 10px;">Sign In</button>
+    <button id="btnLogin" style="width: 100%; padding: 12px;">Sign In</button>
     <div id="loginError" style="color: #ff9b9b; font-size: 13px; margin-top: 16px; text-align: center;"></div>
   </div>
 </section>
@@ -236,13 +299,13 @@
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-header">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div id="inboxAddress" class="mono" style="font-size: 12px; color: #8db0ff; background: #152248; padding: 4px 8px; border-radius: 4px;">loading...</div>
+        <div id="inboxAddress" class="mono" style="font-size: 12px; color: #8db0ff; background: #152248; padding: 6px 10px; border-radius: 6px;">loading...</div>
         <div style="display: flex; gap: 2px;">
-          <button id="btnRefresh" class="btn-icon" title="Refresh">↻</button>
-          <button id="btnAuto" class="btn-icon" title="Auto Refresh" style="font-size: 10px; width: auto;">AUTO</button>
+          <button id="btnRefresh" class="btn-icon" aria-label="Refresh" title="Refresh"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+          <button id="btnAuto" class="btn-icon" aria-label="Auto Refresh" title="Auto Refresh" style="font-size: 10px; width: auto; font-weight:bold;">AUTO</button>
         </div>
       </div>
-      <input id="searchBox" style="width: 100%;" placeholder="Search mail..." />
+      <input id="searchBox" style="width: 100%;" placeholder="Search mail..." aria-label="Search mail" />
     </div>
     <div id="msgList" class="msg-list">
       <!-- Message items will go here -->
@@ -252,6 +315,7 @@
   <!-- Reading Pane -->
   <section class="reading-pane">
     <div id="emptyState" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #2a3f75; flex-direction: column; text-align: center; padding: 20px;">
+      <div style="opacity: 0.5; margin-bottom: 16px;"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></div>
       <div style="font-size: 16px; font-weight: 500;">No message selected</div>
       <div class="muted" style="font-size: 13px; margin-top: 8px;">Select an item from the list to read</div>
     </div>
@@ -275,11 +339,11 @@
           <!-- Toolbar moved here -->
           <div class="meta-toolbar">
             <div style="display: flex; gap: 4px;">
-              <button id="btnViewHtml" class="btn-icon" title="View HTML" style="color: #fff; background: #2a3f75;">HTML</button>
-              <button id="btnViewText" class="btn-icon" title="View Text">TXT</button>
-              <button id="btnViewJson" class="btn-icon" title="View JSON">JSON</button>
+              <button id="btnViewHtml" class="btn-icon" aria-label="View HTML" title="View HTML" style="color: #fff; background: #2a3f75;">HTML</button>
+              <button id="btnViewText" class="btn-icon" aria-label="View Text" title="View Text">TXT</button>
+              <button id="btnViewJson" class="btn-icon" aria-label="View JSON" title="View JSON">JSON</button>
             </div>
-            <button id="btnDelete" class="btn-danger" style="padding: 6px 10px; font-size: 12px;">Delete</button>
+            <button id="btnDelete" class="btn-danger" aria-label="Delete Message" style="padding: 8px 12px; font-size: 12px;">Delete</button>
           </div>
         </div>
 
@@ -292,9 +356,28 @@
 
 </main>
 
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title">Change Password</div>
+    <div class="muted" style="font-size: 12px; margin-bottom: 8px;">Verify current password to set a new one.</div>
+
+    <input id="setCurrPass" type="password" placeholder="Current Password" aria-label="Current Password" />
+    <input id="setNewPass" type="password" placeholder="New Password" aria-label="New Password" />
+    <input id="setConfPass" type="password" placeholder="Confirm New Password" aria-label="Confirm New Password" />
+
+    <div id="setMsg" style="font-size: 12px; min-height: 16px;"></div>
+
+    <div class="modal-actions">
+      <button id="btnCloseSettings" style="background: transparent; border: none; color: #8db0ff;">Cancel</button>
+      <button id="btnSaveSettings">Update Password</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -333,6 +416,7 @@
     btnLogin: $("btnLogin"),
     loginError: $("loginError"),
     btnLogout: $("btnLogout"),
+    btnSettings: $("btnSettings"),
     userEmail: $("userEmail"),
     inboxAddress: $("inboxAddress"),
     msgList: $("msgList"),
@@ -353,7 +437,15 @@
     btnViewJson: $("btnViewJson"),
     badge: $("badge"),
     btnToggleSidebar: $("btnToggleSidebar"),
-    btnBackList: $("btnBackList")
+    btnBackList: $("btnBackList"),
+    // Settings Modal
+    settingsModal: $("settingsModal"),
+    setCurrPass: $("setCurrPass"),
+    setNewPass: $("setNewPass"),
+    setConfPass: $("setConfPass"),
+    setMsg: $("setMsg"),
+    btnCloseSettings: $("btnCloseSettings"),
+    btnSaveSettings: $("btnSaveSettings")
   };
 
   // --- Auth Functions ---
@@ -407,6 +499,7 @@
     els.loginView.classList.add("hidden");
     els.appView.classList.remove("hidden");
     els.btnLogout.classList.remove("hidden");
+    els.btnSettings.classList.remove("hidden");
     els.userEmail.textContent = fbUser.email;
     els.userEmail.style.display = "inline";
     els.inboxAddress.textContent = inboxAddress;
@@ -482,9 +575,14 @@
     selectedMessageId = id;
     renderList(); // update active state
 
-    // Mobile Logic: Switch view
+    // Mobile Logic: Switch view & Push History
     els.appView.classList.add("view-mode");
     updateMobileHeader(true);
+
+    // Push state so back button works on mobile
+    if (window.innerWidth <= 768) {
+        window.history.pushState({view: 'message', id: id}, "", "#msg-" + id);
+    }
 
     els.emptyState.classList.add("hidden");
     els.msgContent.classList.remove("hidden");
@@ -501,6 +599,9 @@
       els.rTo.textContent = `to ${msg.to}`;
       els.rDate.textContent = new Date(msg.receivedAt).toLocaleString();
       els.rAvatar.textContent = (msg.from || "?")[0].toUpperCase();
+
+      // Update Page Title for UX
+      document.title = `${msg.subject} - Webmail`;
 
       renderBody(msg);
 
@@ -550,6 +651,14 @@
         let text = (msg.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         text = text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" target="_blank">$1</a>');
         content = `<body style="font-family:sans-serif;padding:20px;color:#e8eefc;">${text.replace(/\n/g, "<br>")}</body>`;
+    } else {
+        // Inject padding for HTML content too
+        if (!content.includes("<body")) {
+             content = `<body style="margin:0;padding:20px;color:#e8eefc;">${content}</body>`;
+        } else {
+             // Try to inject padding into existing body
+             content = content.replace(/<body([^>]*)>/i, '<body$1 style="margin:0;padding:20px;color:#e8eefc;">');
+        }
     }
 
     // Inject Dark Mode styles for iframe
@@ -562,7 +671,9 @@
           color: #e8eefc !important;
           background-color: #0b0f17 !important; /* Force dark background */
           font-family: system-ui, -apple-system, sans-serif;
+          word-wrap: break-word;
         }
+        img { max-width: 100%; height: auto; }
         /* Override white backgrounds aggressively */
         [style*="background-color: white"], [style*="background-color: #ffffff"], [style*="background-color: #fff"],
         [style*="background: white"], [style*="background: #ffffff"], [style*="background: #fff"],
@@ -587,6 +698,18 @@
         function resize() {
           const body = document.body;
           const html = document.documentElement;
+
+          // Reset zoom to measure true width
+          body.style.zoom = "1";
+
+          const contentWidth = Math.max(body.scrollWidth, body.offsetWidth);
+          const viewWidth = html.clientWidth;
+
+          if (contentWidth > viewWidth && viewWidth > 0) {
+             const scale = viewWidth / contentWidth;
+             body.style.zoom = scale;
+          }
+
           const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
           if(window.frameElement) {
             window.frameElement.style.height = height + 'px';
@@ -608,8 +731,7 @@
       selectedMessageId = null;
 
       // If mobile, go back to list
-      els.appView.classList.remove("view-mode");
-      updateMobileHeader(false);
+      goBackToList();
 
       els.msgContent.classList.add("hidden");
       els.emptyState.classList.remove("hidden");
@@ -618,6 +740,73 @@
       alert(e.message);
     }
   }
+
+  // --- Settings Logic ---
+  els.btnSettings.onclick = () => {
+    els.settingsModal.classList.remove("hidden");
+    els.setCurrPass.value = "";
+    els.setNewPass.value = "";
+    els.setConfPass.value = "";
+    els.setMsg.textContent = "";
+    els.setMsg.style.color = "";
+  };
+
+  els.btnCloseSettings.onclick = () => {
+    els.settingsModal.classList.add("hidden");
+  };
+
+  els.btnSaveSettings.onclick = async () => {
+    const curr = els.setCurrPass.value;
+    const newP = els.setNewPass.value;
+    const conf = els.setConfPass.value;
+
+    if (!curr || !newP || !conf) {
+      els.setMsg.textContent = "All fields are required.";
+      els.setMsg.style.color = "#ff9b9b";
+      return;
+    }
+    if (newP !== conf) {
+      els.setMsg.textContent = "New passwords do not match.";
+      els.setMsg.style.color = "#ff9b9b";
+      return;
+    }
+    if (newP.length < 6) {
+      els.setMsg.textContent = "Password must be at least 6 characters.";
+      els.setMsg.style.color = "#ff9b9b";
+      return;
+    }
+
+    els.btnSaveSettings.disabled = true;
+    els.btnSaveSettings.textContent = "Updating...";
+    els.setMsg.textContent = "";
+
+    try {
+      const user = auth.currentUser;
+      const cred = EmailAuthProvider.credential(user.email, curr);
+
+      // 1. Re-authenticate
+      await reauthenticateWithCredential(user, cred);
+
+      // 2. Update Password
+      await updatePassword(user, newP);
+
+      els.setMsg.textContent = "Password updated successfully!";
+      els.setMsg.style.color = "#4caf50";
+
+      setTimeout(() => {
+        els.settingsModal.classList.add("hidden");
+        els.btnSaveSettings.disabled = false;
+        els.btnSaveSettings.textContent = "Update Password";
+      }, 1500);
+
+    } catch (e) {
+      console.error(e);
+      els.setMsg.textContent = e.message.replace("Firebase: ", "");
+      els.setMsg.style.color = "#ff9b9b";
+      els.btnSaveSettings.disabled = false;
+      els.btnSaveSettings.textContent = "Update Password";
+    }
+  };
 
   // --- Event Listeners ---
   els.btnLogin.onclick = login;
@@ -669,10 +858,27 @@
     els.sidebar.classList.toggle("collapsed");
   };
 
-  // Back Button (Mobile)
-  els.btnBackList.onclick = () => {
+  // Back Button Logic (Mobile)
+  function goBackToList() {
     els.appView.classList.remove("view-mode");
     updateMobileHeader(false);
+    document.title = "Webmail (Arufkuy)";
+  }
+
+  els.btnBackList.onclick = () => {
+    // If we have history state, go back (which triggers popstate)
+    if (window.history.state && window.history.state.view === 'message') {
+        window.history.back();
+    } else {
+        goBackToList();
+    }
+  };
+
+  // Handle Browser Back Button
+  window.onpopstate = (event) => {
+    if (!event.state) {
+        goBackToList();
+    }
   };
 
   function updateMobileHeader(isViewMode) {
@@ -709,6 +915,7 @@
       els.loginView.classList.remove("hidden");
       els.appView.classList.add("hidden");
       els.btnLogout.classList.add("hidden");
+      els.btnSettings.classList.add("hidden");
       els.badge.textContent = "Signed out";
       els.badge.className = "status-badge warn";
 
@@ -734,4 +941,3 @@
 </script>
 
 </body>
-</html>
