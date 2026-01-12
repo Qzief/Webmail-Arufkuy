@@ -246,7 +246,8 @@
     measurementId: "G-JXST3Z88R7"
   };
 
-  const app = initializeApp(firebaseConfig);
+  // Initialize with a unique name for Admin to avoid conflict with Client app
+  const app = initializeApp(firebaseConfig, "AdminApp");
   const auth = getAuth(app);
   const db = getFirestore(app);
 
