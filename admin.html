@@ -3,239 +3,241 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Webmail Admin (Arufkuy)</title>
+  <title>Admin Console - Arufkuy Webmail</title>
   <style>
     :root { color-scheme: dark; }
-    *{ box-sizing:border-box; }
-    body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial; background:#0b0f17; color:#e8eefc; }
-    header{
-      padding:14px 16px; border-bottom:1px solid #1b2640;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      position:sticky; top:0; background:#0b0f17; z-index:10;
+    * { box-sizing: border-box; outline: none; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0b0f17;
+      color: #e8eefc;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    .brand{ display:flex; align-items:center; gap:10px; }
-    .brand b{ font-size:14px; letter-spacing:.02em; }
-    .right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
-    .pill{ font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid #2a3f75; opacity:.95; }
-    .ok{ border-color:#2f6a3b; } .warn{ border-color:#7a5b2a; } .err{ border-color:#7a2a2a; }
 
-    .wrap{
-      max-width:1100px; margin:18px auto; padding:12px;
-      display:grid; grid-template-columns: 360px 1fr; gap:12px;
-    }
-    .card{ background:#0f1626; border:1px solid #1b2640; border-radius:14px; overflow:hidden; }
-    .card h2{
-      margin:0; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
-      padding:12px; border-bottom:1px solid #1b2640; opacity:.85;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .pad{ padding:12px; }
-    .muted{ opacity:.72; font-size:12px; }
-    .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-    .big{ font-size:16px; font-weight:850; margin:6px 0 10px; }
-    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    @media (max-width: 980px){ .wrap{ grid-template-columns: 1fr; } .grid2{ grid-template-columns: 1fr; } }
+    /* --- UTILS --- */
+    .hidden { display: none !important; }
+    .muted { opacity: 0.6; font-size: 13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .flex { display: flex; gap: 10px; align-items: center; }
+    .flex-col { display: flex; flex-direction: column; gap: 10px; }
+    .space-between { justify-content: space-between; }
+    .w-full { width: 100%; }
+    .mt-4 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 16px; }
 
-    input{
-      width:100%; background:#0f1626; color:#e8eefc; border:1px solid #223055;
-      border-radius:10px; padding:11px 12px; outline:none;
+    /* --- COMPONENTS --- */
+    button {
+      background: #1a2a52; border: 1px solid #2a3f75; color: #e8eefc;
+      padding: 10px 16px; border-radius: 8px; cursor: pointer;
+      font-weight: 500; font-size: 13px; transition: all 0.2s;
     }
-    input:focus{ border-color:#4e7dff; }
+    button:hover { background: #223460; border-color: #4e7dff; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Input Group for Email */
-    .input-group {
-      display: flex; align-items: stretch;
-      background: #0f1626; border: 1px solid #223055; border-radius: 10px;
-      overflow: hidden;
+    button.primary { background: #4e7dff; border-color: #4e7dff; color: #fff; }
+    button.primary:hover { background: #3b63d1; }
+
+    button.danger { background: #2a0f0f; border-color: #5a1a1a; color: #ff9b9b; }
+    button.danger:hover { background: #3f1515; border-color: #ff4d4d; }
+
+    input {
+      background: #0f1626; color: #e8eefc; border: 1px solid #223055;
+      border-radius: 8px; padding: 12px; width: 100%; font-size: 14px;
+      transition: border-color 0.2s;
     }
-    .input-group input {
-      border: none; background: transparent; outline: none;
-      flex: 1; border-radius: 0;
+    input:focus { border-color: #4e7dff; }
+    input[readonly] { opacity: 0.6; cursor: default; }
+
+    .card {
+      background: #0f1626; border: 1px solid #1b2640; border-radius: 12px;
+      padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
+
+    /* --- LOGIN VIEW --- */
+    #loginView {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .login-box { width: 100%; max-width: 400px; }
+    .brand-logo {
+      font-size: 24px; font-weight: 700; margin-bottom: 8px;
+      background: linear-gradient(45deg, #4e7dff, #8db0ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* --- DASHBOARD VIEW --- */
+    #dashboardView {
+      flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden;
+    }
+
+    header {
+      height: 60px; border-bottom: 1px solid #1b2640; background: #0b0f17;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; flex-shrink: 0;
+    }
+    .header-title { font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+    .admin-badge {
+      font-size: 10px; background: #152248; color: #4e7dff;
+      padding: 2px 6px; border-radius: 4px; border: 1px solid #2a3f75;
+    }
+
+    .main-content {
+      flex: 1; overflow-y: auto; padding: 24px;
+      max-width: 1200px; margin: 0 auto; width: 100%;
+    }
+
+    .grid-layout {
+      display: grid; grid-template-columns: 1fr 2fr; gap: 24px;
+    }
+    @media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
+
+    /* Input Group */
+    .input-group { display: flex; }
+    .input-group input { border-top-right-radius: 0; border-bottom-right-radius: 0; }
     .input-group .addon {
-      padding: 0 12px; background: #1b2640; color: #8db0ff;
-      font-size: 13px; display: flex; align-items: center;
-      border-left: 1px solid #223055;
+      background: #1b2640; border: 1px solid #223055; border-left: 0;
+      color: #8db0ff; padding: 0 16px; display: flex; align-items: center;
+      border-top-right-radius: 8px; border-bottom-right-radius: 8px; font-size: 13px;
     }
-    .input-group:focus-within { border-color: #4e7dff; }
 
-    button{
-      background:#1a2a52; border:1px solid #2a3f75; color:#e8eefc;
-      padding:9px 11px; border-radius:10px; cursor:pointer; white-space:nowrap;
+    /* Table */
+    .table-container {
+      border: 1px solid #1b2640; border-radius: 8px; overflow: hidden;
+      background: #0b1222; margin-top: 16px;
     }
-    button:hover{ filter:brightness(1.08); }
-    button:disabled{ opacity:.5; cursor:not-allowed; }
-    .toolbar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    .hr{ height:1px; background:#1b2640; margin:12px 0; }
-    .notice{ background:#0b1222; border:1px solid #1b2640; border-radius:12px; padding:10px; }
-    .error{ color:#ff9b9b; }
-    .okText{ color:#b7ffcc; }
-    .table{
-      width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px;
-      border:1px solid #1b2640; background:#0b1222;
-    }
-    .table th,.table td{
-      padding:10px; border-bottom:1px solid #1b2640; text-align:left; vertical-align:top;
-      font-size:12px;
-    }
-    .table th{ opacity:.85; text-transform:uppercase; letter-spacing:.06em; font-size:11px; }
-    .rowActions{ display:flex; gap:8px; flex-wrap:wrap; }
-    pre{ white-space:pre-wrap; word-break:break-word; margin:0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #1b2640; }
+    th { background: #151b2b; color: #8db0ff; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background: #111827; }
+
+    .status-msg { font-size: 13px; margin-top: 8px; min-height: 20px; }
+    .status-msg.error { color: #ff9b9b; }
+    .status-msg.success { color: #4caf50; }
+
   </style>
 </head>
-
 <body>
-<header>
-  <div class="brand">
-    <b>Webmail Admin</b>
-    <span id="badge" class="pill warn">Signed out</span>
-  </div>
-  <div class="right">
-    <span id="who" class="muted"></span>
-    <button id="btnLogout" style="display:none">Logout</button>
-  </div>
-</header>
 
-<div class="wrap">
+  <!-- VIEW: LOGIN -->
+  <div id="loginView">
+    <div class="card login-box text-center">
+      <div class="brand-logo">Admin Console</div>
+      <div class="muted mb-4">Restricted Access Only</div>
 
-  <!-- LEFT: LOGIN + STATUS -->
-  <section class="card">
-    <h2><span>Login</span><span class="muted">Email/Password</span></h2>
-    <div class="pad" id="loginBox">
-      <div class="muted">Admin Email</div>
-      <input id="emailInput" placeholder="admin@email.com" autocomplete="username" />
-      <div style="height:10px"></div>
-
-      <div class="muted">Password</div>
-      <input id="passwordInput" type="password" placeholder="password" autocomplete="current-password" />
-      <div style="height:12px"></div>
-
-      <div class="toolbar">
-        <button id="btnLogin">Sign in</button>
-        <button id="btnClear">Clear saved</button>
-        <span id="loginStatus" class="muted"></span>
-      </div>
-
-      <div style="height:10px"></div>
-      <div id="loginError" class="error"></div>
-
-      <div class="hr"></div>
-      <div class="notice muted">
-        Admin ditentukan dari Firestore:
-        <div class="mono" style="margin-top:6px">admins/{uid} → { isAdmin: true }</div>
-      </div>
-    </div>
-
-    <div class="pad" id="adminStatusBox" style="display:none">
-      <div class="muted">Signed in as</div>
-      <div id="adminEmail" class="big"></div>
-
-      <div class="muted">UID</div>
-      <div id="adminUid" class="mono" style="margin-top:6px"></div>
-
-      <div class="hr"></div>
-
-      <div class="muted">Admin status</div>
-      <div id="adminStatus" class="big">-</div>
-    </div>
-  </section>
-
-  <!-- RIGHT: DASHBOARD -->
-  <section class="card">
-    <h2><span>Account Management</span><span class="muted">Users Mapping</span></h2>
-    <div class="pad">
-
-      <div class="notice muted">
-        Fungsi admin:
-        <div style="margin-top:6px">
-          1) Isi UID user (dari Firebase Auth) <br>
-          2) Isi Username (otomatis jadi @arufkuy.me) <br>
-          3) Simpan ke Firestore <span class="mono">users/{uid}</span>.
+      <form id="loginForm" onsubmit="return false;">
+        <div class="flex-col">
+          <input id="emailInput" type="email" placeholder="Admin Email" autocomplete="username" required />
+          <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required />
+          <button id="btnLogin" type="submit" class="primary w-full mt-4">Authenticate</button>
         </div>
+      </form>
+
+      <div id="loginMsg" class="status-msg"></div>
+    </div>
+  </div>
+
+  <!-- VIEW: DASHBOARD -->
+  <div id="dashboardView" class="hidden">
+    <header>
+      <div class="header-title">
+        <span>Webmail Admin</span>
+        <span class="admin-badge">SUPERUSER</span>
       </div>
-
-      <div class="hr"></div>
-
-      <div class="grid2">
-        <div>
-          <div class="muted">Target UID</div>
-          <input id="targetUid" class="mono" placeholder="paste uid user di sini" />
+      <div class="flex">
+        <div class="text-right" style="line-height: 1.2;">
+          <div id="adminEmailDisplay" style="font-size: 13px; font-weight: 500;">...</div>
+          <div class="muted" style="font-size: 11px;">Logged in</div>
         </div>
-        <div>
-          <div class="muted">Target Email</div>
-          <div class="input-group">
-            <input id="targetLocalPart" placeholder="username" />
-            <span class="addon">@arufkuy.me</span>
+        <button id="btnLogout" class="danger" style="padding: 6px 12px; font-size: 11px;">Logout</button>
+      </div>
+    </header>
+
+    <div class="main-content">
+
+      <div class="grid-layout">
+
+        <!-- Left: Create/Edit User -->
+        <div class="flex-col">
+          <div class="card">
+            <h3 style="margin: 0 0 16px 0; font-size: 16px;">User Mapping</h3>
+            <div class="muted mb-4">Map Firebase UID to Inbox Address.</div>
+
+            <div class="flex-col">
+              <div>
+                <label class="muted">Firebase UID</label>
+                <input id="targetUid" class="mono" placeholder="Paste User UID" />
+              </div>
+
+              <div>
+                <label class="muted">Username</label>
+                <div class="input-group">
+                  <input id="targetLocalPart" placeholder="username" />
+                  <div class="addon">@arufkuy.me</div>
+                </div>
+              </div>
+
+              <div style="padding: 12px; background: #0b1222; border-radius: 8px; border: 1px dashed #223055;">
+                <div class="flex space-between mb-4">
+                  <span class="muted">Inbox User:</span>
+                  <span id="previewUser" class="mono" style="color: #fff;">-</span>
+                </div>
+                <div class="flex space-between">
+                  <span class="muted">Address:</span>
+                  <span id="previewAddress" class="mono" style="color: #fff;">-</span>
+                </div>
+              </div>
+
+              <div class="flex mt-4">
+                <button id="btnSave" class="primary w-full">Save Mapping</button>
+                <button id="btnDelete" class="danger" disabled title="Delete Mapping">Del</button>
+              </div>
+              <div id="actionMsg" class="status-msg text-center"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div style="height:10px"></div>
-      <div class="grid2">
-        <div>
-          <div class="muted">inboxUser (Auto-filled)</div>
-          <input id="targetInboxUser" class="mono" placeholder="Auto-filled" readonly style="opacity: 0.7;" />
+        <!-- Right: User List -->
+        <div class="flex-col">
+          <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="flex space-between">
+              <h3 style="margin: 0; font-size: 16px;">Registered Users</h3>
+              <button id="btnRefresh" style="padding: 6px 12px; font-size: 11px;">Refresh</button>
+            </div>
+
+            <div class="table-container" style="flex: 1; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>UID</th>
+                    <th>Email Address</th>
+                    <th>Inbox User</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <tr><td colspan="4" class="text-center muted" style="padding: 20px;">Loading data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div>
-          <div class="muted">inboxAddress (Auto-filled)</div>
-          <input id="targetInboxAddress" class="mono" placeholder="Auto-filled" readonly style="opacity: 0.7;" />
-        </div>
-      </div>
 
-      <div class="hr"></div>
-
-      <div class="toolbar">
-        <button id="btnSave" disabled>Save / Update</button>
-        <button id="btnDelete" disabled>Delete Mapping</button>
-        <button id="btnLoad" disabled>Load Mapping</button>
-        <span id="actionStatus" class="muted"></span>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="toolbar" style="justify-content:space-between">
-        <div>
-          <div class="muted">Recent users (from Firestore users collection)</div>
-          <div class="muted">(khusus admin, rules membolehkan)</div>
-        </div>
-        <button id="btnRefreshList" disabled>Refresh List</button>
-      </div>
-
-      <div style="height:10px"></div>
-      <div style="overflow:auto">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>UID</th>
-              <th>Email</th>
-              <th>inboxUser</th>
-              <th>Updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="usersTbody">
-            <tr><td colspan="5" class="muted">Sign in as admin…</td></tr>
-          </tbody>
-        </table>
       </div>
 
     </div>
-  </section>
-
-</div>
+  </div>
 
 <script type="module">
-  // Firebase SDK (module)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import {
-    getFirestore,
-    doc, getDoc, setDoc, deleteDoc,
-    collection, query, orderBy, limit, getDocs,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // === Firebase config kamu ===
   const firebaseConfig = {
     apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
     authDomain: "webmail-arufkuy.firebaseapp.com",
@@ -246,298 +248,233 @@
     measurementId: "G-JXST3Z88R7"
   };
 
-  // Initialize with a unique name for Admin to avoid conflict with Client app
+  // Initialize Admin App (Isolated Auth)
   const app = initializeApp(firebaseConfig, "AdminApp");
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // DOM
+  // UI References
   const $ = (id) => document.getElementById(id);
-  const badge = $("badge");
-  const who = $("who");
-  const btnLogout = $("btnLogout");
+  const views = {
+    login: $("loginView"),
+    dashboard: $("dashboardView")
+  };
 
-  const loginBox = $("loginBox");
-  const adminStatusBox = $("adminStatusBox");
+  const els = {
+    email: $("emailInput"),
+    pass: $("passwordInput"),
+    btnLogin: $("btnLogin"),
+    loginMsg: $("loginMsg"),
+    btnLogout: $("btnLogout"),
+    adminEmail: $("adminEmailDisplay"),
 
-  const emailInput = $("emailInput");
-  const passwordInput = $("passwordInput");
-  const btnLogin = $("btnLogin");
-  const btnClear = $("btnClear");
-  const loginStatus = $("loginStatus");
-  const loginError = $("loginError");
+    // Form
+    uid: $("targetUid"),
+    localPart: $("targetLocalPart"),
+    previewUser: $("previewUser"),
+    previewAddress: $("previewAddress"),
+    btnSave: $("btnSave"),
+    btnDelete: $("btnDelete"),
+    actionMsg: $("actionMsg"),
 
-  const adminEmail = $("adminEmail");
-  const adminUid = $("adminUid");
-  const adminStatus = $("adminStatus");
+    // List
+    btnRefresh: $("btnRefresh"),
+    tableBody: $("usersTableBody")
+  };
 
-  const targetUid = $("targetUid");
-  const targetLocalPart = $("targetLocalPart");
-  const targetInboxUser = $("targetInboxUser");
-  const targetInboxAddress = $("targetInboxAddress");
+  let currentUser = null;
 
-  const btnSave = $("btnSave");
-  const btnDelete = $("btnDelete");
-  const btnLoad = $("btnLoad");
-  const actionStatus = $("actionStatus");
+  // --- AUTH FLOW ---
 
-  const btnRefreshList = $("btnRefreshList");
-  const usersTbody = $("usersTbody");
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // 1. Check Admin Privileges
+      els.loginMsg.textContent = "Verifying privileges...";
+      els.btnLogin.disabled = true;
 
-  // state
-  let fbUser = null;
-  let isAdmin = false;
-
-  function setBadge(kind, text){
-    badge.textContent = text;
-    badge.classList.remove("ok","warn","err");
-    badge.classList.add(kind);
-  }
-
-  // AUTO-FILL LOGIC
-  targetLocalPart.addEventListener("input", () => {
-    const local = targetLocalPart.value.trim().toLowerCase();
-    if (local) {
-        targetInboxUser.value = local;
-        targetInboxAddress.value = `${local}@arufkuy.me`;
+      try {
+        const isAdmin = await checkAdmin(user.uid);
+        if (isAdmin) {
+          currentUser = user;
+          enterDashboard();
+        } else {
+          throw new Error("Access Denied: Not an admin.");
+        }
+      } catch (e) {
+        console.error(e);
+        els.loginMsg.textContent = e.message;
+        els.loginMsg.className = "status-msg error";
+        await signOut(auth);
+        els.btnLogin.disabled = false;
+      }
     } else {
-        targetInboxUser.value = "";
-        targetInboxAddress.value = "";
+      currentUser = null;
+      showLogin();
     }
   });
 
-  // LOGIN
-  btnLogin.addEventListener("click", async ()=>{
-    loginError.textContent = "";
-    loginStatus.textContent = "Signing in...";
-    try{
-      const cred = await signInWithEmailAndPassword(auth, (emailInput.value||"").trim(), passwordInput.value||"");
-      fbUser = cred.user;
-      who.textContent = fbUser.email || "";
-      setBadge("ok","Signed in");
-      btnLogout.style.display = "";
-      loginStatus.textContent = "OK";
-    }catch(e){
-      loginStatus.textContent = "";
-      loginError.textContent = e.message;
-      setBadge("err","Error");
-    }
-  });
-
-  btnClear.addEventListener("click", ()=>{
-    emailInput.value = "";
-    passwordInput.value = "";
-    loginStatus.textContent = "Cleared.";
-  });
-
-  btnLogout.addEventListener("click", async ()=>{
-    await signOut(auth).catch(()=>{});
-    fbUser = null;
-    isAdmin = false;
-    setBadge("warn","Signed out");
-    who.textContent = "";
-    btnLogout.style.display = "none";
-
-    loginBox.style.display = "";
-    adminStatusBox.style.display = "none";
-    disableAdminUI();
-    usersTbody.innerHTML = `<tr><td colspan="5" class="muted">Sign in as admin…</td></tr>`;
-  });
-
-  function disableAdminUI(){
-    btnSave.disabled = true;
-    btnDelete.disabled = true;
-    btnLoad.disabled = true;
-    btnRefreshList.disabled = true;
+  async function checkAdmin(uid) {
+    const snap = await getDoc(doc(db, "admins", uid));
+    return snap.exists() && snap.data().isAdmin === true;
   }
 
-  function enableAdminUI(){
-    btnSave.disabled = false;
-    btnDelete.disabled = false;
-    btnLoad.disabled = false;
-    btnRefreshList.disabled = false;
+  function showLogin() {
+    views.dashboard.classList.add("hidden");
+    views.login.classList.remove("hidden");
+    els.email.value = "";
+    els.pass.value = "";
+    els.loginMsg.textContent = "";
+    els.btnLogin.disabled = false;
+    els.btnLogin.textContent = "Authenticate";
   }
 
-  async function checkAdmin(uid){
-    const ref = doc(db, "admins", uid);
-    const snap = await getDoc(ref);
-    if(!snap.exists()) return false;
-    const data = snap.data();
-    return data?.isAdmin === true;
+  function enterDashboard() {
+    views.login.classList.add("hidden");
+    views.dashboard.classList.remove("hidden");
+    els.adminEmail.textContent = currentUser.email;
+    loadUsers();
   }
 
-  // Actions
-  btnSave.addEventListener("click", async ()=>{
-    actionStatus.textContent = "Saving...";
-    try{
-      if(!isAdmin) throw new Error("Not admin");
+  // --- ACTIONS ---
 
-      const uid = (targetUid.value||"").trim();
-      const local = (targetLocalPart.value||"").trim().toLowerCase();
+  els.btnLogin.onclick = async () => {
+    const email = els.email.value;
+    const pass = els.pass.value;
+    if(!email || !pass) return;
 
-      if(!uid) throw new Error("Target UID kosong");
-      if(!local) throw new Error("Username kosong");
+    els.btnLogin.disabled = true;
+    els.btnLogin.textContent = "Signing in...";
+    els.loginMsg.textContent = "";
 
-      const email = `${local}@arufkuy.me`;
-      const inboxUser = local;
-      const inboxAddress = email;
-
-      // 1) Firestore users/{uid}
-      await setDoc(doc(db, "users", uid), {
-        email: email,
-        inboxUser,
-        inboxAddress,
-        updatedAt: serverTimestamp(),
-        updatedBy: fbUser?.uid || null
-      }, { merge: true });
-
-      actionStatus.textContent = "Saved.";
-      await refreshUsersList();
-    }catch(e){
-      actionStatus.textContent = "Error: " + e.message;
-      setBadge("err","Error");
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle the rest
+    } catch (e) {
+      els.loginMsg.textContent = "Login Failed: " + e.message;
+      els.loginMsg.className = "status-msg error";
+      els.btnLogin.disabled = false;
+      els.btnLogin.textContent = "Authenticate";
     }
-  });
+  };
 
-  btnLoad.addEventListener("click", async ()=>{
-    actionStatus.textContent = "Loading...";
-    try{
-      if(!isAdmin) throw new Error("Not admin");
-      const uid = (targetUid.value||"").trim();
-      if(!uid) throw new Error("Target UID kosong");
+  els.btnLogout.onclick = () => signOut(auth);
 
-      const snap = await getDoc(doc(db, "users", uid));
-      const fsData = snap.exists() ? snap.data() : null;
-
-      if (fsData && fsData.email) {
-          const parts = fsData.email.split("@");
-          targetLocalPart.value = parts[0] || "";
-          // Trigger input event to update other fields
-          targetLocalPart.dispatchEvent(new Event('input'));
-      } else {
-          targetLocalPart.value = "";
-          targetInboxUser.value = "";
-          targetInboxAddress.value = "";
-      }
-
-      actionStatus.textContent = "Loaded.";
-    }catch(e){
-      actionStatus.textContent = "Error: " + e.message;
+  // Form Logic
+  els.localPart.oninput = () => {
+    const val = els.localPart.value.trim().toLowerCase();
+    if(val) {
+      els.previewUser.textContent = val;
+      els.previewAddress.textContent = `${val}@arufkuy.me`;
+    } else {
+      els.previewUser.textContent = "-";
+      els.previewAddress.textContent = "-";
     }
-  });
+  };
 
-  btnDelete.addEventListener("click", async ()=>{
-    actionStatus.textContent = "Deleting...";
-    try{
-      if(!isAdmin) throw new Error("Not admin");
-      const uid = (targetUid.value||"").trim();
-      if(!uid) throw new Error("Target UID kosong");
-      if(!confirm("Hapus users/{uid} mapping ini?")) return;
+  els.btnSave.onclick = async () => {
+    const uid = els.uid.value.trim();
+    const local = els.localPart.value.trim().toLowerCase();
 
-      await deleteDoc(doc(db, "users", uid));
-      actionStatus.textContent = "Deleted.";
-      await refreshUsersList();
-    }catch(e){
-      actionStatus.textContent = "Error: " + e.message;
-    }
-  });
-
-  btnRefreshList.addEventListener("click", refreshUsersList);
-
-  async function refreshUsersList(){
-    usersTbody.innerHTML = `<tr><td colspan="5" class="muted">Loading…</td></tr>`;
-    try{
-      const q = query(collection(db, "users"), orderBy("updatedAt", "desc"), limit(25));
-      const snap = await getDocs(q);
-
-      const rows = [];
-      snap.forEach(docSnap=>{
-        const uid = docSnap.id;
-        const d = docSnap.data() || {};
-        const updated = d.updatedAt?.toDate ? d.updatedAt.toDate().toLocaleString() : "-";
-        rows.push({ uid, email: d.email||"-", inboxUser: d.inboxUser||"-", updated });
-      });
-
-      if(!rows.length){
-        usersTbody.innerHTML = `<tr><td colspan="5" class="muted">No users.</td></tr>`;
-        return;
-      }
-
-      usersTbody.innerHTML = rows.map(r=>`
-        <tr>
-          <td class="mono">${escapeHtml(r.uid)}</td>
-          <td>${escapeHtml(r.email)}</td>
-          <td class="mono">${escapeHtml(r.inboxUser)}</td>
-          <td>${escapeHtml(r.updated)}</td>
-          <td>
-            <div class="rowActions">
-              <button data-act="fill" data-uid="${escapeAttr(r.uid)}">Fill</button>
-            </div>
-          </td>
-        </tr>
-      `).join("");
-
-      usersTbody.querySelectorAll("button[data-act='fill']").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          const uid = btn.getAttribute("data-uid");
-          targetUid.value = uid;
-          await btnLoad.click();
-        });
-      });
-    }catch(e){
-      usersTbody.innerHTML = `<tr><td colspan="5" class="error">Error: ${escapeHtml(e.message)}</td></tr>`;
-    }
-  }
-
-  function escapeHtml(s){
-    return String(s??"")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function escapeAttr(s){ return escapeHtml(s); }
-
-  // Restore session + check admin
-  onAuthStateChanged(auth, async (u)=>{
-    fbUser = u;
-    if(!u){
-      loginBox.style.display = "";
-      adminStatusBox.style.display = "none";
-      adminEmail.textContent = "";
-      adminUid.textContent = "";
-      adminStatus.textContent = "-";
-      disableAdminUI();
-      setBadge("warn","Signed out");
+    if (!uid || !local) {
+      setStatus("All fields required", "error");
       return;
     }
 
-    // show status
-    loginBox.style.display = "none";
-    adminStatusBox.style.display = "";
-    adminEmail.textContent = u.email || "-";
-    adminUid.textContent = u.uid;
-    who.textContent = u.email || "";
-    btnLogout.style.display = "";
-    setBadge("ok","Signed in");
+    setStatus("Saving...", "");
+    els.btnSave.disabled = true;
 
-    try{
-      isAdmin = await checkAdmin(u.uid);
-      adminStatus.textContent = isAdmin ? "ADMIN ✅" : "NOT ADMIN ❌";
+    try {
+      await setDoc(doc(db, "users", uid), {
+        email: `${local}@arufkuy.me`,
+        inboxUser: local,
+        inboxAddress: `${local}@arufkuy.me`,
+        updatedAt: serverTimestamp(),
+        updatedBy: currentUser.uid
+      }, { merge: true });
 
-      if(!isAdmin){
-        disableAdminUI();
+      setStatus("User mapped successfully!", "success");
+      els.uid.value = "";
+      els.localPart.value = "";
+      els.localPart.dispatchEvent(new Event('input'));
+      els.btnDelete.disabled = true;
+      loadUsers();
+    } catch (e) {
+      setStatus(e.message, "error");
+    } finally {
+      els.btnSave.disabled = false;
+    }
+  };
+
+  els.btnDelete.onclick = async () => {
+    const uid = els.uid.value.trim();
+    if (!uid || !confirm("Delete mapping for this UID?")) return;
+
+    setStatus("Deleting...", "");
+    try {
+      await deleteDoc(doc(db, "users", uid));
+      setStatus("Mapping deleted.", "success");
+      els.uid.value = "";
+      els.localPart.value = "";
+      els.localPart.dispatchEvent(new Event('input'));
+      els.btnDelete.disabled = true;
+      loadUsers();
+    } catch (e) {
+      setStatus(e.message, "error");
+    }
+  };
+
+  // List Logic
+  els.btnRefresh.onclick = loadUsers;
+
+  async function loadUsers() {
+    els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">Refreshing...</td></tr>`;
+
+    try {
+      const q = query(collection(db, "users"), orderBy("updatedAt", "desc"), limit(50));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">No users found.</td></tr>`;
         return;
       }
 
-      enableAdminUI();
-      await refreshUsersList();
-    }catch(e){
-      setBadge("err","Error");
-      disableAdminUI();
+      els.tableBody.innerHTML = "";
+      snap.forEach(d => {
+        const data = d.data();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="mono" style="font-size:12px; opacity:0.8;">${d.id}</td>
+          <td>${data.email || '-'}</td>
+          <td class="mono" style="color:#4e7dff;">${data.inboxUser || '-'}</td>
+          <td style="text-align:right;">
+            <button class="edit-btn" style="padding:4px 10px; font-size:11px;">Edit</button>
+          </td>
+        `;
+
+        row.querySelector(".edit-btn").onclick = () => {
+          els.uid.value = d.id;
+          if (data.email) {
+            els.localPart.value = data.email.split('@')[0];
+          }
+          els.localPart.dispatchEvent(new Event('input'));
+          els.btnDelete.disabled = false;
+          setStatus("Loaded user for editing.", "");
+        };
+
+        els.tableBody.appendChild(row);
+      });
+
+    } catch (e) {
+      els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center error" style="padding:20px;">${e.message}</td></tr>`;
     }
-  });
+  }
+
+  function setStatus(msg, type) {
+    els.actionMsg.textContent = msg;
+    els.actionMsg.className = `status-msg ${type}`;
+    if (type === 'success') setTimeout(() => els.actionMsg.textContent = "", 3000);
+  }
+
 </script>
 </body>
 </html>
