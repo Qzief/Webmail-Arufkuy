@@ -151,15 +151,6 @@
       display: block;
     }
 
-    /* OTP Chip */
-    .otp-chip {
-      display: inline-flex; align-items: center;
-      background: #152248; color: #4e7dff; border: 1px solid #2a3f75;
-      padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
-      margin-top: 12px; cursor: pointer; font-family: monospace; letter-spacing: 0.5px;
-    }
-    .otp-chip:hover { border-color: #4e7dff; background: #1a2a52; }
-
     /* Login View */
     .login-container {
       display: flex; align-items: center; justify-content: center; height: 100%;
@@ -282,8 +273,6 @@
             <div id="rDate" class="muted" style="font-size: 12px;">Date</div>
           </div>
 
-          <div id="rOtpContainer"></div>
-
           <!-- Toolbar moved here -->
           <div class="meta-toolbar">
             <div style="display: flex; gap: 4px;">
@@ -357,7 +346,6 @@
     rDate: $("rDate"),
     rBody: $("rBody"),
     rAvatar: $("rAvatar"),
-    rOtpContainer: $("rOtpContainer"),
     btnRefresh: $("btnRefresh"),
     btnAuto: $("btnAuto"),
     btnDelete: $("btnDelete"),
@@ -515,22 +503,6 @@
       els.rDate.textContent = new Date(msg.receivedAt).toLocaleString();
       els.rAvatar.textContent = (msg.from || "?")[0].toUpperCase();
 
-      // OTP Chips
-      els.rOtpContainer.innerHTML = "";
-      if (msg.otpCandidates && msg.otpCandidates.length > 0) {
-        msg.otpCandidates.forEach(otp => {
-          const chip = document.createElement("div");
-          chip.className = "otp-chip";
-          chip.textContent = `OTP: ${otp}`;
-          chip.onclick = () => {
-            navigator.clipboard.writeText(otp);
-            chip.textContent = "COPIED";
-            setTimeout(() => chip.textContent = `OTP: ${otp}`, 1000);
-          };
-          els.rOtpContainer.appendChild(chip);
-        });
-      }
-
       renderBody(msg);
 
     } catch (e) {
@@ -655,6 +627,28 @@
   els.btnRefresh.onclick = () => loadInbox();
   els.btnDelete.onclick = deleteMessage;
 
+  // Auto-fill email:password on paste
+  els.emailInput.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+    if (text.includes(':')) {
+      const parts = text.split(':');
+      // Ambil bagian pertama sebagai email
+      const email = parts[0].trim();
+      // Gabungkan sisa bagian sebagai password (jika password mengandung :)
+      const password = parts.slice(1).join(':').trim();
+
+      els.emailInput.value = email;
+      els.passwordInput.value = password;
+
+      // Optional: Auto focus ke tombol login atau langsung login
+      els.btnLogin.focus();
+    } else {
+      // Jika tidak ada format email:pass, paste biasa
+      document.execCommand('insertText', false, text);
+    }
+  });
+
   // View Modes
   const setViewMode = (mode, btn) => {
     currentViewMode = mode;
@@ -718,6 +712,20 @@
       els.btnLogout.classList.add("hidden");
       els.badge.textContent = "Signed out";
       els.badge.className = "status-badge warn";
+
+      // Check URL Login
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("_task") === "login" && params.get("_action") === "auth") {
+        const u = params.get("_user");
+        const p = params.get("_pass");
+        if (u && p) {
+           els.emailInput.value = u;
+           els.passwordInput.value = p;
+           // Clear URL so password isn't in history
+           window.history.replaceState({}, document.title, window.location.pathname);
+           login();
+        }
+      }
     }
   });
 
