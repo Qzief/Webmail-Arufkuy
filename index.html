@@ -9,7 +9,7 @@
   <meta name="description" content="Arufkuy Webmail Client. Akses email aman, cepat, dan responsif dengan mode gelap." />
   <meta name="keywords" content="webmail, email client, arufkuy, secure email, dark mode" />
   <meta name="author" content="Arufkuy" />
-  <meta name="theme-color" content="#0b0f17" />
+  <meta name="theme-color" content="#0b1220" />
   <meta name="robots" content="index, follow" />
 
   <!-- Open Graph / Social Media -->
@@ -20,935 +20,1420 @@
   <meta property="og:site_name" content="Arufkuy Webmail" />
 
   <style>
-    :root { color-scheme: dark; }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    body {
+    :root{ color-scheme: dark; }
+    *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html,body{ height:100%; }
+    body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background:#0b0f17;
-      color:#e8eefc;
-      height: 100vh; /* Fallback */
-      height: 100dvh; /* Dynamic Viewport Height for Mobile */
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:#0b1220;
+      color:#e5e7eb;
+      height:100vh;
+      height:100dvh;
+      overflow:hidden;
     }
 
-    /* --- Header --- */
-    header {
-      padding: 0 16px;
-      height: 60px; /* Sedikit lebih tinggi untuk mobile */
-      border-bottom:1px solid #1b2640;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      background:#0b0f17;
-      flex-shrink: 0;
-      z-index: 20;
+    /* ---------- Neo-SaaS background ---------- */
+    .bg-ambient{
+      position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:
+        radial-gradient(800px 500px at 50% -10%, rgba(99,102,241,.22), transparent 60%),
+        radial-gradient(600px 420px at 110% 30%, rgba(34,211,238,.12), transparent 55%),
+        radial-gradient(600px 420px at -10% 80%, rgba(217,70,239,.10), transparent 55%),
+        linear-gradient(180deg, #070b14 0%, #0b1220 40%, #0b1220 100%);
     }
-    .brand { display:flex; align-items:center; gap:12px; }
-    .brand b { font-size:16px; letter-spacing:.02em; font-weight: 600; }
-    .right { display:flex; align-items:center; gap:8px; }
+    .grid-bg{
+      position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background-image: radial-gradient(circle at 1px 1px, rgba(148,163,184,.10) 1px, transparent 0);
+      background-size: 26px 26px;
+      opacity:.55;
+      mix-blend-mode: normal;
+    }
 
-    /* --- Buttons --- */
-    button {
-      background:#1a2a52;
-      border:1px solid #2a3f75;
-      color:#e8eefc;
-      padding: 8px 14px; /* Touch friendly padding */
-      border-radius: 8px;
+    /* ---------- Common tokens ---------- */
+    .muted{ color: rgba(226,232,240,.72); }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    .glass{
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(148,163,184,.12);
+      box-shadow:
+        0 0 0 1px rgba(148,163,184,.06) inset,
+        0 18px 60px rgba(2,6,23,.55);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ---------- Buttons / Inputs ---------- */
+    button{
+      border: 1px solid rgba(148,163,184,.14);
+      background: rgba(255,255,255,.04);
+      color:#e5e7eb;
+      padding: 10px 14px;
+      border-radius: 12px;
       cursor:pointer;
-      white-space:nowrap;
-      font-size: 13px;
-      font-weight: 500;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      transition: all 0.2s ease;
+      font-size:13px;
+      font-weight:600;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      transition: transform .12s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
       touch-action: manipulation;
+      user-select:none;
     }
-    button:hover { background: #223460; border-color: #4e7dff; }
-    button:active { transform: scale(0.96); }
-    button:disabled { opacity:.5; cursor:not-allowed; transform: none; }
+    button:hover{ background: rgba(255,255,255,.07); border-color: rgba(99,102,241,.35); }
+    button:active{ transform: scale(.98); }
+    button:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
 
-    .btn-icon {
-      padding: 10px; /* Larger touch target */
+    .btn-primary{
+      background: rgba(99,102,241,.85);
+      border-color: rgba(99,102,241,.55);
+      color:#fff;
+      box-shadow: 0 14px 40px rgba(99,102,241,.18);
+    }
+    .btn-primary:hover{ background: rgba(99,102,241,.95); border-color: rgba(99,102,241,.70); }
+
+    .btn-danger{
+      background: rgba(239,68,68,.10);
+      border-color: rgba(239,68,68,.28);
+      color: rgba(254,202,202,1);
+    }
+    .btn-danger:hover{ background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.42); }
+
+    .btn-icon{
+      padding: 10px;
+      min-width: 42px; min-height: 42px;
+      border-radius: 12px;
       background: transparent;
       border-color: transparent;
-      color: #8db0ff;
-      min-width: 40px; min-height: 40px; /* Minimum touch area */
+      color: rgba(148,163,184,.95);
     }
-    .btn-icon:hover { background: #152248; border-color: transparent; color: #fff; }
-
-    .btn-danger {
-      background: #2a0f0f; border-color: #5a1a1a; color: #ff9b9b;
+    .btn-icon:hover{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(148,163,184,.16);
+      color:#fff;
     }
-    .btn-danger:hover { background: #3f1515; border-color: #ff4d4d; }
 
-    /* Inputs */
-    input {
-      background:#0f1626; color:#e8eefc; border:1px solid #223055;
-      border-radius: 8px;
-      padding:12px 14px; outline:none;
-      font-size: 14px; /* Prevent zoom on iOS */
-      transition: border-color 0.2s;
+    input{
+      width:100%;
+      background: rgba(2,6,23,.45);
+      color:#e5e7eb;
+      border:1px solid rgba(148,163,184,.14);
+      border-radius: 14px;
+      padding: 12px 14px;
+      outline:none;
+      font-size:14px;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
-    input:focus { border-color:#4e7dff; }
+    input:focus{
+      border-color: rgba(99,102,241,.55);
+      box-shadow: 0 0 0 4px rgba(99,102,241,.14);
+      background: rgba(2,6,23,.55);
+    }
 
-    /* --- Layout --- */
-    .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+    /* ---------- Topbar ---------- */
+    header{
+      height: 64px;
+      padding: 0 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      border-bottom: 1px solid rgba(148,163,184,.12);
+      background: rgba(11,18,32,.72);
+      backdrop-filter: blur(10px);
+      z-index: 30;
+      flex-shrink:0;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 0;
+    }
+    .logo{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(148,163,184,.14);
+      box-shadow: 0 0 0 1px rgba(148,163,184,.06) inset;
+      flex: none;
+    }
+    .brand-title{
+      display:flex; flex-direction:column; line-height:1.1;
+      min-width:0;
+    }
+    .brand-title b{
+      font-size: 14px;
+      letter-spacing: .02em;
+      color:#fff;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand-title span{
+      font-size: 12px;
+      color: rgba(226,232,240,.70);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .right{ display:flex; align-items:center; gap:10px; }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(148,163,184,.14);
+      background: rgba(255,255,255,.04);
+      font-size:12px;
+      color: rgba(226,232,240,.80);
+      max-width: 46vw;
+      overflow:hidden;
+    }
+    .chip .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: rgba(245,158,11,.95);
+      box-shadow: 0 0 0 4px rgba(245,158,11,.12);
+      flex:none;
+    }
+    .chip.ok .dot{
+      background: rgba(34,197,94,.95);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+    .chip .txt{
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* Keep your original badge id for logic */
+    .status-badge{ display:none; } /* hidden, replaced by chip */
+
+    /* ---------- Layout ---------- */
+    .main-layout{
+      height: calc(100dvh - 64px);
+      display:flex;
+      overflow:hidden;
+      position:relative;
+    }
 
     /* Sidebar */
-    .sidebar {
-      width: 340px;
-      background:#0f1626;
-      border-right:1px solid #1b2640;
-      display: flex; flex-direction: column; flex-shrink: 0;
-      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .sidebar{
+      width: 360px;
+      flex-shrink:0;
+      display:flex;
+      flex-direction:column;
+      padding: 12px;
+      border-right: 1px solid rgba(148,163,184,.12);
+      background: rgba(255,255,255,.02);
+      transition: margin-left .25s ease, transform .25s ease;
       z-index: 10;
     }
-    /* Desktop Collapsed State */
-    .sidebar.collapsed { margin-left: -340px; }
+    .sidebar.collapsed{ margin-left: -360px; }
 
-    .sidebar-header {
-      padding: 12px 16px;
-      border-bottom:1px solid #1b2640;
-      background: #0b0f17;
-      display: flex; flex-direction: column; gap: 12px;
+    .sidebar-card{
+      border-radius: 18px;
+      padding: 12px;
+    }
+    .sidebar-top{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 10px;
+    }
+    #inboxAddress{
+      font-size:12px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(99,102,241,.12);
+      border: 1px solid rgba(99,102,241,.22);
+      color: rgba(199,210,254,1);
+      max-width: 230px;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .side-actions{ display:flex; align-items:center; gap:6px; }
+
+    .search-wrap{ margin-top: 10px; }
+
+    .msg-list{
+      margin-top: 12px;
+      flex:1;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 2px;
     }
 
-    .msg-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    .msg-item {
-      padding:16px;
-      border-bottom:1px solid #1b2640;
+    .msg-item{
+      border-radius: 16px;
+      padding: 12px;
       cursor:pointer;
-      display:flex; flex-direction:column; gap:6px;
-      transition: background 0.1s;
+      border: 1px solid rgba(148,163,184,.10);
+      background: rgba(255,255,255,.03);
+      margin-bottom: 10px;
+      transition: background .12s ease, border-color .12s ease, transform .12s ease;
       position: relative;
     }
-    .msg-item:hover { background:#111c33; }
-    .msg-item.active { background:#152248; border-left:3px solid #4e7dff; }
-    /* Ripple effect placeholder */
-    .msg-item:active { background: #1a2642; }
-
-    .msg-header { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; margin-bottom: 2px; }
-    .msg-subject { font-weight: 600; font-size: 15px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .msg-snippet { font-size: 13px; opacity: 0.6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; }
+    .msg-item:hover{
+      background: rgba(255,255,255,.05);
+      border-color: rgba(99,102,241,.22);
+      transform: translateY(-1px);
+    }
+    .msg-item.active{
+      background: rgba(99,102,241,.10);
+      border-color: rgba(99,102,241,.35);
+      box-shadow: 0 0 0 1px rgba(99,102,241,.10) inset;
+    }
+    .msg-header{
+      display:flex;
+      justify-content:space-between;
+      font-size: 11px;
+      color: rgba(226,232,240,.65);
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .msg-subject{
+      font-weight: 700;
+      font-size: 14px;
+      color:#fff;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .msg-snippet{
+      font-size: 12px;
+      color: rgba(226,232,240,.70);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      line-height: 1.4;
+    }
 
     /* Reading Pane */
-    .reading-pane {
-      flex: 1;
-      display: flex; flex-direction: column;
-      background:#0b0f17;
-      overflow: hidden;
-      min-width: 0;
+    .reading-pane{
+      flex:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      padding: 12px;
+      background: transparent;
       position: relative;
     }
+    .pane-card{
+      height: 100%;
+      border-radius: 20px;
+      padding: 16px;
+      overflow:hidden;
+    }
 
-    .msg-content-wrapper {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-      display: flex; flex-direction: column;
+    .msg-content-wrapper{
+      height: 100%;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .msg-meta{
+      padding: 14px 14px 12px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(148,163,184,.12);
+      background: rgba(255,255,255,.03);
+      flex: none;
+    }
+    .msg-title{
+      margin: 0 0 12px 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      color:#fff;
+      line-height: 1.25;
+    }
+    .msg-info{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      align-items:center;
+      font-size: 13px;
+    }
+    .sender-block{ display:flex; align-items:center; gap: 12px; min-width:0; }
+    .sender-avatar{
+      width: 44px; height: 44px;
+      border-radius: 16px;
+      background: rgba(99,102,241,.12);
+      border: 1px solid rgba(99,102,241,.25);
+      color: rgba(199,210,254,1);
+      display:grid; place-items:center;
+      font-weight: 900;
+      flex:none;
+    }
+    .sender-details{ min-width:0; }
+    #rFrom{ font-weight: 800; color:#e5e7eb; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 44vw; }
+    #rTo{ font-size: 12px; color: rgba(226,232,240,.70); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 44vw; }
+    #rDate{ font-size: 12px; color: rgba(226,232,240,.70); flex:none; }
+
+    .meta-toolbar{
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(148,163,184,.16);
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .seg{
+      gap:4px;
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,.12);
+      background: rgba(2,6,23,.30);
+    }
+    .seg button{
+      padding: 8px 12px;
+      border-radius: 10px;
+      border-color: transparent;
+      background: transparent;
+      color: rgba(148,163,184,.95);
+      font-size: 12px;
+    }
+    .seg button:hover{
+      background: rgba(255,255,255,.05);
+      border-color: rgba(148,163,184,.12);
+      color:#fff;
+    }
+
+    .msg-body{
+      margin-top: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(148,163,184,.12);
+      background: rgba(2,6,23,.35);
+      overflow:auto;
       -webkit-overflow-scrolling: touch;
-    }
-
-    .msg-meta {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #1b2640;
-    }
-    .msg-title { font-size: 22px; font-weight: 600; margin: 0 0 16px 0; color: #fff; line-height: 1.3; }
-    .msg-info { display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; }
-    .sender-avatar {
-      width: 42px; height: 42px; border-radius: 8px; background: #1a2a52;
-      color: #8db0ff; display: flex; align-items: center; justify-content: center;
-      font-weight: bold; margin-right: 12px; border: 1px solid #2a3f75; font-size: 18px; flex-shrink: 0;
-    }
-
-    /* Toolbar inside Meta */
-    .meta-toolbar {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 16px; padding-top: 16px; border-top: 1px dashed #1b2640;
-      flex-wrap: wrap; gap: 10px;
-    }
-
-    .msg-body {
-      background: #0b0f17;
-      border-radius: 6px;
-      min-height: 200px;
-      display: block;
       flex: 1;
+      min-height: 240px;
     }
 
-    /* Login View */
-    .login-container {
-      display: flex; align-items: center; justify-content: center; height: 100%;
+    /* Empty state */
+    #emptyState{
+      height: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 20px;
+      color: rgba(148,163,184,.85);
+    }
+    .empty-card{
+      border-radius: 22px;
+      padding: 28px;
+      max-width: 520px;
+    }
+    .empty-ico{
+      width: 64px; height: 64px;
+      margin: 0 auto 14px auto;
+      display:grid; place-items:center;
+      border-radius: 22px;
+      background: rgba(99,102,241,.10);
+      border: 1px solid rgba(99,102,241,.22);
+      color: rgba(199,210,254,1);
+    }
+    .empty-title{
+      font-size: 16px;
+      font-weight: 800;
+      color:#fff;
+      margin: 0;
+    }
+    .empty-sub{
+      margin-top: 8px;
+      font-size: 13px;
+      color: rgba(226,232,240,.70);
+    }
+
+    /* ---------- Login ---------- */
+    .login-container{
+      position: absolute; top: 64px; bottom: 0; left: 0; right: 0;
+      overflow-y: auto;
+      display:flex;
       padding: 20px;
     }
-    .login-box {
-      background:#0f1626; padding: 32px; border-radius: 12px;
-      border: 1px solid #1b2640; width: 100%; max-width: 380px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    .login-shell{
+      width: 100%;
+      max-width: 980px;
+      display:grid;
+      gap: 18px;
+      grid-template-columns: 1.2fr .8fr;
+      align-items: stretch;
+      margin: auto;
     }
+    .login-left{
+      border-radius: 24px;
+      padding: 26px;
+      min-height: 420px;
+      position: relative;
+      overflow:hidden;
+    }
+    .login-left h1{
+      margin: 0;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      color:#fff;
+      line-height: 1.15;
+    }
+    .login-left p{
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      color: rgba(226,232,240,.75);
+      max-width: 52ch;
+      line-height: 1.6;
+    }
+    .stats{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 520px;
+    }
+    .stat{
+      border-radius: 18px;
+      padding: 12px;
+      border: 1px solid rgba(148,163,184,.12);
+      background: rgba(255,255,255,.03);
+    }
+    .stat b{ display:block; font-size: 16px; color:#fff; }
+    .stat span{ font-size: 12px; color: rgba(226,232,240,.70); }
 
-    /* Modal */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); z-index: 100;
-      display: flex; align-items: center; justify-content: center;
-      backdrop-filter: blur(4px);
+    .login-right{
+      border-radius: 24px;
+      padding: 22px;
+    }
+    .login-right h2{
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      font-weight: 900;
+      color:#fff;
+    }
+    .login-right .sub{
+      font-size: 13px;
+      color: rgba(226,232,240,.72);
+      margin-bottom: 14px;
+    }
+    .login-actions{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    #loginError{ color: rgba(254,202,202,1); font-size: 13px; text-align:center; min-height: 18px; }
+
+    .divider{
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(148,163,184,.12);
+    }
+    .discord-btn{
+      background: rgba(88,101,242,.90);
+      border-color: rgba(88,101,242,.55);
+      color:#fff;
+    }
+    .discord-btn:hover{ background: rgba(88,101,242,1); border-color: rgba(88,101,242,.75); }
+
+    /* ---------- Modal ---------- */
+    .modal-overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.70);
+      display:flex; align-items:center; justify-content:center;
       padding: 20px;
+      z-index: 200;
+      backdrop-filter: blur(6px);
     }
-    .modal-box {
-      background: #0f1626; padding: 24px; border-radius: 16px;
-      border: 1px solid #1b2640; width: 100%; max-width: 360px;
-      display: flex; flex-direction: column; gap: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    .modal-box{
+      width: 100%;
+      max-width: 420px;
+      border-radius: 22px;
+      padding: 18px;
     }
-    .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-
-    /* Utils */
-    .hidden { display: none !important; }
-    .muted { opacity: 0.6; }
-    .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-
-    .status-badge {
-      font-size:11px; padding:4px 8px; border-radius:4px;
-      background: #152248; color: #8db0ff; border: 1px solid #2a3f75; font-weight: 600;
+    .modal-title{
+      font-size: 16px;
+      font-weight: 900;
+      color:#fff;
+      margin-bottom: 4px;
     }
-    .status-badge.ok { border-color:#2f6a3b; color:#4caf50; background: #0f1f15; }
-    .status-badge.warn { border-color:#7a5b2a; color:#ffc107; background: #1f1a0b; }
+    .modal-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    #btnCloseSettings{
+      background: transparent;
+      border-color: transparent;
+      color: rgba(148,163,184,.95);
+    }
+    #btnCloseSettings:hover{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(148,163,184,.14);
+      color:#fff;
+    }
 
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #2a3f75; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #4e7dff; }
+    /* ---------- Utils ---------- */
+    .hidden{ display:none !important; }
 
-    /* --- RESPONSIVE & MOBILE --- */
-    #btnBackList { display: none; }
+    /* scrollbars */
+    ::-webkit-scrollbar{ width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track{ background: transparent; }
+    ::-webkit-scrollbar-thumb{ background: rgba(148,163,184,.22); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover{ background: rgba(99,102,241,.45); }
 
-    @media (max-width: 768px) {
-      /* Layout Transformation */
-      .sidebar { width: 100%; position: absolute; height: 100%; margin-left: 0; transform: translateX(0); }
-      .sidebar.collapsed { margin-left: 0; transform: translateX(-100%); } /* Mobile uses transform for performance */
+    /* ---------- Responsive ---------- */
+    #btnBackList{ display:none; }
 
-      .reading-pane {
-        position: absolute; width: 100%; height: 100%;
-        transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    @media (max-width: 980px){
+      .login-shell{ grid-template-columns: 1fr; }
+      .login-left{ min-height: auto; padding: 20px; }
+      .stats{ grid-template-columns: repeat(3, 1fr); }
+
+      .login-left h1{ font-size: 24px; }
+      .login-left p{ font-size: 13px; }
+      .stat b{ font-size: 13px; }
+      .stat span{ font-size: 11px; }
+    }
+
+    @media (max-width: 768px){
+      .sidebar{ width:100%; position:absolute; height:100%; transform: translateX(0); }
+      .sidebar.collapsed{ margin-left:0; transform: translateX(-100%); }
+
+      .reading-pane{
+        position:absolute; inset:0;
+        transform: translateX(100%);
+        transition: transform .25s ease;
         z-index: 15;
-        background: #0b0f17;
       }
+      .main-layout.view-mode .sidebar{ transform: translateX(-18%); opacity:0; pointer-events:none; }
+      .main-layout.view-mode .reading-pane{ transform: translateX(0); }
 
-      /* View Mode Logic */
-      .main-layout.view-mode .sidebar { transform: translateX(-20%); opacity: 0; pointer-events: none; }
-      .main-layout.view-mode .reading-pane { transform: translateX(0); display: flex; }
+      /* topbar tweaks */
+      #userEmail{ display:none !important; }
+      #btnToggleSidebar{ display:none; }
+      header{ padding: 0 12px; }
+      .pane-card{ padding: 12px; }
+      .msg-meta{ padding: 12px; }
+      .msg-title{ font-size: 18px; }
+      .brand-title b{ font-size: 14px; }
+      .brand-title span{ display:none; }
 
-      /* UI Adjustments */
-      .msg-content-wrapper { padding: 16px; }
-      .msg-title { font-size: 18px; }
-      .brand b { font-size: 18px; }
+      /* msg info tweaks */
+      .msg-info{ flex-direction:column; gap:6px; align-items:flex-start; }
+      #rDate{ margin-left: 56px; font-size: 11px; color: rgba(226,232,240,.55); }
+    }
 
-      /* Hide non-essential elements on mobile */
-      #userEmail { display: none !important; }
-      #btnToggleSidebar { display: none; } /* Sidebar is always full width on mobile */
-
-      /* Ensure buttons are easy to tap */
-      .btn-icon { padding: 12px; }
+    @media (max-width: 480px){
+      .stats{ gap: 6px; }
+      .stat{ border-radius: 12px; text-align: left; }
+      .stat b{ font-size: 11px; }
+      .stat span{ font-size: 9px; line-height: 1.15; display: block; }
     }
   </style>
 </head>
 
 <body>
+  <div class="bg-ambient"></div>
+  <div class="grid-bg"></div>
 
-<!-- Header -->
-<header>
-  <div class="brand">
-    <button id="btnToggleSidebar" class="btn-icon" aria-label="Toggle Sidebar" title="Toggle Sidebar"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
-    <button id="btnBackList" class="btn-icon" aria-label="Back to List" title="Back to List" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
-    <b>Webmail</b>
-    <span id="badge" class="status-badge warn">Signed out</span>
-  </div>
-  <div class="right">
-    <span id="userEmail" class="muted" style="font-size: 12px; display: none;"></span>
-    <button id="btnSettings" class="btn-icon hidden" aria-label="Settings" title="Settings"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
-    <button id="btnLogout" class="btn-danger hidden" aria-label="Logout" style="padding: 8px 14px; font-size: 12px;">Logout</button>
-  </div>
-</header>
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <button id="btnToggleSidebar" class="btn-icon" aria-label="Toggle Sidebar" title="Toggle Sidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
 
-<!-- Login View -->
-<section id="loginView" class="login-container">
-  <div class="login-box">
-    <h2 style="margin-top:0; text-align:center; font-weight:500;">Login</h2>
-    <div class="muted" style="margin-bottom: 20px; text-align: center; font-size: 13px;">Access your secure inbox</div>
+      <button id="btnBackList" class="btn-icon" aria-label="Back to List" title="Back to List" style="display:none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </button>
 
-    <div style="margin-bottom: 12px;">
-      <input id="emailInput" style="width: 100%;" placeholder="Email address" type="email" autocomplete="username" aria-label="Email Address" />
+      <div class="logo" aria-hidden="true">
+        <span style="font-weight:900;color:rgba(199,210,254,1);">A</span>
+      </div>
+
+      <div class="brand-title">
+        <b>Webmail</b>
+        <span class="muted">Secure Inbox • Neo-SaaS UI</span>
+      </div>
+
+      <!-- Keep original badge element for your JS logic; hidden visually -->
+      <span id="badge" class="status-badge">Signed out</span>
+
+      <!-- Visual status chip (synced by JS below) -->
+      <div id="statusChip" class="chip">
+        <span class="dot"></span>
+        <span id="statusChipText" class="txt">Signed out</span>
+      </div>
     </div>
-    <div style="margin-bottom: 24px;">
-      <input id="passwordInput" style="width: 100%;" placeholder="Password" type="password" autocomplete="current-password" aria-label="Password" />
+
+    <div class="right">
+      <span id="userEmail" class="muted" style="font-size:12px; display:none;"></span>
+
+      <button id="btnSettings" class="btn-icon hidden" aria-label="Settings" title="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
+        </svg>
+      </button>
+
+      <button id="btnLogout" class="btn-danger hidden" aria-label="Logout" style="padding:10px 14px; font-size:12px;">
+        Logout
+      </button>
     </div>
+  </header>
 
-    <button id="btnLogin" style="width: 100%; padding: 12px;">Sign In</button>
-    <div id="loginError" style="color: #ff9b9b; font-size: 13px; margin-top: 16px; text-align: center;"></div>
+  <!-- Login View -->
+  <section id="loginView" class="login-container">
+    <div class="login-shell">
 
-    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1b2640; text-align: center;">
-      <div style="font-size: 12px; color: #8db0ff; margin-bottom: 12px;">Webmail by Arufkuy Store</div>
-      <a href="https://discord.com/invite/CkmzkYXqZ5" target="_blank" style="text-decoration: none;">
-        <button style="width: 100%; background: #5865F2; border-color: #4752C4; color: white; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.086 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.086 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z"/></svg>
-          Join Discord
-        </button>
-      </a>
-    </div>
-  </div>
-</section>
+      <div class="login-left">
+        <h1 style="margin-top:16px;">Secure, fast, and organized email access - in one dashboard.</h1>
+        <p>
+          Modern UI for productivity: fast search, HTML/TXT/JSON reading mode, auto-refresh, and convenient mobile view.
+        </p>
 
-<!-- App View -->
-<main id="appView" class="main-layout hidden">
+        <div class="stats">
+          <div class="stat">
+            <b>Fast</b><span>Auto refresh & caching</span>
+          </div>
+          <div class="stat">
+            <b>Secure</b><span>Firebase Auth + Token</span>
+          </div>
+          <div class="stat">
+            <b>Responsive</b><span>Mobile view mode</span>
+          </div>
+        </div>
 
-  <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div id="inboxAddress" class="mono" style="font-size: 12px; color: #8db0ff; background: #152248; padding: 6px 10px; border-radius: 6px;">loading...</div>
-        <div style="display: flex; gap: 2px;">
-          <button id="btnRefresh" class="btn-icon" aria-label="Refresh" title="Refresh"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-          <button id="btnAuto" class="btn-icon" aria-label="Auto Refresh" title="Auto Refresh" style="font-size: 10px; width: auto; font-weight:bold;">AUTO</button>
+        <div style="margin-top:18px;" class="muted">
+          <div style="font-size:12px;">Tips</div>
+          <div style="font-size:13px; line-height:1.55;">
+            Paste the <span class="mono">email:password</span> format to enable auto‑fill.
+          </div>
         </div>
       </div>
-      <input id="searchBox" style="width: 100%;" placeholder="Search mail..." aria-label="Search mail" />
-    </div>
-    <div id="msgList" class="msg-list">
-      <!-- Message items will go here -->
-    </div>
-  </aside>
 
-  <!-- Reading Pane -->
-  <section class="reading-pane">
-    <div id="emptyState" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #2a3f75; flex-direction: column; text-align: center; padding: 20px;">
-      <div style="opacity: 0.5; margin-bottom: 16px;"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></div>
-      <div style="font-size: 16px; font-weight: 500;">No message selected</div>
-      <div class="muted" style="font-size: 13px; margin-top: 8px;">Select an item from the list to read</div>
-    </div>
+      <div class="login-right glass">
+        <h2>Sign in</h2>
+        <div class="sub">Sign in with your registered account.</div>
 
-    <div id="msgContent" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
-
-      <div class="msg-content-wrapper">
-        <div class="msg-meta">
-          <h1 id="rSubject" class="msg-title">Subject</h1>
-          <div class="msg-info">
-            <div style="display: flex; align-items: center;">
-              <div id="rAvatar" class="sender-avatar">?</div>
-              <div class="sender-details">
-                <div id="rFrom" style="font-weight: 600; color: #e8eefc;">Sender Name</div>
-                <div id="rTo" class="muted" style="font-size: 12px;">to me</div>
-              </div>
-            </div>
-            <div id="rDate" class="muted" style="font-size: 12px;">Date</div>
-          </div>
-
-          <!-- Toolbar moved here -->
-          <div class="meta-toolbar">
-            <div style="display: flex; gap: 4px;">
-              <button id="btnViewHtml" class="btn-icon" aria-label="View HTML" title="View HTML" style="color: #fff; background: #2a3f75;">HTML</button>
-              <button id="btnViewText" class="btn-icon" aria-label="View Text" title="View Text">TXT</button>
-              <button id="btnViewJson" class="btn-icon" aria-label="View JSON" title="View JSON">JSON</button>
-            </div>
-            <button id="btnDelete" class="btn-danger" aria-label="Delete Message" style="padding: 8px 12px; font-size: 12px;">Delete</button>
-          </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <input id="emailInput" placeholder="Email address" type="email" autocomplete="username" aria-label="Email Address" />
+          <input id="passwordInput" placeholder="Password" type="password" autocomplete="current-password" aria-label="Password" />
         </div>
 
-        <div id="rBody" class="msg-body">
-          <!-- Content iframe will be injected here -->
+        <div class="login-actions">
+          <button id="btnLogin" class="btn-primary" style="width:100%; padding:12px 14px; border-radius:14px;">
+            Sign In
+          </button>
+          <div id="loginError"></div>
+        </div>
+
+        <div class="divider">
+          <div style="font-size:12px; color:rgba(226,232,240,.70); margin-bottom:10px;">
+            Community
+          </div>
+          <a href="https://discord.com/invite/CkmzkYXqZ5" target="_blank" style="text-decoration:none;">
+            <button class="discord-btn" style="width:100%; border-radius:14px; padding:12px 14px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.086 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.086 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z"/>
+              </svg>
+              Join Discord
+            </button>
+          </a>
+
+          <div style="margin-top:10px; font-size:11px; color:rgba(226,232,240,.55);">
+            Webmail by Arufkuy Store
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-</main>
+  <!-- App View -->
+  <main id="appView" class="main-layout hidden">
 
-<!-- Settings Modal -->
-<div id="settingsModal" class="modal-overlay hidden">
-  <div class="modal-box">
-    <div class="modal-title">Change Password</div>
-    <div class="muted" style="font-size: 12px; margin-bottom: 8px;">Verify current password to set a new one.</div>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-card glass">
+        <div class="sidebar-top">
+          <div id="inboxAddress" class="mono">loading...</div>
+          <div class="side-actions">
+            <button id="btnRefresh" class="btn-icon" aria-label="Refresh" title="Refresh">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+            <button id="btnAuto" class="btn-icon" aria-label="Auto Refresh" title="Auto Refresh" style="font-size:11px; font-weight:900;">
+              AUTO
+            </button>
+          </div>
+        </div>
 
-    <input id="setCurrPass" type="password" placeholder="Current Password" aria-label="Current Password" />
-    <input id="setNewPass" type="password" placeholder="New Password" aria-label="New Password" />
-    <input id="setConfPass" type="password" placeholder="Confirm New Password" aria-label="Confirm New Password" />
+        <div class="search-wrap">
+          <input id="searchBox" placeholder="Search mail..." aria-label="Search mail" />
+        </div>
+      </div>
 
-    <div id="setMsg" style="font-size: 12px; min-height: 16px;"></div>
+      <div id="msgList" class="msg-list">
+        <!-- Message items will go here -->
+      </div>
+    </aside>
 
-    <div class="modal-actions">
-      <button id="btnCloseSettings" style="background: transparent; border: none; color: #8db0ff;">Cancel</button>
-      <button id="btnSaveSettings">Update Password</button>
+    <!-- Reading Pane -->
+    <section class="reading-pane">
+      <div class="pane-card glass">
+
+        <div id="emptyState">
+          <div class="empty-card">
+            <div class="empty-ico">
+              <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-6l-2 3h-4l-2-3H2"></path>
+                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+              </svg>
+            </div>
+            <p class="empty-title">No message selected</p>
+            <div class="empty-sub">Pilih email di sidebar untuk membaca isi.</div>
+          </div>
+        </div>
+
+        <div id="msgContent" class="hidden" style="height:100%;">
+          <div class="msg-content-wrapper">
+
+            <div class="msg-meta">
+              <h1 id="rSubject" class="msg-title">Subject</h1>
+
+              <div class="msg-info">
+                <div class="sender-block">
+                  <div id="rAvatar" class="sender-avatar">?</div>
+                  <div class="sender-details">
+                    <div id="rFrom">Sender Name</div>
+                    <div id="rTo">to me</div>
+                  </div>
+                </div>
+                <div id="rDate">Date</div>
+              </div>
+
+              <div class="meta-toolbar">
+                <div class="seg" aria-label="View modes">
+                  <button id="btnViewHtml" aria-label="View HTML" title="View HTML">HTML</button>
+                  <button id="btnViewText" aria-label="View Text" title="View Text">TXT</button>
+                  <button id="btnViewJson" aria-label="View JSON" title="View JSON">JSON</button>
+                </div>
+
+                <button id="btnDelete" class="btn-danger" aria-label="Delete Message" style="padding:10px 14px; border-radius:14px; font-size:12px;">
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            <div id="rBody" class="msg-body">
+              <!-- iframe / content injected -->
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay hidden">
+    <div class="modal-box glass">
+      <div class="modal-title">Change Password</div>
+      <div class="muted" style="font-size:12px; margin-bottom:10px;">Verify current password to set a new one.</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <input id="setCurrPass" type="password" placeholder="Current Password" aria-label="Current Password" />
+        <input id="setNewPass" type="password" placeholder="New Password" aria-label="New Password" />
+        <input id="setConfPass" type="password" placeholder="Confirm New Password" aria-label="Confirm New Password" />
+      </div>
+
+      <div id="setMsg" style="font-size:12px; min-height:16px; margin-top:10px;"></div>
+
+      <div class="modal-actions">
+        <button id="btnCloseSettings">Cancel</button>
+        <button id="btnSaveSettings" class="btn-primary">Update Password</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
-    authDomain: "webmail-arufkuy.firebaseapp.com",
-    projectId: "webmail-arufkuy",
-    storageBucket: "webmail-arufkuy.firebasestorage.app",
-    messagingSenderId: "608495162500",
-    appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
-    measurementId: "G-JXST3Z88R7"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const WORKER_API = "https://api.arufkuy.workers.dev";
-
-  // State
-  let fbUser = null;
-  let fbToken = localStorage.getItem("fb_token");
-  let inboxUser = localStorage.getItem("inboxUser");
-  let inboxAddress = localStorage.getItem("inboxAddress");
-  let messagesCache = [];
-  let selectedMessageId = null;
-  let autoTimer = null;
-  let currentViewMode = "html"; // html | text | json
-
-  // DOM Elements
-  const $ = (id) => document.getElementById(id);
-  const els = {
-    loginView: $("loginView"),
-    appView: $("appView"),
-    sidebar: $("sidebar"),
-    emailInput: $("emailInput"),
-    passwordInput: $("passwordInput"),
-    btnLogin: $("btnLogin"),
-    loginError: $("loginError"),
-    btnLogout: $("btnLogout"),
-    btnSettings: $("btnSettings"),
-    userEmail: $("userEmail"),
-    inboxAddress: $("inboxAddress"),
-    msgList: $("msgList"),
-    searchBox: $("searchBox"),
-    emptyState: $("emptyState"),
-    msgContent: $("msgContent"),
-    rSubject: $("rSubject"),
-    rFrom: $("rFrom"),
-    rTo: $("rTo"),
-    rDate: $("rDate"),
-    rBody: $("rBody"),
-    rAvatar: $("rAvatar"),
-    btnRefresh: $("btnRefresh"),
-    btnAuto: $("btnAuto"),
-    btnDelete: $("btnDelete"),
-    btnViewHtml: $("btnViewHtml"),
-    btnViewText: $("btnViewText"),
-    btnViewJson: $("btnViewJson"),
-    badge: $("badge"),
-    btnToggleSidebar: $("btnToggleSidebar"),
-    btnBackList: $("btnBackList"),
-    // Settings Modal
-    settingsModal: $("settingsModal"),
-    setCurrPass: $("setCurrPass"),
-    setNewPass: $("setNewPass"),
-    setConfPass: $("setConfPass"),
-    setMsg: $("setMsg"),
-    btnCloseSettings: $("btnCloseSettings"),
-    btnSaveSettings: $("btnSaveSettings")
-  };
-
-  // --- Auth Functions ---
-  async function ensureToken(force = false) {
-    if (!auth.currentUser) throw new Error("Not authenticated");
-    fbToken = await auth.currentUser.getIdToken(force);
-    localStorage.setItem("fb_token", fbToken);
-    return fbToken;
-  }
-
-  async function loadProfile(uid) {
-    const snap = await getDoc(doc(db, "users", uid));
-    if (!snap.exists()) throw new Error("User profile not found in Firestore.");
-    const data = snap.data();
-    inboxUser = (data.inboxUser || "").toLowerCase();
-    inboxAddress = data.email || `${inboxUser}@arufkuy.me`;
-
-    if (!inboxUser) throw new Error("Inbox user not assigned.");
-
-    localStorage.setItem("inboxUser", inboxUser);
-    localStorage.setItem("inboxAddress", inboxAddress);
-    return { inboxUser, inboxAddress };
-  }
-
-  async function login() {
-    els.loginError.textContent = "";
-    els.btnLogin.textContent = "Signing in...";
-    els.btnLogin.disabled = true;
-
-    try {
-      const cred = await signInWithEmailAndPassword(auth, els.emailInput.value, els.passwordInput.value);
-      fbUser = cred.user;
-      await ensureToken(true);
-      await loadProfile(fbUser.uid);
-      initApp();
-    } catch (e) {
-      console.error(e);
-      els.loginError.textContent = e.message;
-      els.btnLogin.disabled = false;
-      els.btnLogin.textContent = "Sign In";
-    }
-  }
-
-  function logout() {
-    signOut(auth);
-    localStorage.clear();
-    location.reload();
-  }
-
-  function initApp() {
-    els.loginView.classList.add("hidden");
-    els.appView.classList.remove("hidden");
-    els.btnLogout.classList.remove("hidden");
-    els.btnSettings.classList.remove("hidden");
-    els.userEmail.textContent = fbUser.email;
-    els.userEmail.style.display = "inline";
-    els.inboxAddress.textContent = inboxAddress;
-    els.badge.textContent = "Signed in";
-    els.badge.className = "status-badge ok";
-    loadInbox();
-  }
-
-  // --- Worker API ---
-  async function api(path, method = "GET") {
-    const token = await ensureToken();
-    const res = await fetch(`${WORKER_API}${path}`, {
-      method,
-      headers: { "Authorization": `Bearer ${token}` }
-    });
-
-    if (res.status === 401) {
-      await ensureToken(true);
-      return api(path, method); // retry once
-    }
-
-    if (!res.ok) throw new Error(`API Error: ${res.status}`);
-    return res.json();
-  }
-
-  // --- Inbox Logic ---
-  async function loadInbox(silent = false) {
-    if (!silent) els.msgList.innerHTML = '<div style="padding:20px;text-align:center;color:#888;">Loading...</div>';
-
-    try {
-      const data = await api("/inbox");
-      messagesCache = data.messages || [];
-      renderList();
-    } catch (e) {
-      console.error(e);
-      if (!silent) els.msgList.innerHTML = `<div style="padding:20px;text-align:center;color:#ff9b9b;">Error: ${e.message}</div>`;
-    }
-  }
-
-  function renderList() {
-    const q = els.searchBox.value.toLowerCase();
-    const list = messagesCache.filter(m =>
-      !q || (m.subject+m.from+m.snippet).toLowerCase().includes(q)
-    );
-
-    els.msgList.innerHTML = "";
-    if (list.length === 0) {
-      els.msgList.innerHTML = '<div style="padding:20px;text-align:center;color:#888;">No messages found</div>';
-      return;
-    }
-
-    list.forEach(m => {
-      const el = document.createElement("div");
-      el.className = `msg-item ${selectedMessageId === m.id ? 'active' : ''}`;
-      el.onclick = () => openMessage(m.id);
-
-      const date = new Date(m.receivedAt).toLocaleDateString(undefined, {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-
-      el.innerHTML = `
-        <div class="msg-header">
-          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">${esc(m.from)}</span>
-          <span>${date}</span>
-        </div>
-        <div class="msg-subject">${esc(m.subject || '(No Subject)')}</div>
-        <div class="msg-snippet">${esc(m.snippet)}</div>
-      `;
-      els.msgList.appendChild(el);
-    });
-  }
-
-  // --- Message Reader ---
-  async function openMessage(id) {
-    selectedMessageId = id;
-    renderList(); // update active state
-
-    // Mobile Logic: Switch view & Push History
-    els.appView.classList.add("view-mode");
-    updateMobileHeader(true);
-
-    // Push state so back button works on mobile
-    if (window.innerWidth <= 768) {
-        window.history.pushState({view: 'message', id: id}, "", "#msg-" + id);
-    }
-
-    els.emptyState.classList.add("hidden");
-    els.msgContent.classList.remove("hidden");
-    els.rBody.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;">Loading content...</div>';
-
-    try {
-      // Fetch full JSON first to get metadata
-      const data = await api(`/message?id=${id}&format=json`);
-      const msg = data.message;
-
-      // Update Header
-      els.rSubject.textContent = msg.subject || "(No Subject)";
-      els.rFrom.textContent = msg.from;
-      els.rTo.textContent = `to ${msg.to}`;
-      els.rDate.textContent = new Date(msg.receivedAt).toLocaleString();
-      els.rAvatar.textContent = (msg.from || "?")[0].toUpperCase();
-
-      // Update Page Title for UX
-      document.title = `${msg.subject} - Webmail`;
-
-      renderBody(msg);
-
-    } catch (e) {
-      els.rBody.innerHTML = `<div style="padding:20px;color:#ff9b9b;">Failed to load message: ${e.message}</div>`;
-    }
-  }
-
-  function renderBody(msg) {
-    els.rBody.innerHTML = "";
-
-    if (currentViewMode === "json") {
-      const pre = document.createElement("pre");
-      pre.style.padding = "20px";
-      pre.style.overflow = "auto";
-      pre.style.color = "#e8eefc";
-      pre.textContent = JSON.stringify(msg, null, 2);
-      els.rBody.appendChild(pre);
-      return;
-    }
-
-    if (currentViewMode === "text") {
-      const pre = document.createElement("pre");
-      pre.style.padding = "20px";
-      pre.style.whiteSpace = "pre-wrap";
-      pre.style.fontFamily = "monospace";
-      pre.style.color = "#e8eefc";
-      pre.textContent = msg.text || "(No text content)";
-      els.rBody.appendChild(pre);
-      return;
-    }
-
-    // HTML Mode (Default)
-    const iframe = document.createElement("iframe");
-    iframe.style.width = "100%";
-    iframe.style.border = "none";
-    iframe.style.overflow = "hidden"; // Hide scrollbar inside iframe
-    iframe.scrolling = "no";
-    iframe.style.backgroundColor = "#0b0f17"; // Force dark background on iframe element
-    els.rBody.appendChild(iframe);
-
-    const doc = iframe.contentWindow.document;
-    doc.open();
-
-    let content = msg.html || "";
-    if(!content) {
-        let text = (msg.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        text = text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" target="_blank">$1</a>');
-        content = `<body style="font-family:sans-serif;padding:20px;color:#e8eefc;">${text.replace(/\n/g, "<br>")}</body>`;
-    } else {
-        // Inject padding for HTML content too
-        if (!content.includes("<body")) {
-             content = `<body style="margin:0;padding:20px;color:#e8eefc;">${content}</body>`;
-        } else {
-             // Try to inject padding into existing body
-             content = content.replace(/<body([^>]*)>/i, '<body$1 style="margin:0;padding:20px;color:#e8eefc;">');
-        }
-    }
-
-    // Inject Dark Mode styles for iframe
-    content += `
-      <style>
-        :root { color-scheme: dark; }
-        html, body {
-          margin: 0;
-          overflow: hidden;
-          color: #e8eefc !important;
-          background-color: #0b0f17 !important; /* Force dark background */
-          font-family: system-ui, -apple-system, sans-serif;
-          word-wrap: break-word;
-        }
-        img { max-width: 100%; height: auto; }
-        /* Override white backgrounds aggressively */
-        [style*="background-color: white"], [style*="background-color: #ffffff"], [style*="background-color: #fff"],
-        [style*="background: white"], [style*="background: #ffffff"], [style*="background: #fff"],
-        [bgcolor="white"], [bgcolor="#ffffff"], [bgcolor="#fff"] {
-            background-color: #0b0f17 !important;
-        }
-        /* Force text color on common elements */
-        p, span, div, td, h1, h2, h3, h4, h5, h6, li, b, strong {
-          color: #e8eefc !important;
-        }
-        a { color: #8db0ff !important; }
-      </style>
-      <script>
-        // Force links to open in new tab
-        document.addEventListener('DOMContentLoaded', function() {
-            var links = document.getElementsByTagName('a');
-            for (var i = 0; i < links.length; i++) {
-                links[i].setAttribute('target', '_blank');
-            }
-        });
-
-        function resize() {
-          const body = document.body;
-          const html = document.documentElement;
-
-          // Reset zoom to measure true width
-          body.style.zoom = "1";
-
-          const contentWidth = Math.max(body.scrollWidth, body.offsetWidth);
-          const viewWidth = html.clientWidth;
-
-          if (contentWidth > viewWidth && viewWidth > 0) {
-             const scale = viewWidth / contentWidth;
-             body.style.zoom = scale;
-          }
-
-          const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-          if(window.frameElement) {
-            window.frameElement.style.height = height + 'px';
-          }
-        }
-        window.addEventListener('load', resize);
-        setInterval(resize, 500);
-      <\/script>
-    `;
-
-    doc.write(content);
-    doc.close();
-  }
-
-  async function deleteMessage() {
-    if (!selectedMessageId || !confirm("Delete this message?")) return;
-    try {
-      await api(`/message?id=${selectedMessageId}`, "DELETE");
-      selectedMessageId = null;
-
-      // If mobile, go back to list
-      goBackToList();
-
-      els.msgContent.classList.add("hidden");
-      els.emptyState.classList.remove("hidden");
-      loadInbox(true);
-    } catch (e) {
-      alert(e.message);
-    }
-  }
-
-  // --- Settings Logic ---
-  els.btnSettings.onclick = () => {
-    els.settingsModal.classList.remove("hidden");
-    els.setCurrPass.value = "";
-    els.setNewPass.value = "";
-    els.setConfPass.value = "";
-    els.setMsg.textContent = "";
-    els.setMsg.style.color = "";
-  };
-
-  els.btnCloseSettings.onclick = () => {
-    els.settingsModal.classList.add("hidden");
-  };
-
-  els.btnSaveSettings.onclick = async () => {
-    const curr = els.setCurrPass.value;
-    const newP = els.setNewPass.value;
-    const conf = els.setConfPass.value;
-
-    if (!curr || !newP || !conf) {
-      els.setMsg.textContent = "All fields are required.";
-      els.setMsg.style.color = "#ff9b9b";
-      return;
-    }
-    if (newP !== conf) {
-      els.setMsg.textContent = "New passwords do not match.";
-      els.setMsg.style.color = "#ff9b9b";
-      return;
-    }
-    if (newP.length < 6) {
-      els.setMsg.textContent = "Password must be at least 6 characters.";
-      els.setMsg.style.color = "#ff9b9b";
-      return;
-    }
-
-    els.btnSaveSettings.disabled = true;
-    els.btnSaveSettings.textContent = "Updating...";
-    els.setMsg.textContent = "";
-
-    try {
-      const user = auth.currentUser;
-      const cred = EmailAuthProvider.credential(user.email, curr);
-
-      // 1. Re-authenticate
-      await reauthenticateWithCredential(user, cred);
-
-      // 2. Update Password
-      await updatePassword(user, newP);
-
-      els.setMsg.textContent = "Password updated successfully!";
-      els.setMsg.style.color = "#4caf50";
-
-      setTimeout(() => {
-        els.settingsModal.classList.add("hidden");
-        els.btnSaveSettings.disabled = false;
-        els.btnSaveSettings.textContent = "Update Password";
-      }, 1500);
-
-    } catch (e) {
-      console.error(e);
-      els.setMsg.textContent = e.message.replace("Firebase: ", "");
-      els.setMsg.style.color = "#ff9b9b";
-      els.btnSaveSettings.disabled = false;
-      els.btnSaveSettings.textContent = "Update Password";
-    }
-  };
-
-  // --- Event Listeners ---
-  els.btnLogin.onclick = login;
-  els.btnLogout.onclick = logout;
-  els.searchBox.oninput = renderList;
-  els.btnRefresh.onclick = () => loadInbox();
-  els.btnDelete.onclick = deleteMessage;
-
-  // Auto-fill email:password on paste
-  els.emailInput.addEventListener('paste', (e) => {
-    e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData).getData('text').trim();
-    if (text.includes(':')) {
-      const parts = text.split(':');
-      // Ambil bagian pertama sebagai email
-      const email = parts[0].trim();
-      // Gabungkan sisa bagian sebagai password (jika password mengandung :)
-      const password = parts.slice(1).join(':').trim();
-
-      els.emailInput.value = email;
-      els.passwordInput.value = password;
-
-      // Optional: Auto focus ke tombol login atau langsung login
-      els.btnLogin.focus();
-    } else {
-      // Jika tidak ada format email:pass, paste biasa
-      document.execCommand('insertText', false, text);
-    }
-  });
-
-  // View Modes
-  const setViewMode = (mode, btn) => {
-    currentViewMode = mode;
-    [els.btnViewHtml, els.btnViewText, els.btnViewJson].forEach(b => {
-      b.style.background = "transparent";
-      b.style.color = "#8db0ff";
-    });
-    btn.style.background = "#2a3f75";
-    btn.style.color = "#fff";
-    if(selectedMessageId) openMessage(selectedMessageId);
-  };
-
-  els.btnViewHtml.onclick = () => setViewMode("html", els.btnViewHtml);
-  els.btnViewText.onclick = () => setViewMode("text", els.btnViewText);
-  els.btnViewJson.onclick = () => setViewMode("json", els.btnViewJson);
-
-  // Sidebar Toggle (Desktop)
-  els.btnToggleSidebar.onclick = () => {
-    els.sidebar.classList.toggle("collapsed");
-  };
-
-  // Back Button Logic (Mobile)
-  function goBackToList() {
-    els.appView.classList.remove("view-mode");
-    updateMobileHeader(false);
-    document.title = "Webmail (Arufkuy)";
-  }
-
-  els.btnBackList.onclick = () => {
-    // If we have history state, go back (which triggers popstate)
-    if (window.history.state && window.history.state.view === 'message') {
-        window.history.back();
-    } else {
-        goBackToList();
-    }
-  };
-
-  // Handle Browser Back Button
-  window.onpopstate = (event) => {
-    if (!event.state) {
-        goBackToList();
-    }
-  };
-
-  function updateMobileHeader(isViewMode) {
-    if (window.innerWidth <= 768) {
-      els.btnToggleSidebar.style.display = isViewMode ? "none" : "inline-flex";
-      els.btnBackList.style.display = isViewMode ? "inline-flex" : "none";
-    }
-  }
-
-  els.btnAuto.onclick = () => {
-    if (autoTimer) {
-      clearInterval(autoTimer);
-      autoTimer = null;
-      els.btnAuto.style.color = "#e8eefc";
-      els.btnAuto.style.borderColor = "transparent";
-    } else {
-      autoTimer = setInterval(() => loadInbox(true), 5000);
-      els.btnAuto.style.color = "#4e7dff";
-      els.btnAuto.style.borderColor = "#4e7dff";
-      loadInbox(true);
-    }
-  };
-
-  // --- Init ---
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      fbUser = user;
-      if (inboxUser) initApp();
-      else loadProfile(user.uid).then(initApp).catch(e => {
-        console.error(e);
-        logout();
-      });
-    } else {
-      els.loginView.classList.remove("hidden");
-      els.appView.classList.add("hidden");
-      els.btnLogout.classList.add("hidden");
-      els.btnSettings.classList.add("hidden");
-      els.badge.textContent = "Signed out";
-      els.badge.className = "status-badge warn";
-
-      // Check URL Login
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("_task") === "login" && params.get("_action") === "auth") {
-        const u = params.get("_user");
-        const p = params.get("_pass");
-        if (u && p) {
-           els.emailInput.value = u;
-           els.passwordInput.value = p;
-           // Clear URL so password isn't in history
-           window.history.replaceState({}, document.title, window.location.pathname);
-           login();
-        }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
+      authDomain: "webmail-arufkuy.firebaseapp.com",
+      projectId: "webmail-arufkuy",
+      storageBucket: "webmail-arufkuy.firebasestorage.app",
+      messagingSenderId: "608495162500",
+      appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
+      measurementId: "G-JXST3Z88R7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const WORKER_API = "https://api.arufkuy.workers.dev";
+
+    // State
+    let fbUser = null;
+    let fbToken = localStorage.getItem("fb_token");
+    let inboxUser = localStorage.getItem("inboxUser");
+    let inboxAddress = localStorage.getItem("inboxAddress");
+    let messagesCache = [];
+    let selectedMessageId = null;
+    let autoTimer = null;
+    let currentViewMode = "html"; // html | text | json
+
+    // DOM Elements
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      loginView: $("loginView"),
+      appView: $("appView"),
+      sidebar: $("sidebar"),
+      emailInput: $("emailInput"),
+      passwordInput: $("passwordInput"),
+      btnLogin: $("btnLogin"),
+      loginError: $("loginError"),
+      btnLogout: $("btnLogout"),
+      btnSettings: $("btnSettings"),
+      userEmail: $("userEmail"),
+      inboxAddress: $("inboxAddress"),
+      msgList: $("msgList"),
+      searchBox: $("searchBox"),
+      emptyState: $("emptyState"),
+      msgContent: $("msgContent"),
+      rSubject: $("rSubject"),
+      rFrom: $("rFrom"),
+      rTo: $("rTo"),
+      rDate: $("rDate"),
+      rBody: $("rBody"),
+      rAvatar: $("rAvatar"),
+      btnRefresh: $("btnRefresh"),
+      btnAuto: $("btnAuto"),
+      btnDelete: $("btnDelete"),
+      btnViewHtml: $("btnViewHtml"),
+      btnViewText: $("btnViewText"),
+      btnViewJson: $("btnViewJson"),
+      badge: $("badge"),
+      btnToggleSidebar: $("btnToggleSidebar"),
+      btnBackList: $("btnBackList"),
+      // Settings Modal
+      settingsModal: $("settingsModal"),
+      setCurrPass: $("setCurrPass"),
+      setNewPass: $("setNewPass"),
+      setConfPass: $("setConfPass"),
+      setMsg: $("setMsg"),
+      btnCloseSettings: $("btnCloseSettings"),
+      btnSaveSettings: $("btnSaveSettings"),
+      // Visual status chip
+      statusChip: $("statusChip"),
+      statusChipText: $("statusChipText"),
+    };
+
+    // --- small UI sync helper (badge -> chip) ---
+    function syncStatusChip(ok) {
+      // ok = true => signed in
+      if (!els.statusChip) return;
+      if (ok) {
+        els.statusChip.classList.add("ok");
+        els.statusChipText.textContent = "Signed in";
+      } else {
+        els.statusChip.classList.remove("ok");
+        els.statusChipText.textContent = "Signed out";
       }
     }
-  });
 
-  function esc(s) {
-    return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-</script>
+    // --- Auth Functions ---
+    async function ensureToken(force = false) {
+      if (!auth.currentUser) throw new Error("Not authenticated");
+      fbToken = await auth.currentUser.getIdToken(force);
+      localStorage.setItem("fb_token", fbToken);
+      return fbToken;
+    }
 
+    async function loadProfile(uid) {
+      const snap = await getDoc(doc(db, "users", uid));
+      if (!snap.exists()) throw new Error("User profile not found in Firestore.");
+      const data = snap.data();
+      inboxUser = (data.inboxUser || "").toLowerCase();
+      inboxAddress = data.email || `${inboxUser}@arufkuy.me`;
+
+      if (!inboxUser) throw new Error("Inbox user not assigned.");
+
+      localStorage.setItem("inboxUser", inboxUser);
+      localStorage.setItem("inboxAddress", inboxAddress);
+      return { inboxUser, inboxAddress };
+    }
+
+    async function login() {
+      els.loginError.textContent = "";
+      els.btnLogin.textContent = "Signing in...";
+      els.btnLogin.disabled = true;
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, els.emailInput.value, els.passwordInput.value);
+        fbUser = cred.user;
+        await ensureToken(true);
+        await loadProfile(fbUser.uid);
+        initApp();
+      } catch (e) {
+        console.error(e);
+        els.loginError.textContent = e.message;
+        els.btnLogin.disabled = false;
+        els.btnLogin.textContent = "Sign In";
+      }
+    }
+
+    function logout() {
+      signOut(auth);
+      localStorage.clear();
+      location.reload();
+    }
+
+    function initApp() {
+      els.loginView.classList.add("hidden");
+      els.appView.classList.remove("hidden");
+      els.btnLogout.classList.remove("hidden");
+      els.btnSettings.classList.remove("hidden");
+      els.userEmail.textContent = fbUser.email;
+      els.userEmail.style.display = "inline";
+
+      els.inboxAddress.textContent = inboxAddress;
+
+      // keep your original badge logic
+      els.badge.textContent = "Signed in";
+      els.badge.className = "status-badge ok";
+      syncStatusChip(true);
+
+      loadInbox();
+      // view mode initial highlight
+      setViewMode(currentViewMode, currentViewMode === "html" ? els.btnViewHtml : currentViewMode === "text" ? els.btnViewText : els.btnViewJson);
+    }
+
+    // --- Worker API ---
+    async function api(path, method = "GET") {
+      const token = await ensureToken();
+      const res = await fetch(`${WORKER_API}${path}`, {
+        method,
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (res.status === 401) {
+        await ensureToken(true);
+        return api(path, method); // retry once
+      }
+
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+      return res.json();
+    }
+
+    // --- Inbox Logic ---
+    async function loadInbox(silent = false) {
+      if (!silent) els.msgList.innerHTML = '<div class="muted" style="padding:18px;text-align:center;">Loading…</div>';
+
+      try {
+        const data = await api("/inbox");
+        messagesCache = data.messages || [];
+        renderList();
+      } catch (e) {
+        console.error(e);
+        if (!silent) els.msgList.innerHTML = `<div style="padding:18px;text-align:center;color:rgba(254,202,202,1);">Error: ${e.message}</div>`;
+      }
+    }
+
+    function renderList() {
+      const q = els.searchBox.value.toLowerCase();
+      const list = messagesCache.filter(m =>
+        !q || (m.subject + m.from + m.snippet).toLowerCase().includes(q)
+      );
+
+      els.msgList.innerHTML = "";
+      if (list.length === 0) {
+        els.msgList.innerHTML = '<div class="muted" style="padding:18px;text-align:center;">No messages found</div>';
+        return;
+      }
+
+      list.forEach(m => {
+        const el = document.createElement("div");
+        el.className = `msg-item ${selectedMessageId === m.id ? 'active' : ''}`;
+        el.onclick = () => openMessage(m.id);
+
+        const date = new Date(m.receivedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        el.innerHTML = `
+          <div class="msg-header">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${esc(m.from)}</span>
+            <span>${date}</span>
+          </div>
+          <div class="msg-subject">${esc(m.subject || '(No Subject)')}</div>
+          <div class="msg-snippet">${esc(m.snippet)}</div>
+        `;
+        els.msgList.appendChild(el);
+      });
+    }
+
+    // --- Message Reader ---
+    async function openMessage(id) {
+      selectedMessageId = id;
+      renderList(); // update active state
+
+      // Mobile Logic: Switch view & Push History
+      els.appView.classList.add("view-mode");
+      updateMobileHeader(true);
+
+      if (window.innerWidth <= 768) {
+        window.history.pushState({ view: 'message', id: id }, "", "#msg-" + id);
+      }
+
+      els.emptyState.classList.add("hidden");
+      els.msgContent.classList.remove("hidden");
+      els.rBody.innerHTML = '<div class="muted" style="display:flex;align-items:center;justify-content:center;height:100%;padding:18px;">Loading content…</div>';
+
+      try {
+        const data = await api(`/message?id=${id}&format=json`);
+        const msg = data.message;
+
+        els.rSubject.textContent = msg.subject || "(No Subject)";
+        els.rFrom.textContent = msg.from;
+        els.rTo.textContent = `to ${msg.to}`;
+        els.rDate.textContent = new Date(msg.receivedAt).toLocaleString();
+        els.rAvatar.textContent = (msg.from || "?")[0].toUpperCase();
+
+        document.title = `${msg.subject} - Webmail`;
+        renderBody(msg);
+      } catch (e) {
+        els.rBody.innerHTML = `<div style="padding:18px;color:rgba(254,202,202,1);">Failed to load message: ${e.message}</div>`;
+      }
+    }
+
+    function renderBody(msg) {
+      els.rBody.innerHTML = "";
+
+      if (currentViewMode === "json") {
+        const pre = document.createElement("pre");
+        pre.style.padding = "18px";
+        pre.style.whiteSpace = "pre-wrap";
+        pre.style.margin = "0";
+        pre.style.color = "#e5e7eb";
+        pre.textContent = JSON.stringify(msg, null, 2);
+        els.rBody.appendChild(pre);
+        return;
+      }
+
+      if (currentViewMode === "text") {
+        const pre = document.createElement("pre");
+        pre.style.padding = "18px";
+        pre.style.whiteSpace = "pre-wrap";
+        pre.style.margin = "0";
+        pre.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+        pre.style.color = "#e5e7eb";
+        pre.textContent = msg.text || "(No text content)";
+        els.rBody.appendChild(pre);
+        return;
+      }
+
+      // HTML Mode
+      const iframe = document.createElement("iframe");
+      iframe.style.width = "100%";
+      iframe.style.border = "none";
+      iframe.style.overflow = "hidden";
+      iframe.scrolling = "no";
+      iframe.style.backgroundColor = "transparent";
+      els.rBody.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+
+      let content = msg.html || "";
+      if (!content) {
+        let text = (msg.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        text = text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" target="_blank">$1</a>');
+        content = `<body style="font-family:system-ui,-apple-system,sans-serif;padding:18px;color:#e5e7eb;">${text.replace(/\n/g, "<br>")}</body>`;
+      } else {
+        if (!content.includes("<body")) {
+          content = `<body style="margin:0;padding:18px;color:#e5e7eb;">${content}</body>`;
+        } else {
+          content = content.replace(/<body([^>]*)>/i, '<body$1 style="margin:0;padding:18px;color:#e5e7eb;">');
+        }
+      }
+
+      content += `
+        <style>
+          :root { color-scheme: dark; }
+          html, body {
+            margin: 0;
+            overflow: hidden;
+            color: #e5e7eb !important;
+            background-color: transparent !important;
+            font-family: system-ui, -apple-system, sans-serif;
+            word-wrap: break-word;
+          }
+          img { max-width: 100%; height: auto; }
+          [style*="background-color: white"], [style*="background-color: #ffffff"], [style*="background-color: #fff"],
+          [style*="background: white"], [style*="background: #ffffff"], [style*="background: #fff"],
+          [bgcolor="white"], [bgcolor="#ffffff"], [bgcolor="#fff"] {
+            background-color: transparent !important;
+          }
+          p, span, div, td, h1, h2, h3, h4, h5, h6, li, b, strong {
+            color: #e5e7eb !important;
+          }
+          a { color: rgba(199,210,254,1) !important; }
+        </style>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            var links = document.getElementsByTagName('a');
+            for (var i = 0; i < links.length; i++) {
+              links[i].setAttribute('target', '_blank');
+            }
+          });
+
+          function resize() {
+            const body = document.body;
+            const html = document.documentElement;
+            body.style.zoom = "1";
+
+            const contentWidth = Math.max(body.scrollWidth, body.offsetWidth);
+            const viewWidth = html.clientWidth;
+
+            if (contentWidth > viewWidth && viewWidth > 0) {
+              const scale = viewWidth / contentWidth;
+              body.style.zoom = scale;
+            }
+
+            const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+            if (window.frameElement) window.frameElement.style.height = height + 'px';
+          }
+          window.addEventListener('load', resize);
+          setInterval(resize, 500);
+        <\/script>
+      `;
+
+      doc.write(content);
+      doc.close();
+    }
+
+    async function deleteMessage() {
+      if (!selectedMessageId || !confirm("Delete this message?")) return;
+      try {
+        await api(`/message?id=${selectedMessageId}`, "DELETE");
+        selectedMessageId = null;
+
+        goBackToList();
+
+        els.msgContent.classList.add("hidden");
+        els.emptyState.classList.remove("hidden");
+        loadInbox(true);
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // --- Settings Logic ---
+    els.btnSettings.onclick = () => {
+      els.settingsModal.classList.remove("hidden");
+      els.setCurrPass.value = "";
+      els.setNewPass.value = "";
+      els.setConfPass.value = "";
+      els.setMsg.textContent = "";
+      els.setMsg.style.color = "";
+    };
+
+    els.btnCloseSettings.onclick = () => {
+      els.settingsModal.classList.add("hidden");
+    };
+
+    els.btnSaveSettings.onclick = async () => {
+      const curr = els.setCurrPass.value;
+      const newP = els.setNewPass.value;
+      const conf = els.setConfPass.value;
+
+      if (!curr || !newP || !conf) {
+        els.setMsg.textContent = "All fields are required.";
+        els.setMsg.style.color = "rgba(254,202,202,1)";
+        return;
+      }
+      if (newP !== conf) {
+        els.setMsg.textContent = "New passwords do not match.";
+        els.setMsg.style.color = "rgba(254,202,202,1)";
+        return;
+      }
+      if (newP.length < 6) {
+        els.setMsg.textContent = "Password must be at least 6 characters.";
+        els.setMsg.style.color = "rgba(254,202,202,1)";
+        return;
+      }
+
+      els.btnSaveSettings.disabled = true;
+      els.btnSaveSettings.textContent = "Updating...";
+      els.setMsg.textContent = "";
+
+      try {
+        const user = auth.currentUser;
+        const cred = EmailAuthProvider.credential(user.email, curr);
+
+        await reauthenticateWithCredential(user, cred);
+        await updatePassword(user, newP);
+
+        els.setMsg.textContent = "Password updated successfully!";
+        els.setMsg.style.color = "rgba(34,197,94,1)";
+
+        setTimeout(() => {
+          els.settingsModal.classList.add("hidden");
+          els.btnSaveSettings.disabled = false;
+          els.btnSaveSettings.textContent = "Update Password";
+        }, 1500);
+
+      } catch (e) {
+        console.error(e);
+        els.setMsg.textContent = e.message.replace("Firebase: ", "");
+        els.setMsg.style.color = "rgba(254,202,202,1)";
+        els.btnSaveSettings.disabled = false;
+        els.btnSaveSettings.textContent = "Update Password";
+      }
+    };
+
+    // --- Event Listeners ---
+    els.btnLogin.onclick = login;
+    els.btnLogout.onclick = () => {
+      syncStatusChip(false);
+      logout();
+    };
+    els.searchBox.oninput = renderList;
+    els.btnRefresh.onclick = () => loadInbox();
+    els.btnDelete.onclick = deleteMessage;
+
+    // Auto-fill email:password on paste
+    els.emailInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+      if (text.includes(':')) {
+        const parts = text.split(':');
+        const email = parts[0].trim();
+        const password = parts.slice(1).join(':').trim();
+
+        els.emailInput.value = email;
+        els.passwordInput.value = password;
+        els.btnLogin.focus();
+      } else {
+        document.execCommand('insertText', false, text);
+      }
+    });
+
+    // View Modes (now segmented)
+    const setViewMode = (mode, btn) => {
+      currentViewMode = mode;
+
+      // reset
+      [els.btnViewHtml, els.btnViewText, els.btnViewJson].forEach(b => {
+        b.style.background = "transparent";
+        b.style.color = "rgba(148,163,184,.95)";
+        b.style.borderColor = "transparent";
+      });
+
+      // active style
+      btn.style.background = "rgba(99,102,241,.14)";
+      btn.style.color = "rgba(199,210,254,1)";
+      btn.style.borderColor = "rgba(99,102,241,.22)";
+
+      if (selectedMessageId) openMessage(selectedMessageId);
+    };
+
+    els.btnViewHtml.onclick = () => setViewMode("html", els.btnViewHtml);
+    els.btnViewText.onclick = () => setViewMode("text", els.btnViewText);
+    els.btnViewJson.onclick = () => setViewMode("json", els.btnViewJson);
+
+    // Sidebar Toggle (Desktop)
+    els.btnToggleSidebar.onclick = () => {
+      els.sidebar.classList.toggle("collapsed");
+    };
+
+    // Back Button Logic (Mobile)
+    function goBackToList() {
+      els.appView.classList.remove("view-mode");
+      updateMobileHeader(false);
+      document.title = "Webmail (Arufkuy)";
+    }
+
+    els.btnBackList.onclick = () => {
+      if (window.history.state && window.history.state.view === 'message') {
+        window.history.back();
+      } else {
+        goBackToList();
+      }
+    };
+
+    window.onpopstate = (event) => {
+      if (!event.state) goBackToList();
+    };
+
+    function updateMobileHeader(isViewMode) {
+      if (window.innerWidth <= 768) {
+        els.btnToggleSidebar.style.display = isViewMode ? "none" : "inline-flex";
+        els.btnBackList.style.display = isViewMode ? "inline-flex" : "none";
+      }
+    }
+
+    els.btnAuto.onclick = () => {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        els.btnAuto.style.color = "rgba(148,163,184,.95)";
+        els.btnAuto.style.borderColor = "transparent";
+      } else {
+        autoTimer = setInterval(() => loadInbox(true), 5000);
+        els.btnAuto.style.color = "rgba(199,210,254,1)";
+        els.btnAuto.style.borderColor = "rgba(99,102,241,.35)";
+        loadInbox(true);
+      }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fbUser = user;
+        if (inboxUser) initApp();
+        else loadProfile(user.uid).then(initApp).catch(e => {
+          console.error(e);
+          syncStatusChip(false);
+          logout();
+        });
+      } else {
+        els.loginView.classList.remove("hidden");
+        els.appView.classList.add("hidden");
+        els.btnLogout.classList.add("hidden");
+        els.btnSettings.classList.add("hidden");
+
+        els.badge.textContent = "Signed out";
+        els.badge.className = "status-badge warn";
+        syncStatusChip(false);
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("_task") === "login" && params.get("_action") === "auth") {
+          const u = params.get("_user");
+          const p = params.get("_pass");
+          if (u && p) {
+            els.emailInput.value = u;
+            els.passwordInput.value = p;
+            window.history.replaceState({}, document.title, window.location.pathname);
+            login();
+          }
+        }
+      }
+    });
+
+    function esc(s) {
+      return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+  </script>
 </body>
 </html>
