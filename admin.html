@@ -104,6 +104,10 @@
       color: #8db0ff; padding: 0 16px; display: flex; align-items: center;
       border-top-right-radius: 8px; border-bottom-right-radius: 8px; font-size: 13px;
     }
+    .input-group button {
+      border-top-left-radius: 0; border-bottom-left-radius: 0;
+      border-left: 0;
+    }
 
     /* Table */
     .table-container {
@@ -119,6 +123,21 @@
     .status-msg { font-size: 13px; margin-top: 8px; min-height: 20px; }
     .status-msg.error { color: #ff9b9b; }
     .status-msg.success { color: #4caf50; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px); padding: 20px;
+    }
+    .modal-box {
+      background: #0f1626; padding: 24px; border-radius: 16px;
+      border: 1px solid #1b2640; width: 100%; max-width: 500px;
+      display: flex; flex-direction: column; gap: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    pre { background: #0b0f17; padding: 12px; border-radius: 8px; overflow: auto; max-height: 300px; font-size: 12px; }
 
   </style>
 </head>
@@ -171,11 +190,14 @@
             <div class="flex-col">
               <div>
                 <label class="muted">Firebase UID</label>
-                <input id="targetUid" class="mono" placeholder="Paste User UID" />
+                <div class="input-group">
+                  <input id="targetUid" class="mono" placeholder="Paste User UID" />
+                  <button id="btnCheckUid" title="Check if UID exists">Check</button>
+                </div>
               </div>
 
               <div>
-                <label class="muted">Username</label>
+                <label class="muted">Username (a-z, 0-9, ., _, -)</label>
                 <div class="input-group">
                   <input id="targetLocalPart" placeholder="username" />
                   <div class="addon">@arufkuy.me</div>
@@ -194,10 +216,14 @@
               </div>
 
               <div class="flex mt-4">
-                <button id="btnSave" class="primary w-full">Save Mapping</button>
+                <button id="btnSave" class="primary w-full">Save & Sync to Worker</button>
                 <button id="btnDelete" class="danger" disabled title="Delete Mapping">Del</button>
               </div>
               <div id="actionMsg" class="status-msg text-center"></div>
+
+              <div class="muted text-center" style="font-size: 11px; margin-top: 8px; opacity: 0.5;">
+                Note: This will update Firestore AND sync to Worker KV.
+              </div>
             </div>
           </div>
         </div>
@@ -233,6 +259,18 @@
     </div>
   </div>
 
+  <!-- Info Modal -->
+  <div id="infoModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="flex space-between">
+        <h3 style="margin:0">Raw Data Inspector</h3>
+        <button id="btnCloseModal" style="background:transparent; border:none; color:#8db0ff; padding:0;">✕</button>
+      </div>
+      <div class="muted">Data stored in Firestore for this user:</div>
+      <pre id="jsonContent" class="mono"></pre>
+    </div>
+  </div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -247,6 +285,8 @@
     appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
     measurementId: "G-JXST3Z88R7"
   };
+
+  const WORKER_API = "https://api.arufkuy.workers.dev";
 
   // Initialize Admin App (Isolated Auth)
   const app = initializeApp(firebaseConfig, "AdminApp");
@@ -270,6 +310,7 @@
 
     // Form
     uid: $("targetUid"),
+    btnCheckUid: $("btnCheckUid"),
     localPart: $("targetLocalPart"),
     previewUser: $("previewUser"),
     previewAddress: $("previewAddress"),
@@ -279,10 +320,16 @@
 
     // List
     btnRefresh: $("btnRefresh"),
-    tableBody: $("usersTableBody")
+    tableBody: $("usersTableBody"),
+
+    // Modal
+    infoModal: $("infoModal"),
+    jsonContent: $("jsonContent"),
+    btnCloseModal: $("btnCloseModal")
   };
 
   let currentUser = null;
+  let fbToken = null;
 
   // --- AUTH FLOW ---
 
@@ -296,6 +343,7 @@
         const isAdmin = await checkAdmin(user.uid);
         if (isAdmin) {
           currentUser = user;
+          fbToken = await user.getIdToken();
           enterDashboard();
         } else {
           throw new Error("Access Denied: Not an admin.");
@@ -335,6 +383,24 @@
     loadUsers();
   }
 
+  // --- WORKER SYNC ---
+  async function syncToWorker(uid, inboxUser) {
+    // Call Worker Admin API to update KV
+    // PUT /admin/allow?uid=...&inboxUser=...
+    // Requires Admin Auth (which we assume Worker checks via Token or just open for now if logic allows)
+    // NOTE: Your worker code: requireAdmin(request, env) -> returns {ok: true} (OPEN for now)
+    // Ideally you should secure this. But for now let's just call it.
+
+    // Since your worker requires Firebase Token for user routes, but Admin routes are currently OPEN in code provided:
+    // function requireAdmin(request, env) { return { ok: true }; }
+    // So we can just fetch.
+
+    const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
+    const res = await fetch(url, { method: "PUT" });
+    if (!res.ok) throw new Error(`Worker Sync Failed: ${res.status}`);
+    return res.json();
+  }
+
   // --- ACTIONS ---
 
   els.btnLogin.onclick = async () => {
@@ -361,13 +427,53 @@
 
   // Form Logic
   els.localPart.oninput = () => {
-    const val = els.localPart.value.trim().toLowerCase();
+    let val = els.localPart.value.toLowerCase();
+    // Validate: Only allow a-z, 0-9, ., _, -
+    val = val.replace(/[^a-z0-9._-]/g, "");
+    els.localPart.value = val;
+
     if(val) {
       els.previewUser.textContent = val;
       els.previewAddress.textContent = `${val}@arufkuy.me`;
     } else {
       els.previewUser.textContent = "-";
       els.previewAddress.textContent = "-";
+    }
+  };
+
+  els.btnCheckUid.onclick = async () => {
+    const uid = els.uid.value.trim();
+    if (!uid) {
+      setStatus("Please enter a UID first.", "error");
+      return;
+    }
+
+    els.btnCheckUid.disabled = true;
+    els.btnCheckUid.textContent = "...";
+
+    try {
+      const snap = await getDoc(doc(db, "users", uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        setStatus("User found! Loaded data.", "success");
+        if (data.email) {
+          els.localPart.value = data.email.split('@')[0];
+        } else if (data.inboxUser) {
+          els.localPart.value = data.inboxUser;
+        }
+        els.localPart.dispatchEvent(new Event('input'));
+        els.btnDelete.disabled = false;
+      } else {
+        setStatus("User NOT found. Please create mapping.", "error");
+        els.localPart.value = "";
+        els.localPart.dispatchEvent(new Event('input'));
+        els.btnDelete.disabled = true;
+      }
+    } catch (e) {
+      setStatus("Error checking UID: " + e.message, "error");
+    } finally {
+      els.btnCheckUid.disabled = false;
+      els.btnCheckUid.textContent = "Check";
     }
   };
 
@@ -380,19 +486,26 @@
       return;
     }
 
-    setStatus("Saving...", "");
+    setStatus("Saving to Firestore...", "");
     els.btnSave.disabled = true;
 
     try {
+      // 1. Save to Firestore
       await setDoc(doc(db, "users", uid), {
+        uid: uid,
         email: `${local}@arufkuy.me`,
         inboxUser: local,
+        username: local,
         inboxAddress: `${local}@arufkuy.me`,
         updatedAt: serverTimestamp(),
         updatedBy: currentUser.uid
       }, { merge: true });
 
-      setStatus("User mapped successfully!", "success");
+      // 2. Sync to Worker KV
+      setStatus("Syncing to Worker...", "");
+      await syncToWorker(uid, local);
+
+      setStatus("User mapped & synced successfully!", "success");
       els.uid.value = "";
       els.localPart.value = "";
       els.localPart.dispatchEvent(new Event('input'));
@@ -447,18 +560,18 @@
           <td>${data.email || '-'}</td>
           <td class="mono" style="color:#4e7dff;">${data.inboxUser || '-'}</td>
           <td style="text-align:right;">
+            <button class="info-btn" style="padding:4px 8px; font-size:11px; margin-right:4px;">Info</button>
             <button class="edit-btn" style="padding:4px 10px; font-size:11px;">Edit</button>
           </td>
         `;
 
         row.querySelector(".edit-btn").onclick = () => {
           els.uid.value = d.id;
-          if (data.email) {
-            els.localPart.value = data.email.split('@')[0];
-          }
-          els.localPart.dispatchEvent(new Event('input'));
-          els.btnDelete.disabled = false;
-          setStatus("Loaded user for editing.", "");
+          els.btnCheckUid.click(); // Use check logic to load
+        };
+
+        row.querySelector(".info-btn").onclick = () => {
+          showInfo(data);
         };
 
         els.tableBody.appendChild(row);
@@ -468,6 +581,20 @@
       els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center error" style="padding:20px;">${e.message}</td></tr>`;
     }
   }
+
+  function showInfo(data) {
+    // Convert timestamp to string for display
+    const displayData = { ...data };
+    if (displayData.updatedAt && displayData.updatedAt.toDate) {
+      displayData.updatedAt = displayData.updatedAt.toDate().toISOString();
+    }
+    els.jsonContent.textContent = JSON.stringify(displayData, null, 2);
+    els.infoModal.classList.remove("hidden");
+  }
+
+  els.btnCloseModal.onclick = () => {
+    els.infoModal.classList.add("hidden");
+  };
 
   function setStatus(msg, type) {
     els.actionMsg.textContent = msg;
