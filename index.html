@@ -653,7 +653,7 @@
 
       <div class="brand-title">
         <b>Webmail</b>
-        <span class="muted">Secure Inbox</span>
+        <span class="muted">Secure Inbox • Neo-SaaS UI</span>
       </div>
 
       <!-- Keep original badge element for your JS logic; hidden visually -->
@@ -1158,7 +1158,7 @@
       let content = msg.html || "";
       if (!content) {
         let text = (msg.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        text = text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '<a href="$1" target="_blank">$1</a>');
+        text = text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;*]*[-A-Z0-9+&@#\/%=~_|*])/ig, '<a href="$1" target="_blank">$1</a>');
         content = `<body style="font-family:system-ui,-apple-system,sans-serif;padding:18px;color:#e5e7eb;">${text.replace(/\n/g, "<br>")}</body>`;
       } else {
         if (!content.includes("<body")) {
@@ -1437,4 +1437,3 @@
   </script>
 </body>
 </html>
-
