@@ -401,6 +401,13 @@
     return res.json();
   }
 
+  async function deleteFromWorker(uid, inboxUser) {
+    const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
+    const res = await fetch(url, { method: "DELETE" });
+    if (!res.ok) throw new Error(`Worker Delete Failed: ${res.status}`);
+    return res.json();
+  }
+
   // --- ACTIONS ---
 
   els.btnLogin.onclick = async () => {
@@ -520,11 +527,19 @@
 
   els.btnDelete.onclick = async () => {
     const uid = els.uid.value.trim();
+    const local = els.localPart.value.trim();
+
     if (!uid || !confirm("Delete mapping for this UID?")) return;
 
     setStatus("Deleting...", "");
     try {
       await deleteDoc(doc(db, "users", uid));
+
+      if (local) {
+        setStatus("Deleting from Worker...", "");
+        await deleteFromWorker(uid, local);
+      }
+
       setStatus("Mapping deleted.", "success");
       els.uid.value = "";
       els.localPart.value = "";
