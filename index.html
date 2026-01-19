@@ -1149,7 +1149,7 @@
       iframe.style.border = "none";
       iframe.style.overflow = "hidden";
       iframe.scrolling = "no";
-      iframe.style.backgroundColor = "transparent";
+      iframe.style.backgroundColor = "white";
       els.rBody.appendChild(iframe);
 
       const doc = iframe.contentWindow.document;
@@ -1159,36 +1159,25 @@
       if (!content) {
         let text = (msg.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         text = text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;*]*[-A-Z0-9+&@#\/%=~_|*])/ig, '<a href="$1" target="_blank">$1</a>');
-        content = `<body style="font-family:system-ui,-apple-system,sans-serif;padding:18px;color:#e5e7eb;">${text.replace(/\n/g, "<br>")}</body>`;
+        content = `<body style="font-family:system-ui,-apple-system,sans-serif;padding:18px;color:black;">${text.replace(/\n/g, "<br>")}</body>`;
       } else {
         if (!content.includes("<body")) {
-          content = `<body style="margin:0;padding:18px;color:#e5e7eb;">${content}</body>`;
+          content = `<body style="margin:0;padding:18px;">${content}</body>`;
         } else {
-          content = content.replace(/<body([^>]*)>/i, '<body$1 style="margin:0;padding:18px;color:#e5e7eb;">');
+          content = content.replace(/<body([^>]*)>/i, '<body$1 style="margin:0;padding:18px;">');
         }
       }
 
       content += `
         <style>
-          :root { color-scheme: dark; }
           html, body {
             margin: 0;
-            overflow: hidden;
-            color: #e5e7eb !important;
-            background-color: transparent !important;
+            padding: 0;
             font-family: system-ui, -apple-system, sans-serif;
             word-wrap: break-word;
+            overflow: hidden;
           }
           img { max-width: 100%; height: auto; }
-          [style*="background-color: white"], [style*="background-color: #ffffff"], [style*="background-color: #fff"],
-          [style*="background: white"], [style*="background: #ffffff"], [style*="background: #fff"],
-          [bgcolor="white"], [bgcolor="#ffffff"], [bgcolor="#fff"] {
-            background-color: transparent !important;
-          }
-          p, span, div, td, h1, h2, h3, h4, h5, h6, li, b, strong {
-            color: #e5e7eb !important;
-          }
-          a { color: rgba(199,210,254,1) !important; }
         </style>
         <script>
           document.addEventListener('DOMContentLoaded', function() {
@@ -1437,4 +1426,3 @@
   </script>
 </body>
 </html>
-
