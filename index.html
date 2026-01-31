@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
   <!-- SEO & Meta Tags -->
-  <title>Webmail (Arufkuy) - Secure Inbox</title>
+  <title>Webmail - Secure Inbox</title>
   <meta name="description"
     content="Arufkuy Webmail Client. Akses email aman, cepat, dan responsif dengan mode gelap." />
   <meta name="keywords" content="webmail, email client, arufkuy, secure email, dark mode" />
@@ -280,11 +280,26 @@
       </div>
     </div>
   </div>
+  </div>
+
+  <!-- Ad Popup (Hidden by default) -->
+  <div id="adModal" class="ad-modal">
+    <div class="ad-card">
+      <span class="ad-label">Ad</span>
+      <button id="btnCloseAd" class="ad-close">×</button>
+      <img id="adImg" class="ad-image" src="" alt="Promo" />
+      <div class="ad-body">
+        <a id="adLink" href="#" target="_blank" style="text-decoration:none;">
+          <button id="adBtn" class="ad-btn-action">Open</button>
+        </a>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
@@ -355,7 +370,16 @@
       // Visual status chip
       statusChip: $("statusChip"),
       statusChipText: $("statusChipText"),
+      statusChip: $("statusChip"),
+      statusChipText: $("statusChipText"),
       formatBtns: document.querySelectorAll(".seg button"),
+
+      // Ads
+      adModal: $("adModal"),
+      adImg: $("adImg"),
+      adLink: $("adLink"),
+      adBtn: $("adBtn"),
+      btnCloseAd: $("btnCloseAd")
     };
 
     // --- small UI sync helper (badge -> chip) ---
@@ -436,7 +460,64 @@
       loadInbox();
       // view mode initial highlight
       setViewMode(currentViewMode, currentViewMode === "html" ? els.btnViewHtml : currentViewMode === "text" ? els.btnViewText : els.btnViewJson);
+
+      /* Check Ad Popup */
+      checkAdPopup();
     }
+
+    // --- Ad Popup Logic ---
+    async function checkAdPopup() {
+      try {
+        // 1. Fetch settings (Collection)
+        // Note: In real app, maybe cache this or use a single config doc that has the list.
+        // For now, fetching collection is fine for small scale.
+        const snap = await getDocs(collection(db, "settings", "ads", "items"));
+        if (snap.empty) return;
+
+        const activeAds = [];
+        snap.forEach(d => {
+          const data = d.data();
+          if (data.active && data.imageUrl) {
+            activeAds.push(data);
+          }
+        });
+
+        if (activeAds.length === 0) return;
+
+        // 2. Check Login Counter Logic
+        let counter = parseInt(localStorage.getItem("ad_login_count") || "0");
+        counter++;
+        localStorage.setItem("ad_login_count", counter);
+
+        let threshold = parseInt(localStorage.getItem("ad_threshold") || "0");
+        if (threshold === 0) {
+          threshold = Math.floor(Math.random() * 2) + 1; // 1 or 2
+          localStorage.setItem("ad_threshold", threshold);
+        }
+
+        if (counter >= threshold) {
+          // SHOW RANDOM AD
+          const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
+
+          els.adImg.src = randomAd.imageUrl;
+          els.adLink.href = randomAd.linkUrl || "#";
+          els.adBtn.textContent = randomAd.btnText || "Open";
+
+          els.adModal.classList.add("visible");
+
+          // Reset
+          localStorage.setItem("ad_login_count", "0");
+          localStorage.setItem("ad_threshold", "0");
+        }
+
+      } catch (e) {
+        console.warn("Ad check failed:", e);
+      }
+    }
+
+    els.btnCloseAd.onclick = () => {
+      els.adModal.classList.remove("visible");
+    };
 
     // --- Worker API ---
     async function api(path, method = "GET") {
