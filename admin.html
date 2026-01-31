@@ -161,76 +161,73 @@
 
         <!-- Right: User List -->
         <div class="right-col">
-          <!-- Right: User List & Ads List -->
-          <div class="right-col">
-            <div class="card table-card">
+          <div class="card table-card">
 
-              <!-- Right Tabs -->
-              <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-                <button id="tabListUsers" class="active-tab"
-                  style="font-size: 0.9rem; padding: 6px 12px; margin-right:10px;">Registered Users</button>
-                <button id="tabListAds"
-                  style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Active
-                  Campaigns</button>
-              </div>
-
-              <!-- TAB: USERS -->
-              <div id="viewListUsers" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
-                <div class="table-header-area flex-col">
-                  <div class="flex space-between">
-                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">
-                      <span id="totalUsersCount" class="muted" style="font-size: 0.8rem;">Loading...</span>
-                    </h3>
-                    <button id="btnRefresh" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
-                  </div>
-                  <input id="searchUserInput" type="text" placeholder="Search users by UID or email..." />
-                </div>
-
-                <div class="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>UID</th>
-                        <th>Email Address</th>
-                        <th>Inbox User</th>
-                        <th style="text-align: right;">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody id="usersTableBody">
-                      <tr>
-                        <td colspan="4" class="text-center muted" style="padding: 20px;">Loading data...</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- TAB: ADS -->
-              <div id="viewListAds" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
-                <div class="flex space-between mb-4">
-                  <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ad Campaigns</h3>
-                  <button id="btnRefreshAds" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
-                </div>
-                <div class="table-container">
-                  <table style="font-size:0.9rem;">
-                    <thead>
-                      <tr>
-                        <th style="width:80px;">Preview</th>
-                        <th>Links & Content</th>
-                        <th style="width:100px;">Status</th>
-                        <th style="width:50px;"></th>
-                      </tr>
-                    </thead>
-                    <tbody id="adsTableBody">
-                      <tr>
-                        <td colspan="4" class="text-center muted">Loading...</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
+            <!-- Right Tabs -->
+            <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+              <button id="tabListUsers" class="active-tab"
+                style="font-size: 0.9rem; padding: 6px 12px; margin-right:10px;">Registered Users</button>
+              <button id="tabListAds"
+                style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Active
+                Campaigns</button>
             </div>
+
+            <!-- TAB: USERS -->
+            <div id="viewListUsers" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+              <div class="table-header-area flex-col">
+                <div class="flex space-between">
+                  <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">
+                    <span id="totalUsersCount" class="muted" style="font-size: 0.8rem;">Loading...</span>
+                  </h3>
+                  <button id="btnRefresh" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+                </div>
+                <input id="searchUserInput" type="text" placeholder="Search users by UID or email..." />
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>UID</th>
+                      <th>Email Address</th>
+                      <th>Inbox User</th>
+                      <th style="text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center muted" style="padding: 20px;">Loading data...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB: ADS -->
+            <div id="viewListAds" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+              <div class="flex space-between mb-4">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ad Campaigns</h3>
+                <button id="btnRefreshAds" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+              </div>
+              <div class="table-container">
+                <table style="font-size:0.9rem;">
+                  <thead>
+                    <tr>
+                      <th style="width:80px;">Preview</th>
+                      <th>Links & Content</th>
+                      <th style="width:100px;">Status</th>
+                      <th style="width:50px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="adsTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center muted">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </div>
 
