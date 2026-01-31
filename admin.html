@@ -1,147 +1,21 @@
 <!doctype html>
 <html lang="id">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Console - Arufkuy Webmail</title>
-  <style>
-    :root { color-scheme: dark; }
-    * { box-sizing: border-box; outline: none; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #0b0f17;
-      color: #e8eefc;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* --- UTILS --- */
-    .hidden { display: none !important; }
-    .muted { opacity: 0.6; font-size: 13px; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    .flex { display: flex; gap: 10px; align-items: center; }
-    .flex-col { display: flex; flex-direction: column; gap: 10px; }
-    .space-between { justify-content: space-between; }
-    .w-full { width: 100%; }
-    .mt-4 { margin-top: 16px; }
-    .mb-4 { margin-bottom: 16px; }
-
-    /* --- COMPONENTS --- */
-    button {
-      background: #1a2a52; border: 1px solid #2a3f75; color: #e8eefc;
-      padding: 10px 16px; border-radius: 8px; cursor: pointer;
-      font-weight: 500; font-size: 13px; transition: all 0.2s;
-    }
-    button:hover { background: #223460; border-color: #4e7dff; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    button.primary { background: #4e7dff; border-color: #4e7dff; color: #fff; }
-    button.primary:hover { background: #3b63d1; }
-
-    button.danger { background: #2a0f0f; border-color: #5a1a1a; color: #ff9b9b; }
-    button.danger:hover { background: #3f1515; border-color: #ff4d4d; }
-
-    input {
-      background: #0f1626; color: #e8eefc; border: 1px solid #223055;
-      border-radius: 8px; padding: 12px; width: 100%; font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    input:focus { border-color: #4e7dff; }
-    input[readonly] { opacity: 0.6; cursor: default; }
-
-    .card {
-      background: #0f1626; border: 1px solid #1b2640; border-radius: 12px;
-      padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    }
-
-    /* --- LOGIN VIEW --- */
-    #loginView {
-      flex: 1; display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-    }
-    .login-box { width: 100%; max-width: 400px; }
-    .brand-logo {
-      font-size: 24px; font-weight: 700; margin-bottom: 8px;
-      background: linear-gradient(45deg, #4e7dff, #8db0ff);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-
-    /* --- DASHBOARD VIEW --- */
-    #dashboardView {
-      flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden;
-    }
-
-    header {
-      height: 60px; border-bottom: 1px solid #1b2640; background: #0b0f17;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; flex-shrink: 0;
-    }
-    .header-title { font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
-    .admin-badge {
-      font-size: 10px; background: #152248; color: #4e7dff;
-      padding: 2px 6px; border-radius: 4px; border: 1px solid #2a3f75;
-    }
-
-    .main-content {
-      flex: 1; overflow-y: auto; padding: 24px;
-      max-width: 1200px; margin: 0 auto; width: 100%;
-    }
-
-    .grid-layout {
-      display: grid; grid-template-columns: 1fr 2fr; gap: 24px;
-    }
-    @media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
-
-    /* Input Group */
-    .input-group { display: flex; }
-    .input-group input { border-top-right-radius: 0; border-bottom-right-radius: 0; }
-    .input-group .addon {
-      background: #1b2640; border: 1px solid #223055; border-left: 0;
-      color: #8db0ff; padding: 0 16px; display: flex; align-items: center;
-      border-top-right-radius: 8px; border-bottom-right-radius: 8px; font-size: 13px;
-    }
-    .input-group button {
-      border-top-left-radius: 0; border-bottom-left-radius: 0;
-      border-left: 0;
-    }
-
-    /* Table */
-    .table-container {
-      border: 1px solid #1b2640; border-radius: 8px; overflow: hidden;
-      background: #0b1222; margin-top: 16px;
-    }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #1b2640; }
-    th { background: #151b2b; color: #8db0ff; font-weight: 600; font-size: 11px; text-transform: uppercase; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover { background: #111827; }
-
-    .status-msg { font-size: 13px; margin-top: 8px; min-height: 20px; }
-    .status-msg.error { color: #ff9b9b; }
-    .status-msg.success { color: #4caf50; }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); z-index: 100;
-      display: flex; align-items: center; justify-content: center;
-      backdrop-filter: blur(4px); padding: 20px;
-    }
-    .modal-box {
-      background: #0f1626; padding: 24px; border-radius: 16px;
-      border: 1px solid #1b2640; width: 100%; max-width: 500px;
-      display: flex; flex-direction: column; gap: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    pre { background: #0b0f17; padding: 12px; border-radius: 8px; overflow: auto; max-height: 300px; font-size: 12px; }
-
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
 </head>
+
 <body>
+  <div class="bg-ambient"></div>
+  <div class="grid-bg"></div>
 
   <!-- VIEW: LOGIN -->
   <div id="loginView">
@@ -153,7 +27,7 @@
         <div class="flex-col">
           <input id="emailInput" type="email" placeholder="Admin Email" autocomplete="username" required />
           <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required />
-          <button id="btnLogin" type="submit" class="primary w-full mt-4">Authenticate</button>
+          <button id="btnLogin" type="submit" class="btn-primary w-full mt-4">Authenticate</button>
         </div>
       </form>
 
@@ -170,10 +44,10 @@
       </div>
       <div class="flex">
         <div class="text-right" style="line-height: 1.2;">
-          <div id="adminEmailDisplay" style="font-size: 13px; font-weight: 500;">...</div>
-          <div class="muted" style="font-size: 11px;">Logged in</div>
+          <div id="adminEmailDisplay" style="font-size: 0.875rem; font-weight: 500;">...</div>
+          <div class="muted" style="font-size: 0.75rem;">Logged in</div>
         </div>
-        <button id="btnLogout" class="danger" style="padding: 6px 12px; font-size: 11px;">Logout</button>
+        <button id="btnLogout" class="btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Logout</button>
       </div>
     </header>
 
@@ -184,72 +58,178 @@
         <!-- Left: Create/Edit User -->
         <div class="flex-col">
           <div class="card">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px;">User Mapping</h3>
-            <div class="muted mb-4">Map Firebase UID to Inbox Address.</div>
+            <!-- Tabs -->
+            <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+              <button id="tabMap" class="active-tab" style="font-size: 0.8rem; padding: 6px 12px;">Map Existing</button>
+              <button id="tabCreate"
+                style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Create
+                New</button>
+              <button id="tabAds"
+                style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Add
+                Ad</button>
+            </div>
 
-            <div class="flex-col">
-              <div>
-                <label class="muted">Firebase UID</label>
-                <div class="input-group">
-                  <input id="targetUid" class="mono" placeholder="Paste User UID" />
-                  <button id="btnCheckUid" title="Check if UID exists">Check</button>
+            <!-- VIEW: MAP EXISTING -->
+            <div id="viewMap">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">User Mapping</h3>
+              <div class="muted mb-4">Map Firebase UID to Inbox Address.</div>
+
+              <div class="flex-col">
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Firebase UID</label>
+                  <div class="input-group">
+                    <input id="targetUid" class="mono" placeholder="Paste User UID" />
+                    <button id="btnCheckUid" title="Check if UID exists">Check</button>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label class="muted">Username (a-z, 0-9, ., _, -)</label>
-                <div class="input-group">
-                  <input id="targetLocalPart" placeholder="username" />
-                  <div class="addon">@arufkuy.me</div>
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Username (a-z, 0-9, ., _, -)</label>
+                  <div class="input-group">
+                    <input id="targetLocalPart" placeholder="username" />
+                    <div class="addon">@arufkuy.me</div>
+                  </div>
                 </div>
-              </div>
 
-              <div style="padding: 12px; background: #0b1222; border-radius: 8px; border: 1px dashed #223055;">
-                <div class="flex space-between mb-4">
-                  <span class="muted">Inbox User:</span>
-                  <span id="previewUser" class="mono" style="color: #fff;">-</span>
+                <div class="preview-box">
+                  <div class="flex space-between mb-4">
+                    <span class="muted">Inbox User:</span>
+                    <span id="previewUser" class="mono" style="color: #fff;">-</span>
+                  </div>
+                  <div class="flex space-between">
+                    <span class="muted">Address:</span>
+                    <span id="previewAddress" class="mono" style="color: #fff;">-</span>
+                  </div>
                 </div>
-                <div class="flex space-between">
-                  <span class="muted">Address:</span>
-                  <span id="previewAddress" class="mono" style="color: #fff;">-</span>
+
+                <div class="flex mt-4">
+                  <button id="btnSave" class="btn-primary w-full">Save & Sync</button>
+                  <button id="btnDelete" class="btn-danger" disabled title="Delete Mapping">Del</button>
                 </div>
-              </div>
-
-              <div class="flex mt-4">
-                <button id="btnSave" class="primary w-full">Save & Sync to Worker</button>
-                <button id="btnDelete" class="danger" disabled title="Delete Mapping">Del</button>
-              </div>
-              <div id="actionMsg" class="status-msg text-center"></div>
-
-              <div class="muted text-center" style="font-size: 11px; margin-top: 8px; opacity: 0.5;">
-                Note: This will update Firestore AND sync to Worker KV.
               </div>
             </div>
+
+            <!-- VIEW: CREATE NEW -->
+            <div id="viewCreate" class="hidden">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">Create & Register</h3>
+              <div class="muted mb-4">Create Auth User + Map + Sync.</div>
+
+              <div class="flex-col">
+                <!-- Email Field Removed: Derived from Username -->
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Username</label>
+                  <div class="input-group">
+                    <input id="newUsername" placeholder="username" />
+                    <div class="addon">@arufkuy.me</div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Password</label>
+                  <div class="input-group">
+                    <input id="newPassword" type="text" placeholder="min 6 chars" />
+                    <button id="btnGenPass" title="Generate Random">Gen</button>
+                  </div>
+                </div>
+
+                <div class="flex mt-4">
+                  <button id="btnCreateUser" class="btn-primary w-full">Create User</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- VIEW: AD CONFIG (Add Form Only) -->
+            <div id="viewAds" class="hidden">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">Ad Manager</h3>
+
+              <!-- Add New Ad Form -->
+              <div class="flex-col" style="gap:10px;">
+                <label class="muted">Add New Pop-up</label>
+                <input id="adImage" placeholder="Image URL (http://...)" />
+                <div class="flex" style="gap:10px;">
+                  <input id="adLink" placeholder="Target Link" style="flex:1;" />
+                  <input id="adBtnText" placeholder="Btn Text (Open)" style="width:120px;" />
+                </div>
+                <button id="btnAddAd" class="btn-primary" style="padding:8px;">Add Ad</button>
+              </div>
+            </div>
+
+            <div id="actionMsg" class="status-msg text-center" style="margin-top: 12px;"></div>
           </div>
         </div>
 
         <!-- Right: User List -->
-        <div class="flex-col">
-          <div class="card" style="height: 100%; display: flex; flex-direction: column;">
-            <div class="flex space-between">
-              <h3 style="margin: 0; font-size: 16px;">Registered Users</h3>
-              <button id="btnRefresh" style="padding: 6px 12px; font-size: 11px;">Refresh</button>
-            </div>
+        <div class="right-col">
+          <!-- Right: User List & Ads List -->
+          <div class="right-col">
+            <div class="card table-card">
 
-            <div class="table-container" style="flex: 1; overflow-y: auto;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>UID</th>
-                    <th>Email Address</th>
-                    <th>Inbox User</th>
-                    <th style="text-align: right;">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                  <tr><td colspan="4" class="text-center muted" style="padding: 20px;">Loading data...</td></tr>
-                </tbody>
-              </table>
+              <!-- Right Tabs -->
+              <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <button id="tabListUsers" class="active-tab"
+                  style="font-size: 0.9rem; padding: 6px 12px; margin-right:10px;">Registered Users</button>
+                <button id="tabListAds"
+                  style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Active
+                  Campaigns</button>
+              </div>
+
+              <!-- TAB: USERS -->
+              <div id="viewListUsers">
+                <div class="table-header-area flex-col">
+                  <div class="flex space-between">
+                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">
+                      <span id="totalUsersCount" class="muted" style="font-size: 0.8rem;">Loading...</span>
+                    </h3>
+                    <button id="btnRefresh" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+                  </div>
+                  <input id="searchUserInput" type="text" placeholder="Search users by UID or email..." />
+                </div>
+
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>UID</th>
+                        <th>Email Address</th>
+                        <th>Inbox User</th>
+                        <th style="text-align: right;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                      <tr>
+                        <td colspan="4" class="text-center muted" style="padding: 20px;">Loading data...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- TAB: ADS -->
+              <div id="viewListAds" class="hidden">
+                <div class="flex space-between mb-4">
+                  <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ad Campaigns</h3>
+                  <button id="btnRefreshAds" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+                </div>
+                <div class="table-container">
+                  <table style="font-size:0.9rem;">
+                    <thead>
+                      <tr>
+                        <th style="width:80px;">Preview</th>
+                        <th>Links & Content</th>
+                        <th style="width:100px;">Status</th>
+                        <th style="width:50px;"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="adsTableBody">
+                      <tr>
+                        <td colspan="4" class="text-center muted">Loading...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -263,325 +243,639 @@
   <div id="infoModal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="flex space-between">
-        <h3 style="margin:0">Raw Data Inspector</h3>
-        <button id="btnCloseModal" style="background:transparent; border:none; color:#8db0ff; padding:0;">✕</button>
+        <h3 style="margin:0; font-size: 1.1rem;">Raw Data Inspector</h3>
+        <button id="btnCloseModal"
+          style="background:transparent; border:none; color:var(--text-muted); padding:0; font-size:1.2rem;">✕</button>
       </div>
       <div class="muted">Data stored in Firestore for this user:</div>
       <pre id="jsonContent" class="mono"></pre>
     </div>
   </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
-    authDomain: "webmail-arufkuy.firebaseapp.com",
-    projectId: "webmail-arufkuy",
-    storageBucket: "webmail-arufkuy.firebasestorage.app",
-    messagingSenderId: "608495162500",
-    appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
-    measurementId: "G-JXST3Z88R7"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
+      authDomain: "webmail-arufkuy.firebaseapp.com",
+      projectId: "webmail-arufkuy",
+      storageBucket: "webmail-arufkuy.firebasestorage.app",
+      messagingSenderId: "608495162500",
+      appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
+      measurementId: "G-JXST3Z88R7"
+    };
 
-  const WORKER_API = "https://api.arufkuy.workers.dev";
+    const WORKER_API = "https://api.arufkuy.workers.dev";
 
-  // Initialize Admin App (Isolated Auth)
-  const app = initializeApp(firebaseConfig, "AdminApp");
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    // Initialize Admin App (Isolated Auth)
+    const app = initializeApp(firebaseConfig, "AdminApp");
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // UI References
-  const $ = (id) => document.getElementById(id);
-  const views = {
-    login: $("loginView"),
-    dashboard: $("dashboardView")
-  };
+    // UI References
+    const $ = (id) => document.getElementById(id);
+    const views = {
+      login: $("loginView"),
+      dashboard: $("dashboardView")
+    };
 
-  const els = {
-    email: $("emailInput"),
-    pass: $("passwordInput"),
-    btnLogin: $("btnLogin"),
-    loginMsg: $("loginMsg"),
-    btnLogout: $("btnLogout"),
-    adminEmail: $("adminEmailDisplay"),
+    const els = {
+      email: $("emailInput"),
+      pass: $("passwordInput"),
+      btnLogin: $("btnLogin"),
+      loginMsg: $("loginMsg"),
+      btnLogout: $("btnLogout"),
+      adminEmail: $("adminEmailDisplay"),
 
-    // Form
-    uid: $("targetUid"),
-    btnCheckUid: $("btnCheckUid"),
-    localPart: $("targetLocalPart"),
-    previewUser: $("previewUser"),
-    previewAddress: $("previewAddress"),
-    btnSave: $("btnSave"),
-    btnDelete: $("btnDelete"),
-    actionMsg: $("actionMsg"),
+      // Form
+      uid: $("targetUid"),
+      btnCheckUid: $("btnCheckUid"),
+      localPart: $("targetLocalPart"),
+      previewUser: $("previewUser"),
+      previewAddress: $("previewAddress"),
+      btnSave: $("btnSave"),
+      btnDelete: $("btnDelete"),
+      actionMsg: $("actionMsg"),
 
-    // List
-    btnRefresh: $("btnRefresh"),
-    tableBody: $("usersTableBody"),
+      // List
+      btnRefresh: $("btnRefresh"),
+      searchUserInput: $("searchUserInput"),
+      totalUsersCount: $("totalUsersCount"),
+      tableBody: $("usersTableBody"),
 
-    // Modal
-    infoModal: $("infoModal"),
-    jsonContent: $("jsonContent"),
-    btnCloseModal: $("btnCloseModal")
-  };
+      // Modal
+      infoModal: $("infoModal"),
+      jsonContent: $("jsonContent"),
+      btnCloseModal: $("btnCloseModal"),
 
-  let currentUser = null;
-  let fbToken = null;
+      // Tabs & Create
+      tabMap: $("tabMap"),
+      tabCreate: $("tabCreate"),
+      viewMap: $("viewMap"),
+      viewCreate: $("viewCreate"),
+      viewAds: $("viewAds"),
+      tabAds: $("tabAds"),
 
-  // --- AUTH FLOW ---
+      // Ads (New)
+      adImage: $("adImage"),
+      adLink: $("adLink"),
+      adBtnText: $("adBtnText"),
+      adBtnText: $("adBtnText"),
+      btnAddAd: $("btnAddAd"),
 
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      // 1. Check Admin Privileges
-      els.loginMsg.textContent = "Verifying privileges...";
-      els.btnLogin.disabled = true;
+      // Right Tabs
+      tabListUsers: $("tabListUsers"),
+      tabListAds: $("tabListAds"),
+      viewListUsers: $("viewListUsers"),
+      viewListAds: $("viewListAds"),
 
-      try {
-        const isAdmin = await checkAdmin(user.uid);
-        if (isAdmin) {
-          currentUser = user;
-          fbToken = await user.getIdToken();
-          enterDashboard();
-        } else {
-          throw new Error("Access Denied: Not an admin.");
+      adsTableBody: $("adsTableBody"),
+      btnRefreshAds: $("btnRefreshAds"),
+
+      // newEmail: $("newEmail"), // Removed
+      newPassword: $("newPassword"),
+      btnGenPass: $("btnGenPass"),
+      newUsername: $("newUsername"),
+      btnCreateUser: $("btnCreateUser")
+    };
+
+    let currentUser = null;
+    let fbToken = null;
+    let allUsers = []; // To store all fetched users for searching
+
+    // --- AUTH FLOW ---
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // 1. Check Admin Privileges
+        els.loginMsg.textContent = "Verifying privileges...";
+        els.btnLogin.disabled = true;
+
+        try {
+          const isAdmin = await checkAdmin(user.uid);
+          if (isAdmin) {
+            currentUser = user;
+            fbToken = await user.getIdToken();
+            enterDashboard();
+          } else {
+            throw new Error("Access Denied: Not an admin.");
+          }
+        } catch (e) {
+          console.error(e);
+          els.loginMsg.textContent = e.message;
+          els.loginMsg.className = "status-msg error";
+          await signOut(auth);
+          els.btnLogin.disabled = false;
         }
-      } catch (e) {
-        console.error(e);
-        els.loginMsg.textContent = e.message;
-        els.loginMsg.className = "status-msg error";
-        await signOut(auth);
-        els.btnLogin.disabled = false;
+      } else {
+        currentUser = null;
+        showLogin();
       }
-    } else {
-      currentUser = null;
-      showLogin();
+    });
+
+    async function checkAdmin(uid) {
+      const snap = await getDoc(doc(db, "admins", uid));
+      return snap.exists() && snap.data().isAdmin === true;
     }
-  });
 
-  async function checkAdmin(uid) {
-    const snap = await getDoc(doc(db, "admins", uid));
-    return snap.exists() && snap.data().isAdmin === true;
-  }
-
-  function showLogin() {
-    views.dashboard.classList.add("hidden");
-    views.login.classList.remove("hidden");
-    els.email.value = "";
-    els.pass.value = "";
-    els.loginMsg.textContent = "";
-    els.btnLogin.disabled = false;
-    els.btnLogin.textContent = "Authenticate";
-  }
-
-  function enterDashboard() {
-    views.login.classList.add("hidden");
-    views.dashboard.classList.remove("hidden");
-    els.adminEmail.textContent = currentUser.email;
-    loadUsers();
-  }
-
-  // --- WORKER SYNC ---
-  async function syncToWorker(uid, inboxUser) {
-    // Call Worker Admin API to update KV
-    // PUT /admin/allow?uid=...&inboxUser=...
-    // Requires Admin Auth (which we assume Worker checks via Token or just open for now if logic allows)
-    // NOTE: Your worker code: requireAdmin(request, env) -> returns {ok: true} (OPEN for now)
-    // Ideally you should secure this. But for now let's just call it.
-
-    // Since your worker requires Firebase Token for user routes, but Admin routes are currently OPEN in code provided:
-    // function requireAdmin(request, env) { return { ok: true }; }
-    // So we can just fetch.
-
-    const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
-    const res = await fetch(url, { method: "PUT" });
-    if (!res.ok) throw new Error(`Worker Sync Failed: ${res.status}`);
-    return res.json();
-  }
-
-  async function deleteFromWorker(uid, inboxUser) {
-    const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
-    const res = await fetch(url, { method: "DELETE" });
-    if (!res.ok) throw new Error(`Worker Delete Failed: ${res.status}`);
-    return res.json();
-  }
-
-  // --- ACTIONS ---
-
-  els.btnLogin.onclick = async () => {
-    const email = els.email.value;
-    const pass = els.pass.value;
-    if(!email || !pass) return;
-
-    els.btnLogin.disabled = true;
-    els.btnLogin.textContent = "Signing in...";
-    els.loginMsg.textContent = "";
-
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle the rest
-    } catch (e) {
-      els.loginMsg.textContent = "Login Failed: " + e.message;
-      els.loginMsg.className = "status-msg error";
+    function showLogin() {
+      views.dashboard.classList.add("hidden");
+      views.login.classList.remove("hidden");
+      els.email.value = "";
+      els.pass.value = "";
+      els.loginMsg.textContent = "";
       els.btnLogin.disabled = false;
       els.btnLogin.textContent = "Authenticate";
     }
-  };
 
-  els.btnLogout.onclick = () => signOut(auth);
+    function enterDashboard() {
+      views.login.classList.add("hidden");
+      views.dashboard.classList.remove("hidden");
+      els.adminEmail.textContent = currentUser.email;
+      loadUsers();
+      /* Load Ad Settings */
+      els.adminEmail.textContent = currentUser.email;
+      loadUsers();
+      /* Load Ad Settings */
+      loadAdSettings();
+      els.searchUserInput.addEventListener('input', filterUsers);
 
-  // Form Logic
-  els.localPart.oninput = () => {
-    let val = els.localPart.value.toLowerCase();
-    // Validate: Only allow a-z, 0-9, ., _, -
-    val = val.replace(/[^a-z0-9._-]/g, "");
-    els.localPart.value = val;
-
-    if(val) {
-      els.previewUser.textContent = val;
-      els.previewAddress.textContent = `${val}@arufkuy.me`;
-    } else {
-      els.previewUser.textContent = "-";
-      els.previewAddress.textContent = "-";
-    }
-  };
-
-  els.btnCheckUid.onclick = async () => {
-    const uid = els.uid.value.trim();
-    if (!uid) {
-      setStatus("Please enter a UID first.", "error");
-      return;
+      // Setup Right Tabs
+      els.tabListUsers.onclick = () => switchRightTab('users');
+      els.tabListAds.onclick = () => switchRightTab('ads');
     }
 
-    els.btnCheckUid.disabled = true;
-    els.btnCheckUid.textContent = "...";
+    function switchRightTab(mode) {
+      if (mode === 'users') {
+        els.tabListUsers.classList.add("active-tab");
+        els.tabListUsers.style.opacity = "1";
+        els.tabListUsers.style.borderBottom = "2px solid var(--accent-primary)";
 
-    try {
-      const snap = await getDoc(doc(db, "users", uid));
-      if (snap.exists()) {
-        const data = snap.data();
-        setStatus("User found! Loaded data.", "success");
-        if (data.email) {
-          els.localPart.value = data.email.split('@')[0];
-        } else if (data.inboxUser) {
-          els.localPart.value = data.inboxUser;
-        }
-        els.localPart.dispatchEvent(new Event('input'));
-        els.btnDelete.disabled = false;
+        els.tabListAds.classList.remove("active-tab");
+        els.tabListAds.style.opacity = "0.6";
+        els.tabListAds.style.borderBottom = "none";
+
+        els.viewListUsers.classList.remove("hidden");
+        els.viewListAds.classList.add("hidden");
       } else {
-        setStatus("User NOT found. Please create mapping.", "error");
+        els.tabListUsers.classList.remove("active-tab");
+        els.tabListUsers.style.opacity = "0.6";
+        els.tabListUsers.style.borderBottom = "none";
+
+        els.tabListAds.classList.add("active-tab");
+        els.tabListAds.style.opacity = "1";
+        els.tabListAds.style.borderBottom = "2px solid var(--accent-primary)";
+
+        els.viewListUsers.classList.add("hidden");
+        els.viewListAds.classList.remove("hidden");
+        loadAdSettings(); // ensure fresh
+      }
+    }
+
+    // --- WORKER SYNC ---
+    async function syncToWorker(uid, inboxUser) {
+      // Call Worker Admin API to update KV
+      // PUT /admin/allow?uid=...&inboxUser=...
+      // Requires Admin Auth (which we assume Worker checks via Token or just open for now if logic allows)
+      // NOTE: Your worker code: requireAdmin(request, env) -> returns {ok: true} (OPEN for now)
+      // Ideally you should secure this. But for now let's just call it.
+
+      // Since your worker requires Firebase Token for user routes, but Admin routes are currently OPEN in code provided:
+      // function requireAdmin(request, env) { return { ok: true }; }
+      // So we can just fetch.
+
+      const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
+      const res = await fetch(url, { method: "PUT" });
+      if (!res.ok) throw new Error(`Worker Sync Failed: ${res.status}`);
+      return res.json();
+    }
+
+    async function deleteFromWorker(uid, inboxUser) {
+      const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
+      const res = await fetch(url, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Worker Delete Failed: ${res.status}`);
+      return res.json();
+    }
+
+    // --- ACTIONS ---
+
+    els.btnLogin.onclick = async () => {
+      const email = els.email.value;
+      const pass = els.pass.value;
+      if (!email || !pass) return;
+
+      els.btnLogin.disabled = true;
+      els.btnLogin.textContent = "Signing in...";
+      els.loginMsg.textContent = "";
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        // onAuthStateChanged will handle the rest
+      } catch (e) {
+        els.loginMsg.textContent = "Login Failed: " + e.message;
+        els.loginMsg.className = "status-msg error";
+        els.btnLogin.disabled = false;
+        els.btnLogin.textContent = "Authenticate";
+      }
+    };
+
+    els.btnLogout.onclick = () => signOut(auth);
+
+    // Form Logic
+    els.localPart.oninput = () => {
+      let val = els.localPart.value.toLowerCase();
+      // Validate: Only allow a-z, 0-9, ., _, -
+      val = val.replace(/[^a-z0-9._-]/g, "");
+      els.localPart.value = val;
+
+      if (val) {
+        els.previewUser.textContent = val;
+        els.previewAddress.textContent = `${val}@arufkuy.me`;
+      } else {
+        els.previewUser.textContent = "-";
+        els.previewAddress.textContent = "-";
+      }
+    };
+
+    els.btnCheckUid.onclick = async () => {
+      const uid = els.uid.value.trim();
+      if (!uid) {
+        setStatus("Please enter a UID first.", "error");
+        return;
+      }
+
+      els.btnCheckUid.disabled = true;
+      els.btnCheckUid.textContent = "...";
+
+      try {
+        const snap = await getDoc(doc(db, "users", uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          setStatus("User found! Loaded data.", "success");
+          if (data.email) {
+            els.localPart.value = data.email.split('@')[0];
+          } else if (data.inboxUser) {
+            els.localPart.value = data.inboxUser;
+          }
+          els.localPart.dispatchEvent(new Event('input'));
+          els.btnDelete.disabled = false;
+        } else {
+          setStatus("User NOT found. Please create mapping.", "error");
+          els.localPart.value = "";
+          els.localPart.dispatchEvent(new Event('input'));
+          els.btnDelete.disabled = true;
+        }
+      } catch (e) {
+        setStatus("Error checking UID: " + e.message, "error");
+      } finally {
+        els.btnCheckUid.disabled = false;
+        els.btnCheckUid.textContent = "Check";
+      }
+    };
+
+    els.btnSave.onclick = async () => {
+      const uid = els.uid.value.trim();
+      const local = els.localPart.value.trim().toLowerCase();
+
+      if (!uid || !local) {
+        setStatus("All fields required", "error");
+        return;
+      }
+
+      setStatus("Saving to Firestore...", "");
+      els.btnSave.disabled = true;
+
+      try {
+        // 1. Save to Firestore
+        await setDoc(doc(db, "users", uid), {
+          uid: uid,
+          email: `${local}@arufkuy.me`,
+          inboxUser: local,
+          username: local,
+          inboxAddress: `${local}@arufkuy.me`,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        }, { merge: true });
+
+        // 2. Sync to Worker KV
+        setStatus("Syncing to Worker...", "");
+        await syncToWorker(uid, local);
+
+        setStatus("User mapped & synced successfully!", "success");
+        els.uid.value = "";
         els.localPart.value = "";
         els.localPart.dispatchEvent(new Event('input'));
         els.btnDelete.disabled = true;
+        loadUsers(); // Reload all users after save
+      } catch (e) {
+        setStatus(e.message, "error");
+      } finally {
+        els.btnSave.disabled = false;
       }
-    } catch (e) {
-      setStatus("Error checking UID: " + e.message, "error");
-    } finally {
-      els.btnCheckUid.disabled = false;
-      els.btnCheckUid.textContent = "Check";
+    };
+
+    els.btnDelete.onclick = async () => {
+      const uid = els.uid.value.trim();
+      const local = els.localPart.value.trim();
+
+      if (!uid || !confirm("Delete mapping for this UID?")) return;
+
+      setStatus("Deleting...", "");
+      try {
+        await deleteDoc(doc(db, "users", uid));
+
+        if (local) {
+          setStatus("Deleting from Worker...", "");
+          await deleteFromWorker(uid, local);
+        }
+
+        setStatus("Mapping deleted.", "success");
+        els.uid.value = "";
+        els.localPart.value = "";
+        els.localPart.dispatchEvent(new Event('input'));
+        els.btnDelete.disabled = true;
+        loadUsers(); // Reload all users after delete
+      } catch (e) {
+        setStatus(e.message, "error");
+      }
+    };
+
+    // --- TAB LOGIC ---
+    // Set initial state style manually first time
+    switchTab('map');
+
+    function switchTab(mode) {
+      // Reset all
+      [els.tabMap, els.tabCreate, els.tabAds].forEach(t => {
+        t.classList.remove("active-tab");
+        t.style.opacity = "0.6";
+        t.style.borderBottom = "none";
+      });
+      [els.viewMap, els.viewCreate, els.viewAds].forEach(v => v.classList.add("hidden"));
+
+      // Activate selected
+      if (mode === 'map') {
+        activateTab(els.tabMap, els.viewMap);
+      } else if (mode === 'create') {
+        activateTab(els.tabCreate, els.viewCreate);
+      } else if (mode === 'ads') {
+        activateTab(els.tabAds, els.viewAds);
+      }
+      els.actionMsg.textContent = "";
     }
-  };
 
-  els.btnSave.onclick = async () => {
-    const uid = els.uid.value.trim();
-    const local = els.localPart.value.trim().toLowerCase();
-
-    if (!uid || !local) {
-      setStatus("All fields required", "error");
-      return;
+    function activateTab(tab, view) {
+      tab.classList.add("active-tab");
+      tab.style.opacity = "1";
+      tab.style.borderBottom = "2px solid var(--accent-primary)";
+      view.classList.remove("hidden");
     }
 
-    setStatus("Saving to Firestore...", "");
-    els.btnSave.disabled = true;
+    // --- ADS LIST LOGIC ---
+    async function loadAdSettings() { // Renamed conceptually to loadAds, keeping name for compat
+      els.adsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">Loading ads...</td></tr>`;
 
-    try {
-      // 1. Save to Firestore
-      await setDoc(doc(db, "users", uid), {
-        uid: uid,
-        email: `${local}@arufkuy.me`,
-        inboxUser: local,
-        username: local,
-        inboxAddress: `${local}@arufkuy.me`,
-        updatedAt: serverTimestamp(),
-        updatedBy: currentUser.uid
-      }, { merge: true });
+      try {
+        const q = query(collection(db, "settings", "ads", "items"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
 
-      // 2. Sync to Worker KV
-      setStatus("Syncing to Worker...", "");
-      await syncToWorker(uid, local);
+        if (snap.empty) {
+          els.adsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">No ads created.</td></tr>`;
+          return;
+        }
 
-      setStatus("User mapped & synced successfully!", "success");
-      els.uid.value = "";
-      els.localPart.value = "";
-      els.localPart.dispatchEvent(new Event('input'));
-      els.btnDelete.disabled = true;
-      loadUsers();
-    } catch (e) {
-      setStatus(e.message, "error");
-    } finally {
-      els.btnSave.disabled = false;
+        els.adsTableBody.innerHTML = "";
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+             <td>
+               <div style="width:60px; height:40px; background:#000; border-radius:4px; overflow:hidden;">
+                 <img src="${d.imageUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'"/>
+               </div>
+             </td>
+             <td style="font-size:0.85rem;">
+               <div style="font-weight:600; margin-bottom:2px;">${d.btnText}</div>
+               <a href="${d.linkUrl}" target="_blank" style="color:var(--text-muted); text-decoration:none; display:block; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${d.linkUrl}</a>
+             </td>
+             <td>
+               <button class="status-toggle" style="background:transparent; border:1px solid ${d.active ? 'var(--success)' : 'var(--border-color)'}; color:${d.active ? 'var(--success)' : 'var(--text-muted)'}; border-radius:4px; padding:4px 8px; font-size:0.75rem; cursor:pointer;">
+                 ${d.active ? 'ACTIVE' : 'INACTIVE'}
+               </button>
+             </td>
+             <td style="text-align:right;">
+               <button class="del-ad" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:1.1rem;">×</button>
+             </td>
+           `;
+
+          // Toggle Status
+          tr.querySelector(".status-toggle").onclick = async () => {
+            await updateDoc(doc(db, "settings", "ads", "items", docSnap.id), { active: !d.active });
+            loadAdSettings(); // Reload
+          };
+
+          // Delete
+          tr.querySelector(".del-ad").onclick = async () => {
+            if (!confirm("Delete this ad?")) return;
+            await deleteDoc(doc(db, "settings", "ads", "items", docSnap.id));
+            loadAdSettings();
+          };
+
+          els.adsTableBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error("Ad Load Error", e);
+        els.adsTableBody.innerHTML = `<tr><td colspan="4" class="text-center error">Error loading ads</td></tr>`;
+      }
     }
-  };
 
-  els.btnDelete.onclick = async () => {
-    const uid = els.uid.value.trim();
-    const local = els.localPart.value.trim();
+    els.btnAddAd.onclick = async () => {
+      const imageUrl = els.adImage.value.trim();
+      const linkUrl = els.adLink.value.trim();
+      const btnText = els.adBtnText.value.trim() || "Open";
 
-    if (!uid || !confirm("Delete mapping for this UID?")) return;
-
-    setStatus("Deleting...", "");
-    try {
-      await deleteDoc(doc(db, "users", uid));
-
-      if (local) {
-        setStatus("Deleting from Worker...", "");
-        await deleteFromWorker(uid, local);
+      if (!imageUrl) {
+        setStatus("Image URL required", "error");
+        return;
       }
 
-      setStatus("Mapping deleted.", "success");
-      els.uid.value = "";
-      els.localPart.value = "";
-      els.localPart.dispatchEvent(new Event('input'));
-      els.btnDelete.disabled = true;
-      loadUsers();
-    } catch (e) {
-      setStatus(e.message, "error");
+      els.btnAddAd.disabled = true;
+      setStatus("Adding Ad...", "");
+
+      try {
+        await addDoc(collection(db, "settings", "ads", "items"), {
+          imageUrl,
+          linkUrl,
+          btnText,
+          active: true, // Default active
+          createdAt: serverTimestamp()
+        });
+
+        setStatus("Ad Added!", "success");
+        els.adImage.value = "";
+        els.adLink.value = "";
+        els.adBtnText.value = "";
+        loadAdSettings(); // Reload list
+      } catch (e) {
+        setStatus("Error: " + e.message, "error");
+      } finally {
+        els.btnAddAd.disabled = false;
+      }
+    };
+
+    // Init Tabs styles (simple inline for now or add to CSS, here inline for speed)
+    els.tabMap.onclick = () => switchTab('map');
+    els.tabCreate.onclick = () => switchTab('create');
+    els.tabAds.onclick = () => switchTab('ads');
+
+    // --- CREATE USER LOGIC ---
+
+    // newEmail listener removed.
+
+    els.btnGenPass.onclick = () => {
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+      let pass = "";
+      for (let i = 0; i < 12; i++) {
+        pass += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      els.newPassword.value = pass;
+    };
+
+    els.newUsername.addEventListener("input", () => {
+      const val = els.newUsername.value;
+      const clean = val.replace(/[^a-z0-9._-]/g, "").toLowerCase();
+      if (val !== clean) els.newUsername.value = clean;
+    });
+
+    els.btnCreateUser.onclick = async () => {
+      const username = els.newUsername.value.trim().toLowerCase();
+      const pass = els.newPassword.value.trim();
+      // Derive Email from Username
+      const fullEmail = `${username}@arufkuy.me`;
+
+      if (!username || !pass) {
+        setStatus("Please fill all fields.", "error");
+        return;
+      }
+
+      if (username.length < 3) {
+        setStatus("Username too short.", "error");
+        return;
+      }
+
+      els.btnCreateUser.disabled = true;
+      setStatus(`Creating ${fullEmail}...`, "");
+
+      // SECONDARY APP PATTERN
+      let secondaryApp = null;
+      try {
+        // 1. Initialize secondary app to create user without logging out admin
+        secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getAuth(secondaryApp);
+
+        // 2. Create User
+        const userCred = await createUserWithEmailAndPassword(secondaryAuth, fullEmail, pass);
+        const newUid = userCred.user.uid;
+
+        // 3. Sign out secondary (just to be clean)
+        await signOut(secondaryAuth);
+
+        setStatus("Auth created. Saving to DB...", "");
+
+        // 4. Save to Firestore (Primary App)
+        await setDoc(doc(db, "users", newUid), {
+          uid: newUid,
+          email: `${username}@arufkuy.me`, // Use internal email or original? Let's use Mapping logic.
+          // Actually, usually we store the recovery email too. 
+          // But for consistent mapping:
+          inboxUser: username,
+          username: username,
+          inboxAddress: `${username}@arufkuy.me`,
+          inboxAddress: `${username}@arufkuy.me`,
+          originalEmail: fullEmail, // Keep record of source email
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        }, { merge: true });
+
+        // 5. Sync to Worker
+        setStatus("Syncing to Worker...", "");
+        await syncToWorker(newUid, username);
+
+        setStatus(`User ${username} created & synced!`, "success");
+
+        // Reset Form
+        // Reset Form
+        els.newPassword.value = "";
+        els.newUsername.value = "";
+
+        // Reload List
+        loadUsers();
+
+      } catch (e) {
+        console.error(e);
+        setStatus("Error: " + e.message, "error");
+      } finally {
+        if (secondaryApp) {
+          try { await deleteApp(secondaryApp); } catch (e) {/* ignore */ }
+        }
+        els.btnCreateUser.disabled = false;
+      }
+    };
+
+    // List Logic
+    els.btnRefresh.onclick = loadUsers;
+    els.btnRefreshAds.onclick = loadAdSettings;
+
+    async function loadUsers() {
+      els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">Loading all users...</td></tr>`;
+      els.totalUsersCount.textContent = "(...)";
+      els.searchUserInput.value = ""; // Clear search on refresh
+
+      try {
+        // Fetch all users (remove limit)
+        const q = query(collection(db, "users"), orderBy("updatedAt", "desc"));
+        const snap = await getDocs(q);
+
+        allUsers = []; // Clear previous users
+        snap.forEach(d => {
+          allUsers.push({ id: d.id, ...d.data() });
+        });
+
+        els.totalUsersCount.textContent = `(${allUsers.length})`;
+        renderUsers(allUsers); // Render all users initially
+
+      } catch (e) {
+        els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center error" style="padding:20px;">Error loading users: ${e.message}</td></tr>`;
+        els.totalUsersCount.textContent = "(Error)";
+      }
     }
-  };
 
-  // List Logic
-  els.btnRefresh.onclick = loadUsers;
+    function renderUsers(usersToRender) {
+      els.tableBody.innerHTML = ""; // Clear current table
 
-  async function loadUsers() {
-    els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">Refreshing...</td></tr>`;
-
-    try {
-      const q = query(collection(db, "users"), orderBy("updatedAt", "desc"), limit(50));
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
+      if (usersToRender.length === 0) {
         els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">No users found.</td></tr>`;
         return;
       }
 
-      els.tableBody.innerHTML = "";
-      snap.forEach(d => {
-        const data = d.data();
+      usersToRender.forEach(data => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td class="mono" style="font-size:12px; opacity:0.8;">${d.id}</td>
-          <td>${data.email || '-'}</td>
-          <td class="mono" style="color:#4e7dff;">${data.inboxUser || '-'}</td>
-          <td style="text-align:right;">
-            <button class="info-btn" style="padding:4px 8px; font-size:11px; margin-right:4px;">Info</button>
-            <button class="edit-btn" style="padding:4px 10px; font-size:11px;">Edit</button>
-          </td>
-        `;
+        <td class="mono" style="font-size:0.8rem; opacity:0.8;">${data.id}</td>
+        <td>${data.email || '-'}</td>
+        <td class="mono" style="color:var(--accent-primary);">${data.inboxUser || '-'}</td>
+        <td style="text-align:right;">
+          <button class="info-btn" style="padding:4px 8px; font-size:0.7rem; margin-right:4px;">Info</button>
+          <button class="edit-btn" style="padding:4px 10px; font-size:0.7rem;">Edit</button>
+        </td>
+      `;
 
         row.querySelector(".edit-btn").onclick = () => {
-          els.uid.value = d.id;
+          els.uid.value = data.id;
           els.btnCheckUid.click(); // Use check logic to load
         };
 
@@ -591,32 +885,46 @@
 
         els.tableBody.appendChild(row);
       });
-
-    } catch (e) {
-      els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center error" style="padding:20px;">${e.message}</td></tr>`;
     }
-  }
 
-  function showInfo(data) {
-    // Convert timestamp to string for display
-    const displayData = { ...data };
-    if (displayData.updatedAt && displayData.updatedAt.toDate) {
-      displayData.updatedAt = displayData.updatedAt.toDate().toISOString();
+    function filterUsers() {
+      const searchTerm = els.searchUserInput.value.toLowerCase().trim();
+      if (!searchTerm) {
+        renderUsers(allUsers); // If search term is empty, show all users
+        return;
+      }
+
+      const filtered = allUsers.filter(user => {
+        const uidMatch = user.id.toLowerCase().includes(searchTerm);
+        const emailMatch = user.email && user.email.toLowerCase().includes(searchTerm);
+        const inboxUserMatch = user.inboxUser && user.inboxUser.toLowerCase().includes(searchTerm);
+        return uidMatch || emailMatch || inboxUserMatch;
+      });
+
+      renderUsers(filtered);
     }
-    els.jsonContent.textContent = JSON.stringify(displayData, null, 2);
-    els.infoModal.classList.remove("hidden");
-  }
 
-  els.btnCloseModal.onclick = () => {
-    els.infoModal.classList.add("hidden");
-  };
+    function showInfo(data) {
+      // Convert timestamp to string for display
+      const displayData = { ...data };
+      if (displayData.updatedAt && displayData.updatedAt.toDate) {
+        displayData.updatedAt = displayData.updatedAt.toDate().toISOString();
+      }
+      els.jsonContent.textContent = JSON.stringify(displayData, null, 2);
+      els.infoModal.classList.remove("hidden");
+    }
 
-  function setStatus(msg, type) {
-    els.actionMsg.textContent = msg;
-    els.actionMsg.className = `status-msg ${type}`;
-    if (type === 'success') setTimeout(() => els.actionMsg.textContent = "", 3000);
-  }
+    els.btnCloseModal.onclick = () => {
+      els.infoModal.classList.add("hidden");
+    };
 
-</script>
+    function setStatus(msg, type) {
+      els.actionMsg.textContent = msg;
+      els.actionMsg.className = `status-msg ${type}`;
+      if (type === 'success') setTimeout(() => els.actionMsg.textContent = "", 3000);
+    }
+
+  </script>
 </body>
+
 </html>
