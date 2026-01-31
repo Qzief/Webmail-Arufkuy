@@ -355,6 +355,7 @@
       // Visual status chip
       statusChip: $("statusChip"),
       statusChipText: $("statusChipText"),
+      formatBtns: document.querySelectorAll(".seg button"),
     };
 
     // --- small UI sync helper (badge -> chip) ---
@@ -553,6 +554,10 @@
 
     function renderBody(msg) {
       els.rBody.innerHTML = "";
+      els.formatBtns.forEach(b => b.classList.remove("active"));
+
+      const activeBtn = Array.from(els.formatBtns).find(b => b.textContent.toLowerCase().includes(currentViewMode));
+      if (activeBtn) activeBtn.classList.add("active");
 
       if (currentViewMode === "json") {
         const pre = document.createElement("pre");
@@ -560,6 +565,9 @@
         pre.style.whiteSpace = "pre-wrap";
         pre.style.margin = "0";
         pre.style.color = "#e5e7eb";
+        pre.style.height = "100%"; // Fix: Full height
+        pre.style.overflow = "auto"; // Fix: Enable scroll
+        pre.style.scrollbarWidth = "thin"; // Fix: Nice scrollbar
         pre.textContent = JSON.stringify(msg, null, 2);
         els.rBody.appendChild(pre);
         return;
@@ -572,6 +580,9 @@
         pre.style.margin = "0";
         pre.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
         pre.style.color = "#e5e7eb";
+        pre.style.height = "100%"; // Fix: Full height
+        pre.style.overflow = "auto"; // Fix: Enable scroll
+        pre.style.scrollbarWidth = "thin"; // Fix: Nice scrollbar
         pre.textContent = msg.text || "(No text content)";
         els.rBody.appendChild(pre);
         return;
