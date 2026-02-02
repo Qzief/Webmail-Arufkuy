@@ -1613,8 +1613,8 @@ input:-webkit-autofill:active {
     transform: scale(0.98);
 }
 
-/* Corner Popup (New Neutral Name) */
-.corner-popup {
+/* Adrufkuy Corner (New Name) */
+.adrufkuy-corner {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -1630,7 +1630,7 @@ input:-webkit-autofill:active {
     flex-direction: column;
 }
 
-.corner-popup.hidden {
+.adrufkuy-corner.hidden {
     display: none !important;
 }
 
@@ -1639,7 +1639,7 @@ input:-webkit-autofill:active {
     to { transform: translateY(0); opacity: 1; }
 }
 
-.corner-close {
+.adrufkuy-close {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -1661,12 +1661,12 @@ input:-webkit-autofill:active {
     padding: 0;
 }
 
-.corner-close:hover {
+.adrufkuy-close:hover {
     background: rgba(239, 68, 68, 0.9);
     border-color: rgba(239, 68, 68, 1);
 }
 
-.corner-image {
+.adrufkuy-image {
     width: 100%;
     height: auto;
     display: block;

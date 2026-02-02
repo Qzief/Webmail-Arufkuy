@@ -323,12 +323,12 @@
     </div>
   </div>
 
-  <!-- Corner Popup (New Neutral Name) -->
-  <div id="cornerPopup" class="corner-popup hidden">
-    <button id="btnCloseCorner" class="corner-close">×</button>
-    <a id="cornerLink" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
+  <!-- Adrufkuy Corner (New Name) -->
+  <div id="adrufkuyCorner" class="adrufkuy-corner hidden">
+    <button id="btnCloseAdrufkuy" class="adrufkuy-close">×</button>
+    <a id="adrufkuyLink" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
        <span class="ad-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">Ad</span>
-       <img id="cornerImg" class="corner-image" src="" alt="Promo" />
+       <img id="adrufkuyImg" class="adrufkuy-image" src="" alt="Promo" />
     </a>
   </div>
 
@@ -420,11 +420,11 @@
       adBtn: $("adBtn"),
       btnCloseAd: $("btnCloseAd"),
 
-      // Corner Popup (New Neutral Name)
-      cornerPopup: $("cornerPopup"),
-      btnCloseCorner: $("btnCloseCorner"),
-      cornerImg: $("cornerImg"),
-      cornerLink: $("cornerLink"),
+      // Adrufkuy Corner (New Name)
+      adrufkuyCorner: $("adrufkuyCorner"),
+      btnCloseAdrufkuy: $("btnCloseAdrufkuy"),
+      adrufkuyImg: $("adrufkuyImg"),
+      adrufkuyLink: $("adrufkuyLink"),
 
       // Notifications
       bellWrapper: $("bellWrapper"),
@@ -721,15 +721,15 @@
       setTimeout(() => {
           if (availableAds.length > 0) {
               const randomAd = availableAds[Math.floor(Math.random() * availableAds.length)];
-              els.cornerImg.src = randomAd.imageUrl;
-              els.cornerLink.href = randomAd.linkUrl || "#";
-              els.cornerPopup.classList.remove("hidden");
+              els.adrufkuyImg.src = randomAd.imageUrl;
+              els.adrufkuyLink.href = randomAd.linkUrl || "#";
+              els.adrufkuyCorner.classList.remove("hidden");
           }
       }, 3000);
     };
 
-    els.btnCloseCorner.onclick = () => {
-        els.cornerPopup.classList.add("hidden");
+    els.btnCloseAdrufkuy.onclick = () => {
+        els.adrufkuyCorner.classList.add("hidden");
     };
 
     // --- Worker API ---
