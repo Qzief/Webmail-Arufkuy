@@ -700,31 +700,14 @@
         if (activeAds.length === 0) return;
         availableAds = activeAds; // Store for corner ad
 
-        // 2. Check Login Counter Logic
-        let counter = parseInt(localStorage.getItem("ad_login_count") || "0");
-        counter++;
-        localStorage.setItem("ad_login_count", counter);
+        // SHOW RANDOM AD ALWAYS
+        const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
 
-        let threshold = parseInt(localStorage.getItem("ad_threshold") || "0");
-        if (threshold === 0) {
-          threshold = Math.floor(Math.random() * 2) + 1; // 1 or 2
-          localStorage.setItem("ad_threshold", threshold);
-        }
+        els.adImg.src = randomAd.imageUrl;
+        els.adLink.href = randomAd.linkUrl || "#";
+        els.adBtn.textContent = randomAd.btnText || "Open";
 
-        if (counter >= threshold) {
-          // SHOW RANDOM AD
-          const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
-
-          els.adImg.src = randomAd.imageUrl;
-          els.adLink.href = randomAd.linkUrl || "#";
-          els.adBtn.textContent = randomAd.btnText || "Open";
-
-          els.adModal.classList.add("visible");
-
-          // Reset
-          localStorage.setItem("ad_login_count", "0");
-          localStorage.setItem("ad_threshold", "0");
-        }
+        els.adModal.classList.add("visible");
 
       } catch (e) {
         console.warn("Ad check failed:", e);
