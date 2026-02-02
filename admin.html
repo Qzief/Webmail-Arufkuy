@@ -18,25 +18,28 @@
   <div class="grid-bg"></div>
 
   <!-- VIEW: LOGIN -->
-  <div id="loginView">
-    <div class="card login-box text-center">
+  <div id="loginView" class="admin-login-container">
+    <div class="admin-login-card glass">
+      <div class="admin-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      </div>
       <div class="brand-logo">Admin Console</div>
-      <div class="muted mb-4">Restricted Access Only</div>
+      <div class="muted mb-4" style="font-size: 0.9rem;">Restricted Access Only</div>
 
       <form id="loginForm" onsubmit="return false;">
-        <div class="flex-col">
-          <input id="emailInput" type="email" placeholder="Admin Email" autocomplete="username" required />
-          <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required />
-          <button id="btnLogin" type="submit" class="btn-primary w-full mt-4">Authenticate</button>
+        <div class="flex-col" style="gap: 16px;">
+          <input id="emailInput" type="email" placeholder="Admin Email" autocomplete="username" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          <button id="btnLogin" type="submit" class="btn-primary w-full mt-4" style="justify-content: center; font-size: 1rem; padding: 14px;">Authenticate</button>
         </div>
       </form>
 
-      <div id="loginMsg" class="status-msg"></div>
+      <div id="loginMsg" class="status-msg text-center" style="margin-top: 20px;"></div>
     </div>
   </div>
 
   <!-- VIEW: DASHBOARD -->
-  <div id="dashboardView" class="hidden">
+  <div id="dashboardView" class="hidden" style="height: 100vh; display: flex; flex-direction: column;">
     <header>
       <div class="header-title">
         <span>Webmail Admin</span>
@@ -51,15 +54,15 @@
       </div>
     </header>
 
-    <div class="main-content">
+    <div class="main-content" style="flex: 1; overflow: hidden; padding: 20px;">
 
       <div class="grid-layout">
 
         <!-- Left: Create/Edit User -->
-        <div class="flex-col">
+        <div class="flex-col" style="overflow-y: auto;">
           <div class="card">
             <!-- Tabs -->
-            <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+            <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
               <button id="tabMap" class="active-tab" style="font-size: 0.8rem; padding: 6px 12px;">Map Existing</button>
               <button id="tabCreate"
                 style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Create
@@ -67,6 +70,9 @@
               <button id="tabAds"
                 style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Add
                 Ad</button>
+              <button id="tabNotifs"
+                style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Send
+                Notif</button>
             </div>
 
             <!-- VIEW: MAP EXISTING -->
@@ -115,8 +121,6 @@
               <div class="muted mb-4">Create Auth User + Map + Sync.</div>
 
               <div class="flex-col">
-                <!-- Email Field Removed: Derived from Username -->
-
                 <div>
                   <label class="muted" style="display:block; margin-bottom:0.5rem;">Username</label>
                   <div class="input-group">
@@ -139,11 +143,10 @@
               </div>
             </div>
 
-            <!-- VIEW: AD CONFIG (Add Form Only) -->
+            <!-- VIEW: AD CONFIG -->
             <div id="viewAds" class="hidden">
               <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">Ad Manager</h3>
 
-              <!-- Add New Ad Form -->
               <div class="flex-col" style="gap:10px;">
                 <label class="muted">Add New Pop-up</label>
                 <input id="adImage" placeholder="Image URL (http://...)" />
@@ -155,12 +158,55 @@
               </div>
             </div>
 
+            <!-- VIEW: NOTIFICATIONS (NEW) -->
+            <div id="viewNotifs" class="hidden">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">Send Notification</h3>
+              <div class="muted mb-4">Send Broadcast or Personal Alert.</div>
+
+              <div class="flex-col">
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Type</label>
+                  <select id="notifType">
+                    <option value="broadcast">Broadcast (All Users)</option>
+                    <option value="personal">Personal (Specific UID)</option>
+                  </select>
+                </div>
+
+                <div id="notifUidGroup" class="hidden">
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Target UID</label>
+                  <input id="notifTargetUid" class="mono" placeholder="User UID" />
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Title</label>
+                  <input id="notifTitle" placeholder="Notification Title" />
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Message Body</label>
+                  <textarea id="notifBody" rows="3" placeholder="Message content..."></textarea>
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Badge Style</label>
+                  <select id="notifBadge">
+                    <option value="info">Info (Blue)</option>
+                    <option value="success">Success (Green)</option>
+                    <option value="warning">Warning (Orange)</option>
+                    <option value="danger">Danger (Red)</option>
+                  </select>
+                </div>
+
+                <button id="btnSendNotif" class="btn-primary w-full mt-4">Send Notification</button>
+              </div>
+            </div>
+
             <div id="actionMsg" class="status-msg text-center" style="margin-top: 12px;"></div>
           </div>
         </div>
 
-        <!-- Right: User List -->
-        <div class="right-col">
+        <!-- Right: User List & Ads List & Notifs List -->
+        <div class="right-col" style="height: 100%; overflow: hidden;">
           <div class="card table-card">
 
             <!-- Right Tabs -->
@@ -168,8 +214,10 @@
               <button id="tabListUsers" class="active-tab"
                 style="font-size: 0.9rem; padding: 6px 12px; margin-right:10px;">Registered Users</button>
               <button id="tabListAds"
-                style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Active
+                style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6; margin-right:10px;">Active
                 Campaigns</button>
+              <button id="tabListNotifs"
+                style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Notifications</button>
             </div>
 
             <!-- TAB: USERS -->
@@ -184,7 +232,7 @@
                 <input id="searchUserInput" type="text" placeholder="Search users by UID or email..." />
               </div>
 
-              <div class="table-container">
+              <div class="table-container" style="flex: 1; overflow: auto; min-height: 0;">
                 <table>
                   <thead>
                     <tr>
@@ -209,7 +257,7 @@
                 <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ad Campaigns</h3>
                 <button id="btnRefreshAds" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
               </div>
-              <div class="table-container">
+              <div class="table-container" style="flex: 1; overflow: auto; min-height: 0;">
                 <table style="font-size:0.9rem;">
                   <thead>
                     <tr>
@@ -228,6 +276,31 @@
               </div>
             </div>
 
+            <!-- TAB: NOTIFICATIONS (NEW) -->
+            <div id="viewListNotifs" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+              <div class="flex space-between mb-4">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Recent Notifications</h3>
+                <button id="btnRefreshNotifs" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+              </div>
+              <div class="table-container" style="flex: 1; overflow: auto; min-height: 0;">
+                <table style="font-size:0.9rem;">
+                  <thead>
+                    <tr>
+                      <th style="width:100px;">Type</th>
+                      <th>Content</th>
+                      <th style="width:120px;">Date</th>
+                      <th style="width:50px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="notifsTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center muted">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -238,7 +311,7 @@
 
   <!-- Info Modal -->
   <div id="infoModal" class="modal-overlay hidden">
-    <div class="modal-box">
+    <div class="modal-box wide">
       <div class="flex space-between">
         <h3 style="margin:0; font-size: 1.1rem;">Raw Data Inspector</h3>
         <button id="btnCloseModal"
@@ -252,7 +325,7 @@
   <script type="module">
     import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp, collectionGroup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
@@ -310,28 +383,44 @@
       // Tabs & Create
       tabMap: $("tabMap"),
       tabCreate: $("tabCreate"),
+      tabAds: $("tabAds"),
+      tabNotifs: $("tabNotifs"), // NEW
+
       viewMap: $("viewMap"),
       viewCreate: $("viewCreate"),
       viewAds: $("viewAds"),
-      tabAds: $("tabAds"),
+      viewNotifs: $("viewNotifs"), // NEW
 
-      // Ads (New)
+      // Ads
       adImage: $("adImage"),
       adLink: $("adLink"),
       adBtnText: $("adBtnText"),
-      adBtnText: $("adBtnText"),
       btnAddAd: $("btnAddAd"),
+
+      // Notifications (NEW)
+      notifType: $("notifType"),
+      notifUidGroup: $("notifUidGroup"),
+      notifTargetUid: $("notifTargetUid"),
+      notifTitle: $("notifTitle"),
+      notifBody: $("notifBody"),
+      notifBadge: $("notifBadge"),
+      btnSendNotif: $("btnSendNotif"),
 
       // Right Tabs
       tabListUsers: $("tabListUsers"),
       tabListAds: $("tabListAds"),
+      tabListNotifs: $("tabListNotifs"), // NEW
+
       viewListUsers: $("viewListUsers"),
       viewListAds: $("viewListAds"),
+      viewListNotifs: $("viewListNotifs"), // NEW
 
       adsTableBody: $("adsTableBody"),
       btnRefreshAds: $("btnRefreshAds"),
 
-      // newEmail: $("newEmail"), // Removed
+      notifsTableBody: $("notifsTableBody"), // NEW
+      btnRefreshNotifs: $("btnRefreshNotifs"), // NEW
+
       newPassword: $("newPassword"),
       btnGenPass: $("btnGenPass"),
       newUsername: $("newUsername"),
@@ -340,13 +429,12 @@
 
     let currentUser = null;
     let fbToken = null;
-    let allUsers = []; // To store all fetched users for searching
+    let allUsers = [];
 
     // --- AUTH FLOW ---
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // 1. Check Admin Privileges
         els.loginMsg.textContent = "Verifying privileges...";
         els.btnLogin.disabled = true;
 
@@ -392,57 +480,39 @@
       views.dashboard.classList.remove("hidden");
       els.adminEmail.textContent = currentUser.email;
       loadUsers();
-      /* Load Ad Settings */
-      els.adminEmail.textContent = currentUser.email;
-      loadUsers();
-      /* Load Ad Settings */
       loadAdSettings();
+      loadNotifications(); // NEW
       els.searchUserInput.addEventListener('input', filterUsers);
 
       // Setup Right Tabs
       els.tabListUsers.onclick = () => switchRightTab('users');
       els.tabListAds.onclick = () => switchRightTab('ads');
+      els.tabListNotifs.onclick = () => switchRightTab('notifs');
     }
 
     function switchRightTab(mode) {
+      // Reset
+      [els.tabListUsers, els.tabListAds, els.tabListNotifs].forEach(t => {
+        t.classList.remove("active-tab");
+        t.style.opacity = "0.6";
+        t.style.borderBottom = "none";
+      });
+      [els.viewListUsers, els.viewListAds, els.viewListNotifs].forEach(v => v.classList.add("hidden"));
+
+      // Activate
       if (mode === 'users') {
-        els.tabListUsers.classList.add("active-tab");
-        els.tabListUsers.style.opacity = "1";
-        els.tabListUsers.style.borderBottom = "2px solid var(--accent-primary)";
-
-        els.tabListAds.classList.remove("active-tab");
-        els.tabListAds.style.opacity = "0.6";
-        els.tabListAds.style.borderBottom = "none";
-
-        els.viewListUsers.classList.remove("hidden");
-        els.viewListAds.classList.add("hidden");
-      } else {
-        els.tabListUsers.classList.remove("active-tab");
-        els.tabListUsers.style.opacity = "0.6";
-        els.tabListUsers.style.borderBottom = "none";
-
-        els.tabListAds.classList.add("active-tab");
-        els.tabListAds.style.opacity = "1";
-        els.tabListAds.style.borderBottom = "2px solid var(--accent-primary)";
-
-        els.viewListUsers.classList.add("hidden");
-        els.viewListAds.classList.remove("hidden");
-        loadAdSettings(); // ensure fresh
+        activateTab(els.tabListUsers, els.viewListUsers);
+      } else if (mode === 'ads') {
+        activateTab(els.tabListAds, els.viewListAds);
+        loadAdSettings();
+      } else if (mode === 'notifs') {
+        activateTab(els.tabListNotifs, els.viewListNotifs);
+        loadNotifications();
       }
     }
 
     // --- WORKER SYNC ---
     async function syncToWorker(uid, inboxUser) {
-      // Call Worker Admin API to update KV
-      // PUT /admin/allow?uid=...&inboxUser=...
-      // Requires Admin Auth (which we assume Worker checks via Token or just open for now if logic allows)
-      // NOTE: Your worker code: requireAdmin(request, env) -> returns {ok: true} (OPEN for now)
-      // Ideally you should secure this. But for now let's just call it.
-
-      // Since your worker requires Firebase Token for user routes, but Admin routes are currently OPEN in code provided:
-      // function requireAdmin(request, env) { return { ok: true }; }
-      // So we can just fetch.
-
       const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
       const res = await fetch(url, { method: "PUT" });
       if (!res.ok) throw new Error(`Worker Sync Failed: ${res.status}`);
@@ -469,7 +539,6 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, pass);
-        // onAuthStateChanged will handle the rest
       } catch (e) {
         els.loginMsg.textContent = "Login Failed: " + e.message;
         els.loginMsg.className = "status-msg error";
@@ -483,7 +552,6 @@
     // Form Logic
     els.localPart.oninput = () => {
       let val = els.localPart.value.toLowerCase();
-      // Validate: Only allow a-z, 0-9, ., _, -
       val = val.replace(/[^a-z0-9._-]/g, "");
       els.localPart.value = val;
 
@@ -545,7 +613,6 @@
       els.btnSave.disabled = true;
 
       try {
-        // 1. Save to Firestore
         await setDoc(doc(db, "users", uid), {
           uid: uid,
           email: `${local}@arufkuy.me`,
@@ -556,7 +623,6 @@
           updatedBy: currentUser.uid
         }, { merge: true });
 
-        // 2. Sync to Worker KV
         setStatus("Syncing to Worker...", "");
         await syncToWorker(uid, local);
 
@@ -565,7 +631,7 @@
         els.localPart.value = "";
         els.localPart.dispatchEvent(new Event('input'));
         els.btnDelete.disabled = true;
-        loadUsers(); // Reload all users after save
+        loadUsers();
       } catch (e) {
         setStatus(e.message, "error");
       } finally {
@@ -593,24 +659,23 @@
         els.localPart.value = "";
         els.localPart.dispatchEvent(new Event('input'));
         els.btnDelete.disabled = true;
-        loadUsers(); // Reload all users after delete
+        loadUsers();
       } catch (e) {
         setStatus(e.message, "error");
       }
     };
 
     // --- TAB LOGIC ---
-    // Set initial state style manually first time
     switchTab('map');
 
     function switchTab(mode) {
       // Reset all
-      [els.tabMap, els.tabCreate, els.tabAds].forEach(t => {
+      [els.tabMap, els.tabCreate, els.tabAds, els.tabNotifs].forEach(t => {
         t.classList.remove("active-tab");
         t.style.opacity = "0.6";
         t.style.borderBottom = "none";
       });
-      [els.viewMap, els.viewCreate, els.viewAds].forEach(v => v.classList.add("hidden"));
+      [els.viewMap, els.viewCreate, els.viewAds, els.viewNotifs].forEach(v => v.classList.add("hidden"));
 
       // Activate selected
       if (mode === 'map') {
@@ -619,6 +684,8 @@
         activateTab(els.tabCreate, els.viewCreate);
       } else if (mode === 'ads') {
         activateTab(els.tabAds, els.viewAds);
+      } else if (mode === 'notifs') {
+        activateTab(els.tabNotifs, els.viewNotifs);
       }
       els.actionMsg.textContent = "";
     }
@@ -631,7 +698,7 @@
     }
 
     // --- ADS LIST LOGIC ---
-    async function loadAdSettings() { // Renamed conceptually to loadAds, keeping name for compat
+    async function loadAdSettings() {
       els.adsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">Loading ads...</td></tr>`;
 
       try {
@@ -667,13 +734,11 @@
              </td>
            `;
 
-          // Toggle Status
           tr.querySelector(".status-toggle").onclick = async () => {
             await updateDoc(doc(db, "settings", "ads", "items", docSnap.id), { active: !d.active });
-            loadAdSettings(); // Reload
+            loadAdSettings();
           };
 
-          // Delete
           tr.querySelector(".del-ad").onclick = async () => {
             if (!confirm("Delete this ad?")) return;
             await deleteDoc(doc(db, "settings", "ads", "items", docSnap.id));
@@ -707,7 +772,7 @@
           imageUrl,
           linkUrl,
           btnText,
-          active: true, // Default active
+          active: true,
           createdAt: serverTimestamp()
         });
 
@@ -715,7 +780,7 @@
         els.adImage.value = "";
         els.adLink.value = "";
         els.adBtnText.value = "";
-        loadAdSettings(); // Reload list
+        loadAdSettings();
       } catch (e) {
         setStatus("Error: " + e.message, "error");
       } finally {
@@ -723,14 +788,135 @@
       }
     };
 
-    // Init Tabs styles (simple inline for now or add to CSS, here inline for speed)
+    // --- NOTIFICATIONS LOGIC (NEW) ---
+
+    // Toggle UID input based on type
+    els.notifType.onchange = () => {
+      if (els.notifType.value === 'personal') {
+        els.notifUidGroup.classList.remove('hidden');
+      } else {
+        els.notifUidGroup.classList.add('hidden');
+      }
+    };
+
+    els.btnSendNotif.onclick = async () => {
+      const type = els.notifType.value;
+      const title = els.notifTitle.value.trim();
+      const body = els.notifBody.value.trim();
+      const badge = els.notifBadge.value;
+      const targetUid = els.notifTargetUid.value.trim();
+
+      if (!title || !body) {
+        setStatus("Title and Body required", "error");
+        return;
+      }
+
+      if (type === 'personal' && !targetUid) {
+        setStatus("Target UID required for personal notif", "error");
+        return;
+      }
+
+      els.btnSendNotif.disabled = true;
+      setStatus("Sending Notification...", "");
+
+      try {
+        const notifData = {
+          title,
+          body,
+          badge, // info, success, warning, danger
+          read: false,
+          createdAt: serverTimestamp(),
+          type: type
+        };
+
+        if (type === 'broadcast') {
+          // Send to Global Collection
+          await addDoc(collection(db, "notifications"), notifData);
+        } else {
+          // Send to User Subcollection
+          await addDoc(collection(db, "users", targetUid, "notifications"), notifData);
+        }
+
+        setStatus("Notification Sent!", "success");
+        els.notifTitle.value = "";
+        els.notifBody.value = "";
+        els.notifTargetUid.value = "";
+        loadNotifications(); // Refresh list
+      } catch (e) {
+        console.error(e);
+        setStatus("Error: " + e.message, "error");
+      } finally {
+        els.btnSendNotif.disabled = false;
+      }
+    };
+
+    async function loadNotifications() {
+      els.notifsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">Loading notifications...</td></tr>`;
+
+      try {
+        // Use Collection Group Query to fetch ALL notifications (Global + Personal)
+        // Note: This requires an index in Firestore. If it fails, check console.
+        const q = query(collectionGroup(db, "notifications"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          els.notifsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">No notifications found.</td></tr>`;
+          return;
+        }
+
+        els.notifsTableBody.innerHTML = "";
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const isPersonal = d.type === 'personal' || docSnap.ref.path.includes('/users/');
+
+          // Format Date
+          let dateStr = "-";
+          if (d.createdAt && d.createdAt.toDate) {
+             dateStr = d.createdAt.toDate().toLocaleDateString() + " " + d.createdAt.toDate().toLocaleTimeString();
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+             <td>
+               <span class="badge-${isPersonal ? 'personal' : 'broadcast'}">${isPersonal ? 'PERSONAL' : 'BROADCAST'}</span>
+             </td>
+             <td style="font-size:0.85rem;">
+               <div style="font-weight:600; color:#fff;">${d.title}</div>
+               <div class="muted" style="font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px;">${d.body}</div>
+             </td>
+             <td style="font-size:0.75rem; color:var(--text-muted);">
+               ${dateStr}
+             </td>
+             <td style="text-align:right;">
+               <button class="del-notif" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:1.1rem;">×</button>
+             </td>
+           `;
+
+          // Delete Logic
+          tr.querySelector(".del-notif").onclick = async () => {
+            if (!confirm("Delete this notification?")) return;
+            await deleteDoc(docSnap.ref); // Delete using the reference directly
+            loadNotifications();
+          };
+
+          els.notifsTableBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error("Notif Load Error", e);
+        els.notifsTableBody.innerHTML = `<tr><td colspan="4" class="text-center error">Error (Index missing?): ${e.message}</td></tr>`;
+      }
+    }
+
+    els.btnRefreshNotifs.onclick = loadNotifications;
+
+    // Init Tabs styles
     els.tabMap.onclick = () => switchTab('map');
     els.tabCreate.onclick = () => switchTab('create');
     els.tabAds.onclick = () => switchTab('ads');
+    els.tabNotifs.onclick = () => switchTab('notifs');
 
     // --- CREATE USER LOGIC ---
-
-    // newEmail listener removed.
 
     els.btnGenPass.onclick = () => {
       const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
@@ -750,7 +936,6 @@
     els.btnCreateUser.onclick = async () => {
       const username = els.newUsername.value.trim().toLowerCase();
       const pass = els.newPassword.value.trim();
-      // Derive Email from Username
       const fullEmail = `${username}@arufkuy.me`;
 
       if (!username || !pass) {
@@ -766,50 +951,38 @@
       els.btnCreateUser.disabled = true;
       setStatus(`Creating ${fullEmail}...`, "");
 
-      // SECONDARY APP PATTERN
       let secondaryApp = null;
       try {
-        // 1. Initialize secondary app to create user without logging out admin
         secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
         const secondaryAuth = getAuth(secondaryApp);
 
-        // 2. Create User
         const userCred = await createUserWithEmailAndPassword(secondaryAuth, fullEmail, pass);
         const newUid = userCred.user.uid;
 
-        // 3. Sign out secondary (just to be clean)
         await signOut(secondaryAuth);
 
         setStatus("Auth created. Saving to DB...", "");
 
-        // 4. Save to Firestore (Primary App)
         await setDoc(doc(db, "users", newUid), {
           uid: newUid,
-          email: `${username}@arufkuy.me`, // Use internal email or original? Let's use Mapping logic.
-          // Actually, usually we store the recovery email too. 
-          // But for consistent mapping:
+          email: `${username}@arufkuy.me`,
           inboxUser: username,
           username: username,
           inboxAddress: `${username}@arufkuy.me`,
-          inboxAddress: `${username}@arufkuy.me`,
-          originalEmail: fullEmail, // Keep record of source email
+          originalEmail: fullEmail,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           updatedBy: currentUser.uid
         }, { merge: true });
 
-        // 5. Sync to Worker
         setStatus("Syncing to Worker...", "");
         await syncToWorker(newUid, username);
 
         setStatus(`User ${username} created & synced!`, "success");
 
-        // Reset Form
-        // Reset Form
         els.newPassword.value = "";
         els.newUsername.value = "";
 
-        // Reload List
         loadUsers();
 
       } catch (e) {
@@ -817,7 +990,7 @@
         setStatus("Error: " + e.message, "error");
       } finally {
         if (secondaryApp) {
-          try { await deleteApp(secondaryApp); } catch (e) {/* ignore */ }
+          try { await deleteApp(secondaryApp); } catch (e) { }
         }
         els.btnCreateUser.disabled = false;
       }
@@ -830,20 +1003,19 @@
     async function loadUsers() {
       els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">Loading all users...</td></tr>`;
       els.totalUsersCount.textContent = "(...)";
-      els.searchUserInput.value = ""; // Clear search on refresh
+      els.searchUserInput.value = "";
 
       try {
-        // Fetch all users (remove limit)
         const q = query(collection(db, "users"), orderBy("updatedAt", "desc"));
         const snap = await getDocs(q);
 
-        allUsers = []; // Clear previous users
+        allUsers = [];
         snap.forEach(d => {
           allUsers.push({ id: d.id, ...d.data() });
         });
 
         els.totalUsersCount.textContent = `(${allUsers.length})`;
-        renderUsers(allUsers); // Render all users initially
+        renderUsers(allUsers);
 
       } catch (e) {
         els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center error" style="padding:20px;">Error loading users: ${e.message}</td></tr>`;
@@ -852,7 +1024,7 @@
     }
 
     function renderUsers(usersToRender) {
-      els.tableBody.innerHTML = ""; // Clear current table
+      els.tableBody.innerHTML = "";
 
       if (usersToRender.length === 0) {
         els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">No users found.</td></tr>`;
@@ -873,7 +1045,7 @@
 
         row.querySelector(".edit-btn").onclick = () => {
           els.uid.value = data.id;
-          els.btnCheckUid.click(); // Use check logic to load
+          els.btnCheckUid.click();
         };
 
         row.querySelector(".info-btn").onclick = () => {
@@ -887,7 +1059,7 @@
     function filterUsers() {
       const searchTerm = els.searchUserInput.value.toLowerCase().trim();
       if (!searchTerm) {
-        renderUsers(allUsers); // If search term is empty, show all users
+        renderUsers(allUsers);
         return;
       }
 
@@ -902,7 +1074,6 @@
     }
 
     function showInfo(data) {
-      // Convert timestamp to string for display
       const displayData = { ...data };
       if (displayData.updatedAt && displayData.updatedAt.toDate) {
         displayData.updatedAt = displayData.updatedAt.toDate().toISOString();

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
   <!-- SEO & Meta Tags -->
-  <title>Webmail - Secure Inbox</title>
+  <title>Webmail (Arufkuy) - Secure Inbox</title>
   <meta name="description"
     content="Arufkuy Webmail Client. Akses email aman, cepat, dan responsif dengan mode gelap." />
   <meta name="keywords" content="webmail, email client, arufkuy, secure email, dark mode" />
@@ -76,21 +76,48 @@
     </div>
 
     <div class="right">
-      <span id="userEmail" class="muted" style="font-size:12px; display:none;"></span>
+      <!-- Notification Bell -->
+      <div class="bell-wrapper hidden" id="bellWrapper">
+        <button id="btnNotif" class="bell-btn" title="Notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <div id="notifBadge" class="notif-badge hidden">0</div>
+        </button>
 
-      <button id="btnSettings" class="btn-icon hidden" aria-label="Settings" title="Settings">
-        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path
-            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-          </path>
-        </svg>
-      </button>
+        <div id="notifDropdown" class="notif-dropdown hidden">
+          <div class="notif-header">Notifications</div>
+          <div id="notifList" class="notif-list">
+            <div class="notif-empty">No notifications</div>
+          </div>
+        </div>
+      </div>
 
-      <button id="btnLogout" class="btn-danger hidden" aria-label="Logout" style="padding:10px 14px; font-size:12px;">
-        Logout
-      </button>
+      <!-- User Profile Menu (Replaces Settings & Logout) -->
+      <div class="user-menu-wrapper hidden" id="userMenuWrapper">
+        <button id="btnUserAvatar" class="user-avatar-btn" title="Profile">
+          <span id="avatarLetter">?</span>
+        </button>
+
+        <div id="userDropdown" class="user-dropdown hidden">
+          <div class="user-dropdown-header">
+            <div id="menuUserName" class="user-name">User</div>
+            <div id="menuUserEmail" class="user-email">email@example.com</div>
+          </div>
+
+          <button id="btnMenuSettings" class="user-dropdown-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Change Password
+          </button>
+
+          <button id="btnMenuLogout" class="user-dropdown-item danger">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -299,7 +326,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, onSnapshot, query, orderBy, limit, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
@@ -325,6 +352,8 @@
     let selectedMessageId = null;
     let autoTimer = null;
     let currentViewMode = "html"; // html | text | json
+    let notifUnsub = null;
+    let personalNotifUnsub = null;
 
     // DOM Elements
     const $ = (id) => document.getElementById(id);
@@ -336,9 +365,9 @@
       passwordInput: $("passwordInput"),
       btnLogin: $("btnLogin"),
       loginError: $("loginError"),
-      btnLogout: $("btnLogout"),
-      btnSettings: $("btnSettings"),
-      userEmail: $("userEmail"),
+      // btnLogout: $("btnLogout"), // Removed
+      // btnSettings: $("btnSettings"), // Removed
+      // userEmail: $("userEmail"), // Removed
       inboxAddress: $("inboxAddress"),
       msgList: $("msgList"),
       searchBox: $("searchBox"),
@@ -379,7 +408,24 @@
       adImg: $("adImg"),
       adLink: $("adLink"),
       adBtn: $("adBtn"),
-      btnCloseAd: $("btnCloseAd")
+      btnCloseAd: $("btnCloseAd"),
+
+      // Notifications
+      bellWrapper: $("bellWrapper"),
+      btnNotif: $("btnNotif"),
+      notifBadge: $("notifBadge"),
+      notifDropdown: $("notifDropdown"),
+      notifList: $("notifList"),
+
+      // User Menu
+      userMenuWrapper: $("userMenuWrapper"),
+      btnUserAvatar: $("btnUserAvatar"),
+      avatarLetter: $("avatarLetter"),
+      userDropdown: $("userDropdown"),
+      menuUserName: $("menuUserName"),
+      menuUserEmail: $("menuUserEmail"),
+      btnMenuSettings: $("btnMenuSettings"),
+      btnMenuLogout: $("btnMenuLogout")
     };
 
     // --- small UI sync helper (badge -> chip) ---
@@ -437,6 +483,8 @@
     }
 
     function logout() {
+      if (notifUnsub) notifUnsub();
+      if (personalNotifUnsub) personalNotifUnsub();
       signOut(auth);
       localStorage.clear();
       location.reload();
@@ -445,10 +493,15 @@
     function initApp() {
       els.loginView.classList.add("hidden");
       els.appView.classList.remove("hidden");
-      els.btnLogout.classList.remove("hidden");
-      els.btnSettings.classList.remove("hidden");
-      els.userEmail.textContent = fbUser.email;
-      els.userEmail.style.display = "inline";
+
+      // Show Header Controls
+      els.bellWrapper.classList.remove("hidden");
+      els.userMenuWrapper.classList.remove("hidden");
+
+      // Set User Info in Menu
+      els.avatarLetter.textContent = (inboxUser || "?")[0].toUpperCase();
+      els.menuUserName.textContent = inboxUser;
+      els.menuUserEmail.textContent = fbUser.email;
 
       els.inboxAddress.textContent = inboxAddress;
 
@@ -463,6 +516,152 @@
 
       /* Check Ad Popup */
       checkAdPopup();
+
+      /* Init Notifications */
+      initNotifications();
+    }
+
+    // --- Notification Logic ---
+    function initNotifications() {
+      const allNotifs = new Map(); // Use Map to merge by ID
+
+      const renderNotifs = () => {
+        const sorted = Array.from(allNotifs.values()).sort((a, b) => b.createdAt - a.createdAt);
+        const unreadCount = sorted.filter(n => !n.read && !isLocalRead(n.id)).length;
+
+        // Update Badge
+        if (unreadCount > 0) {
+          els.notifBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+          els.notifBadge.classList.remove("hidden");
+        } else {
+          els.notifBadge.classList.add("hidden");
+        }
+
+        // Render List
+        els.notifList.innerHTML = "";
+        if (sorted.length === 0) {
+          els.notifList.innerHTML = '<div class="notif-empty">No notifications</div>';
+          return;
+        }
+
+        sorted.forEach(n => {
+          const isRead = n.read || isLocalRead(n.id);
+          const div = document.createElement("div");
+
+          // Apply badge style class
+          const badgeClass = n.badge ? `notif-badge-${n.badge}` : '';
+          div.className = `notif-item ${!isRead ? 'unread' : ''} ${badgeClass}`;
+
+          // Compact Layout
+          div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+              <div class="notif-title">${esc(n.title)}</div>
+              <div class="notif-time">${timeAgo(n.createdAt)}</div>
+            </div>
+            <div class="notif-body">${esc(n.body)}</div>
+          `;
+          div.onclick = () => markAsRead(n);
+          els.notifList.appendChild(div);
+        });
+      };
+
+      // 1. Listen to Global Notifications
+      const qGlobal = query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(20));
+      notifUnsub = onSnapshot(qGlobal, (snap) => {
+        snap.docChanges().forEach(change => {
+          if (change.type === "added" || change.type === "modified") {
+            const data = change.doc.data();
+            allNotifs.set(change.doc.id, { id: change.doc.id, ...data, createdAt: data.createdAt?.toDate() || new Date() });
+          }
+          if (change.type === "removed") {
+            allNotifs.delete(change.doc.id);
+          }
+        });
+        renderNotifs();
+      });
+
+      // 2. Listen to Personal Notifications
+      const qPersonal = query(collection(db, "users", fbUser.uid, "notifications"), orderBy("createdAt", "desc"), limit(20));
+      personalNotifUnsub = onSnapshot(qPersonal, (snap) => {
+        snap.docChanges().forEach(change => {
+          if (change.type === "added" || change.type === "modified") {
+            const data = change.doc.data();
+            allNotifs.set(change.doc.id, { id: change.doc.id, ...data, createdAt: data.createdAt?.toDate() || new Date() });
+          }
+          if (change.type === "removed") {
+            allNotifs.delete(change.doc.id);
+          }
+        });
+        renderNotifs();
+      });
+    }
+
+    function isLocalRead(id) {
+      const readList = JSON.parse(localStorage.getItem("read_notifs") || "[]");
+      return readList.includes(id);
+    }
+
+    async function markAsRead(n) {
+      // Optimistic update
+      const readList = JSON.parse(localStorage.getItem("read_notifs") || "[]");
+      if (!readList.includes(n.id)) {
+        readList.push(n.id);
+        localStorage.setItem("read_notifs", JSON.stringify(readList));
+      }
+
+      // Re-render to remove unread style
+      initNotifications(); // Triggers re-render logic via snapshot or manual call if needed,
+                           // but simpler to just toggle class here or reload.
+                           // Actually, since we use onSnapshot, we just need to re-run render logic.
+                           // But render logic is inside closure. Let's just reload page or simple hack:
+      document.querySelectorAll(".notif-item").forEach(el => {
+        if (el.textContent.includes(n.title)) el.classList.remove("unread");
+      });
+      els.notifBadge.classList.add("hidden"); // Simple hide for UX
+
+      // If personal, update Firestore
+      if (n.type === 'personal') {
+        try {
+          await updateDoc(doc(db, "users", fbUser.uid, "notifications", n.id), { read: true });
+        } catch (e) { console.error(e); }
+      }
+    }
+
+    // --- Dropdown Toggles ---
+    els.btnNotif.onclick = (e) => {
+      e.stopPropagation();
+      els.notifDropdown.classList.toggle("hidden");
+      els.userDropdown.classList.add("hidden"); // Close other
+    };
+
+    els.btnUserAvatar.onclick = (e) => {
+      e.stopPropagation();
+      els.userDropdown.classList.toggle("hidden");
+      els.notifDropdown.classList.add("hidden"); // Close other
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!els.bellWrapper.contains(e.target)) {
+        els.notifDropdown.classList.add("hidden");
+      }
+      if (!els.userMenuWrapper.contains(e.target)) {
+        els.userDropdown.classList.add("hidden");
+      }
+    });
+
+    function timeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      let interval = seconds / 31536000;
+      if (interval > 1) return Math.floor(interval) + "y";
+      interval = seconds / 2592000;
+      if (interval > 1) return Math.floor(interval) + "mo";
+      interval = seconds / 86400;
+      if (interval > 1) return Math.floor(interval) + "d";
+      interval = seconds / 3600;
+      if (interval > 1) return Math.floor(interval) + "h";
+      interval = seconds / 60;
+      if (interval > 1) return Math.floor(interval) + "m";
+      return "now";
     }
 
     // --- Ad Popup Logic ---
@@ -752,13 +951,14 @@
     }
 
     // --- Settings Logic ---
-    els.btnSettings.onclick = () => {
+    els.btnMenuSettings.onclick = () => {
       els.settingsModal.classList.remove("hidden");
       els.setCurrPass.value = "";
       els.setNewPass.value = "";
       els.setConfPass.value = "";
       els.setMsg.textContent = "";
       els.setMsg.style.color = "";
+      els.userDropdown.classList.add("hidden"); // Close menu
     };
 
     els.btnCloseSettings.onclick = () => {
@@ -817,7 +1017,7 @@
 
     // --- Event Listeners ---
     els.btnLogin.onclick = login;
-    els.btnLogout.onclick = () => {
+    els.btnMenuLogout.onclick = () => {
       syncStatusChip(false);
       logout();
     };
@@ -922,8 +1122,10 @@
       } else {
         els.loginView.classList.remove("hidden");
         els.appView.classList.add("hidden");
-        els.btnLogout.classList.add("hidden");
-        els.btnSettings.classList.add("hidden");
+
+        // Hide Header Controls
+        els.bellWrapper.classList.add("hidden");
+        els.userMenuWrapper.classList.add("hidden");
 
         els.badge.textContent = "Signed out";
         els.badge.className = "status-badge warn";
