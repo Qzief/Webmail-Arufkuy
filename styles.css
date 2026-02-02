@@ -1491,8 +1491,8 @@ input:-webkit-autofill:active {
     color: var(--success);
 }
 
-/* Promo Modal (Renamed from Ad Modal) */
-.promo-modal {
+/* Banner Modal */
+.banner-modal {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.85);
@@ -1508,12 +1508,12 @@ input:-webkit-autofill:active {
     transition: all 0.3s ease;
 }
 
-.promo-modal.visible {
+.banner-modal.visible {
     opacity: 1;
     pointer-events: auto;
 }
 
-.promo-card {
+.banner-card {
     background: #1e293b;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
@@ -1526,11 +1526,11 @@ input:-webkit-autofill:active {
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.promo-modal.visible .promo-card {
+.banner-modal.visible .banner-card {
     transform: scale(1) translateY(0);
 }
 
-.promo-image {
+.banner-image {
     width: 100%;
     height: auto;
     display: block;
@@ -1539,13 +1539,13 @@ input:-webkit-autofill:active {
     background: #0f172a;
 }
 
-.promo-body {
+.banner-body {
     padding: 16px 20px 20px;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.promo-label {
+.banner-label {
     position: absolute;
     top: 12px;
     left: 12px;
@@ -1563,7 +1563,7 @@ input:-webkit-autofill:active {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.promo-close {
+.banner-close {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -1584,13 +1584,13 @@ input:-webkit-autofill:active {
     transition: all 0.2s;
 }
 
-.promo-close:hover {
+.banner-close:hover {
     background: rgba(239, 68, 68, 0.9);
     transform: rotate(90deg);
     border-color: rgba(239, 68, 68, 1);
 }
 
-.promo-btn-action {
+.banner-btn-action {
     display: block;
     width: 100%;
     padding: 12px;
@@ -1605,16 +1605,16 @@ input:-webkit-autofill:active {
     transition: filter 0.2s, transform 0.1s;
 }
 
-.promo-btn-action:hover {
+.banner-btn-action:hover {
     filter: brightness(1.1);
 }
 
-.promo-btn-action:active {
+.banner-btn-action:active {
     transform: scale(0.98);
 }
 
-/* Corner Promo (Renamed from Ad Corner) */
-.promo-corner {
+/* Corner Banner */
+.banner-corner {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -1630,7 +1630,7 @@ input:-webkit-autofill:active {
     flex-direction: column;
 }
 
-.promo-corner.hidden {
+.banner-corner.hidden {
     display: none !important;
 }
 
@@ -1639,7 +1639,7 @@ input:-webkit-autofill:active {
     to { transform: translateY(0); opacity: 1; }
 }
 
-.promo-close-corner {
+.banner-close-corner {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -1661,18 +1661,19 @@ input:-webkit-autofill:active {
     padding: 0;
 }
 
-.promo-close-corner:hover {
+.banner-close-corner:hover {
     background: rgba(239, 68, 68, 0.9);
     border-color: rgba(239, 68, 68, 1);
 }
 
-.promo-corner-img {
+.banner-corner-img {
     width: 100%;
     height: auto;
     display: block;
     max-height: 200px;
     object-fit: cover;
 }
+
 
 /* --- MISSING ADMIN LAYOUT --- */
 .admin-login-container {
