@@ -323,6 +323,15 @@
     </div>
   </div>
 
+  <!-- Corner Ad (Hidden by default) -->
+  <div id="adCorner" class="ad-corner hidden">
+    <button id="btnCloseAdCorner" class="ad-close-corner">×</button>
+    <a id="adLinkCorner" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
+       <span class="ad-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">Ad</span>
+       <img id="adImgCorner" class="ad-corner-img" src="" alt="Promo" />
+    </a>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -354,6 +363,7 @@
     let currentViewMode = "html"; // html | text | json
     let notifUnsub = null;
     let personalNotifUnsub = null;
+    let availableAds = [];
 
     // DOM Elements
     const $ = (id) => document.getElementById(id);
@@ -409,6 +419,12 @@
       adLink: $("adLink"),
       adBtn: $("adBtn"),
       btnCloseAd: $("btnCloseAd"),
+
+      // Corner Ad
+      adCorner: $("adCorner"),
+      btnCloseAdCorner: $("btnCloseAdCorner"),
+      adImgCorner: $("adImgCorner"),
+      adLinkCorner: $("adLinkCorner"),
 
       // Notifications
       bellWrapper: $("bellWrapper"),
@@ -682,6 +698,7 @@
         });
 
         if (activeAds.length === 0) return;
+        availableAds = activeAds; // Store for corner ad
 
         // 2. Check Login Counter Logic
         let counter = parseInt(localStorage.getItem("ad_login_count") || "0");
@@ -716,6 +733,20 @@
 
     els.btnCloseAd.onclick = () => {
       els.adModal.classList.remove("visible");
+
+      // Trigger Corner Ad after 3s
+      setTimeout(() => {
+          if (availableAds.length > 0) {
+              const randomAd = availableAds[Math.floor(Math.random() * availableAds.length)];
+              els.adImgCorner.src = randomAd.imageUrl;
+              els.adLinkCorner.href = randomAd.linkUrl || "#";
+              els.adCorner.classList.remove("hidden");
+          }
+      }, 3000);
+    };
+
+    els.btnCloseAdCorner.onclick = () => {
+        els.adCorner.classList.add("hidden");
     };
 
     // --- Worker API ---

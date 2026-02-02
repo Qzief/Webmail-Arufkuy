@@ -2002,3 +2002,64 @@ input:-webkit-autofill:active {
 .user-dropdown-item.danger:hover {
     background: rgba(239, 68, 68, 0.1);
 }
+
+/* Corner Ad */
+.ad-corner {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 9990;
+    overflow: hidden;
+    animation: slideInCorner 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.ad-corner.hidden {
+    display: none !important;
+}
+
+@keyframes slideInCorner {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.ad-close-corner {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.ad-close-corner:hover {
+    background: rgba(239, 68, 68, 0.9);
+    border-color: rgba(239, 68, 68, 1);
+}
+
+.ad-corner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 200px;
+    object-fit: cover;
+}
