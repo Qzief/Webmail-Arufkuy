@@ -309,26 +309,26 @@
   </div>
   </div>
 
-  <!-- Banner Popup (Renamed from Promo/Ad) -->
-  <div id="bannerModal" class="banner-modal">
-    <div class="banner-card">
-      <span class="banner-label">Ad</span>
-      <button id="btnCloseBanner" class="banner-close">×</button>
-      <img id="bannerImg" class="banner-image" src="" alt="Promo" />
-      <div class="banner-body">
-        <a id="bannerLink" href="#" target="_blank" style="text-decoration:none;">
-          <button id="bannerBtn" class="banner-btn-action">Open</button>
+  <!-- System Popup (Renamed from Banner/Promo/Ad) -->
+  <div id="sysModal" class="sys-modal">
+    <div class="sys-card">
+      <span class="sys-label">System</span>
+      <button id="btnCloseSys" class="sys-close">×</button>
+      <img id="sysImg" class="sys-image" src="" alt="System" />
+      <div class="sys-body">
+        <a id="sysLink" href="#" target="_blank" style="text-decoration:none;">
+          <button id="sysBtn" class="sys-btn-action">Open</button>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Corner Banner (Renamed from Corner Promo/Ad) -->
-  <div id="bannerCorner" class="banner-corner hidden">
-    <button id="btnCloseBannerCorner" class="banner-close-corner">×</button>
-    <a id="bannerLinkCorner" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
-       <span class="banner-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">Ad</span>
-       <img id="bannerImgCorner" class="banner-corner-img" src="" alt="Promo" />
+  <!-- System Toast (Renamed from Corner Banner/Promo/Ad) -->
+  <div id="sysToast" class="sys-toast hidden">
+    <button id="btnCloseSysToast" class="sys-close-toast">×</button>
+    <a id="sysLinkToast" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
+       <span class="sys-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">System</span>
+       <img id="sysImgToast" class="sys-toast-img" src="" alt="System" />
     </a>
   </div>
 
@@ -363,7 +363,7 @@
     let currentViewMode = "html"; // html | text | json
     let notifUnsub = null;
     let personalNotifUnsub = null;
-    let availableBanners = [];
+    let availableSystems = [];
 
     // DOM Elements
     const $ = (id) => document.getElementById(id);
@@ -413,18 +413,18 @@
       statusChipText: $("statusChipText"),
       formatBtns: document.querySelectorAll(".seg button"),
 
-      // Banners (Renamed from Promos/Ads)
-      bannerModal: $("bannerModal"),
-      bannerImg: $("bannerImg"),
-      bannerLink: $("bannerLink"),
-      bannerBtn: $("bannerBtn"),
-      btnCloseBanner: $("btnCloseBanner"),
+      // Systems (Renamed from Banners/Promos/Ads)
+      sysModal: $("sysModal"),
+      sysImg: $("sysImg"),
+      sysLink: $("sysLink"),
+      sysBtn: $("sysBtn"),
+      btnCloseSys: $("btnCloseSys"),
 
-      // Corner Banner
-      bannerCorner: $("bannerCorner"),
-      btnCloseBannerCorner: $("btnCloseBannerCorner"),
-      bannerImgCorner: $("bannerImgCorner"),
-      bannerLinkCorner: $("bannerLinkCorner"),
+      // Corner System
+      sysToast: $("sysToast"),
+      btnCloseSysToast: $("btnCloseSysToast"),
+      sysImgToast: $("sysImgToast"),
+      sysLinkToast: $("sysLinkToast"),
 
       // Notifications
       bellWrapper: $("bellWrapper"),
@@ -530,8 +530,8 @@
       // view mode initial highlight
       setViewMode(currentViewMode, currentViewMode === "html" ? els.btnViewHtml : currentViewMode === "text" ? els.btnViewText : els.btnViewJson);
 
-      /* Check Banner Popup */
-      checkBannerPopup();
+      /* Check System Popup */
+      checkSystemPopup();
 
       /* Init Notifications */
       initNotifications();
@@ -680,8 +680,8 @@
       return "now";
     }
 
-    // --- Banner Popup Logic ---
-    async function checkBannerPopup() {
+    // --- System Popup Logic ---
+    async function checkSystemPopup() {
       try {
         // 1. Fetch settings (Collection)
         // Note: In real app, maybe cache this or use a single config doc that has the list.
@@ -689,47 +689,47 @@
         const snap = await getDocs(collection(db, "settings", "ads", "items"));
         if (snap.empty) return;
 
-        const activeBanners = [];
+        const activeSystems = [];
         snap.forEach(d => {
           const data = d.data();
           if (data.active && data.imageUrl) {
-            activeBanners.push(data);
+            activeSystems.push(data);
           }
         });
 
-        if (activeBanners.length === 0) return;
-        availableBanners = activeBanners; // Store for corner banner
+        if (activeSystems.length === 0) return;
+        availableSystems = activeSystems; // Store for corner system
 
-        // SHOW RANDOM BANNER ALWAYS
-        const randomBanner = activeBanners[Math.floor(Math.random() * activeBanners.length)];
+        // SHOW RANDOM SYSTEM ALWAYS
+        const randomSystem = activeSystems[Math.floor(Math.random() * activeSystems.length)];
 
-        els.bannerImg.src = randomBanner.imageUrl;
-        els.bannerLink.href = randomBanner.linkUrl || "#";
-        els.bannerBtn.textContent = randomBanner.btnText || "Open";
+        els.sysImg.src = randomSystem.imageUrl;
+        els.sysLink.href = randomSystem.linkUrl || "#";
+        els.sysBtn.textContent = randomSystem.btnText || "Open";
 
-        els.bannerModal.classList.add("visible");
+        els.sysModal.classList.add("visible");
 
       } catch (e) {
-        console.warn("Banner check failed:", e);
+        console.warn("System check failed:", e);
       }
     }
 
-    els.btnCloseBanner.onclick = () => {
-      els.bannerModal.classList.remove("visible");
+    els.btnCloseSys.onclick = () => {
+      els.sysModal.classList.remove("visible");
 
-      // Trigger Corner Banner after 3s
+      // Trigger Corner System after 3s
       setTimeout(() => {
-          if (availableBanners.length > 0) {
-              const randomBanner = availableBanners[Math.floor(Math.random() * availableBanners.length)];
-              els.bannerImgCorner.src = randomBanner.imageUrl;
-              els.bannerLinkCorner.href = randomBanner.linkUrl || "#";
-              els.bannerCorner.classList.remove("hidden");
+          if (availableSystems.length > 0) {
+              const randomSystem = availableSystems[Math.floor(Math.random() * availableSystems.length)];
+              els.sysImgToast.src = randomSystem.imageUrl;
+              els.sysLinkToast.href = randomSystem.linkUrl || "#";
+              els.sysToast.classList.remove("hidden");
           }
       }, 3000);
     };
 
-    els.btnCloseBannerCorner.onclick = () => {
-        els.bannerCorner.classList.add("hidden");
+    els.btnCloseSysToast.onclick = () => {
+        els.sysToast.classList.add("hidden");
     };
 
     // --- Worker API ---
