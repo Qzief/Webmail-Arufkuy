@@ -286,7 +286,7 @@ header {
 .logo {
     width: 42px;
     height: 42px;
-    border-radius: var(--radius-md);
+    border-radius: 50%;
     display: grid;
     place-items: center;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.15));
