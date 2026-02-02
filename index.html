@@ -309,26 +309,26 @@
   </div>
   </div>
 
-  <!-- Ad Popup (Hidden by default) -->
-  <div id="adModal" class="ad-modal">
-    <div class="ad-card">
-      <span class="ad-label">Ad</span>
-      <button id="btnCloseAd" class="ad-close">×</button>
-      <img id="adImg" class="ad-image" src="" alt="Promo" />
-      <div class="ad-body">
-        <a id="adLink" href="#" target="_blank" style="text-decoration:none;">
-          <button id="adBtn" class="ad-btn-action">Open</button>
+  <!-- Promo Popup (Hidden by default) -->
+  <div id="promoModal" class="promo-modal">
+    <div class="promo-card">
+      <span class="promo-label">Ad</span>
+      <button id="btnClosePromo" class="promo-close">×</button>
+      <img id="promoImg" class="promo-image" src="" alt="Promo" />
+      <div class="promo-body">
+        <a id="promoLink" href="#" target="_blank" style="text-decoration:none;">
+          <button id="promoBtn" class="promo-btn-action">Open</button>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Corner Ad (Hidden by default) -->
-  <div id="adCorner" class="ad-corner hidden">
-    <button id="btnCloseAdCorner" class="ad-close-corner">×</button>
-    <a id="adLinkCorner" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
-       <span class="ad-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">Ad</span>
-       <img id="adImgCorner" class="ad-corner-img" src="" alt="Promo" />
+  <!-- Corner Promo (Hidden by default) -->
+  <div id="promoCorner" class="promo-corner hidden">
+    <button id="btnClosePromoCorner" class="promo-close-corner">×</button>
+    <a id="promoLinkCorner" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
+       <span class="promo-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">Ad</span>
+       <img id="promoImgCorner" class="promo-corner-img" src="" alt="Promo" />
     </a>
   </div>
 
@@ -363,7 +363,7 @@
     let currentViewMode = "html"; // html | text | json
     let notifUnsub = null;
     let personalNotifUnsub = null;
-    let availableAds = [];
+    let availablePromos = [];
 
     // DOM Elements
     const $ = (id) => document.getElementById(id);
@@ -413,18 +413,18 @@
       statusChipText: $("statusChipText"),
       formatBtns: document.querySelectorAll(".seg button"),
 
-      // Ads
-      adModal: $("adModal"),
-      adImg: $("adImg"),
-      adLink: $("adLink"),
-      adBtn: $("adBtn"),
-      btnCloseAd: $("btnCloseAd"),
+      // Promos (Renamed from Ads)
+      promoModal: $("promoModal"),
+      promoImg: $("promoImg"),
+      promoLink: $("promoLink"),
+      promoBtn: $("promoBtn"),
+      btnClosePromo: $("btnClosePromo"),
 
-      // Corner Ad
-      adCorner: $("adCorner"),
-      btnCloseAdCorner: $("btnCloseAdCorner"),
-      adImgCorner: $("adImgCorner"),
-      adLinkCorner: $("adLinkCorner"),
+      // Corner Promo
+      promoCorner: $("promoCorner"),
+      btnClosePromoCorner: $("btnClosePromoCorner"),
+      promoImgCorner: $("promoImgCorner"),
+      promoLinkCorner: $("promoLinkCorner"),
 
       // Notifications
       bellWrapper: $("bellWrapper"),
@@ -530,8 +530,8 @@
       // view mode initial highlight
       setViewMode(currentViewMode, currentViewMode === "html" ? els.btnViewHtml : currentViewMode === "text" ? els.btnViewText : els.btnViewJson);
 
-      /* Check Ad Popup */
-      checkAdPopup();
+      /* Check Promo Popup */
+      checkPromoPopup();
 
       /* Init Notifications */
       initNotifications();
@@ -680,8 +680,8 @@
       return "now";
     }
 
-    // --- Ad Popup Logic ---
-    async function checkAdPopup() {
+    // --- Promo Popup Logic ---
+    async function checkPromoPopup() {
       try {
         // 1. Fetch settings (Collection)
         // Note: In real app, maybe cache this or use a single config doc that has the list.
@@ -689,47 +689,47 @@
         const snap = await getDocs(collection(db, "settings", "ads", "items"));
         if (snap.empty) return;
 
-        const activeAds = [];
+        const activePromos = [];
         snap.forEach(d => {
           const data = d.data();
           if (data.active && data.imageUrl) {
-            activeAds.push(data);
+            activePromos.push(data);
           }
         });
 
-        if (activeAds.length === 0) return;
-        availableAds = activeAds; // Store for corner ad
+        if (activePromos.length === 0) return;
+        availablePromos = activePromos; // Store for corner promo
 
-        // SHOW RANDOM AD ALWAYS
-        const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
+        // SHOW RANDOM PROMO ALWAYS
+        const randomPromo = activePromos[Math.floor(Math.random() * activePromos.length)];
 
-        els.adImg.src = randomAd.imageUrl;
-        els.adLink.href = randomAd.linkUrl || "#";
-        els.adBtn.textContent = randomAd.btnText || "Open";
+        els.promoImg.src = randomPromo.imageUrl;
+        els.promoLink.href = randomPromo.linkUrl || "#";
+        els.promoBtn.textContent = randomPromo.btnText || "Open";
 
-        els.adModal.classList.add("visible");
+        els.promoModal.classList.add("visible");
 
       } catch (e) {
-        console.warn("Ad check failed:", e);
+        console.warn("Promo check failed:", e);
       }
     }
 
-    els.btnCloseAd.onclick = () => {
-      els.adModal.classList.remove("visible");
+    els.btnClosePromo.onclick = () => {
+      els.promoModal.classList.remove("visible");
 
-      // Trigger Corner Ad after 3s
+      // Trigger Corner Promo after 3s
       setTimeout(() => {
-          if (availableAds.length > 0) {
-              const randomAd = availableAds[Math.floor(Math.random() * availableAds.length)];
-              els.adImgCorner.src = randomAd.imageUrl;
-              els.adLinkCorner.href = randomAd.linkUrl || "#";
-              els.adCorner.classList.remove("hidden");
+          if (availablePromos.length > 0) {
+              const randomPromo = availablePromos[Math.floor(Math.random() * availablePromos.length)];
+              els.promoImgCorner.src = randomPromo.imageUrl;
+              els.promoLinkCorner.href = randomPromo.linkUrl || "#";
+              els.promoCorner.classList.remove("hidden");
           }
       }, 3000);
     };
 
-    els.btnCloseAdCorner.onclick = () => {
-        els.adCorner.classList.add("hidden");
+    els.btnClosePromoCorner.onclick = () => {
+        els.promoCorner.classList.add("hidden");
     };
 
     // --- Worker API ---
