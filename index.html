@@ -309,26 +309,26 @@
   </div>
   </div>
 
-  <!-- System Popup (Renamed from Banner/Promo/Ad) -->
-  <div id="sysModal" class="sys-modal">
-    <div class="sys-card">
-      <span class="sys-label">System</span>
-      <button id="btnCloseSys" class="sys-close">×</button>
-      <img id="sysImg" class="sys-image" src="" alt="System" />
-      <div class="sys-body">
-        <a id="sysLink" href="#" target="_blank" style="text-decoration:none;">
-          <button id="sysBtn" class="sys-btn-action">Open</button>
+  <!-- Ad Popup (Restored Original) -->
+  <div id="adModal" class="ad-modal">
+    <div class="ad-card">
+      <span class="ad-label">Ad</span>
+      <button id="btnCloseAd" class="ad-close">×</button>
+      <img id="adImg" class="ad-image" src="" alt="Promo" />
+      <div class="ad-body">
+        <a id="adLink" href="#" target="_blank" style="text-decoration:none;">
+          <button id="adBtn" class="ad-btn-action">Open</button>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- System Toast (Renamed from Corner Banner/Promo/Ad) -->
-  <div id="sysToast" class="sys-toast hidden">
-    <button id="btnCloseSysToast" class="sys-close-toast">×</button>
-    <a id="sysLinkToast" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
-       <span class="sys-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">System</span>
-       <img id="sysImgToast" class="sys-toast-img" src="" alt="System" />
+  <!-- Corner Popup (New Neutral Name) -->
+  <div id="cornerPopup" class="corner-popup hidden">
+    <button id="btnCloseCorner" class="corner-close">×</button>
+    <a id="cornerLink" href="#" target="_blank" style="text-decoration:none; display:block; position:relative;">
+       <span class="ad-label" style="font-size:8px; padding:1px 3px; top:4px; left:4px;">Ad</span>
+       <img id="cornerImg" class="corner-image" src="" alt="Promo" />
     </a>
   </div>
 
@@ -363,7 +363,7 @@
     let currentViewMode = "html"; // html | text | json
     let notifUnsub = null;
     let personalNotifUnsub = null;
-    let availableSystems = [];
+    let availableAds = [];
 
     // DOM Elements
     const $ = (id) => document.getElementById(id);
@@ -413,18 +413,18 @@
       statusChipText: $("statusChipText"),
       formatBtns: document.querySelectorAll(".seg button"),
 
-      // Systems (Renamed from Banners/Promos/Ads)
-      sysModal: $("sysModal"),
-      sysImg: $("sysImg"),
-      sysLink: $("sysLink"),
-      sysBtn: $("sysBtn"),
-      btnCloseSys: $("btnCloseSys"),
+      // Ads (Restored)
+      adModal: $("adModal"),
+      adImg: $("adImg"),
+      adLink: $("adLink"),
+      adBtn: $("adBtn"),
+      btnCloseAd: $("btnCloseAd"),
 
-      // Corner System
-      sysToast: $("sysToast"),
-      btnCloseSysToast: $("btnCloseSysToast"),
-      sysImgToast: $("sysImgToast"),
-      sysLinkToast: $("sysLinkToast"),
+      // Corner Popup (New Neutral Name)
+      cornerPopup: $("cornerPopup"),
+      btnCloseCorner: $("btnCloseCorner"),
+      cornerImg: $("cornerImg"),
+      cornerLink: $("cornerLink"),
 
       // Notifications
       bellWrapper: $("bellWrapper"),
@@ -530,8 +530,8 @@
       // view mode initial highlight
       setViewMode(currentViewMode, currentViewMode === "html" ? els.btnViewHtml : currentViewMode === "text" ? els.btnViewText : els.btnViewJson);
 
-      /* Check System Popup */
-      checkSystemPopup();
+      /* Check Ad Popup */
+      checkAdPopup();
 
       /* Init Notifications */
       initNotifications();
@@ -680,8 +680,8 @@
       return "now";
     }
 
-    // --- System Popup Logic ---
-    async function checkSystemPopup() {
+    // --- Ad Popup Logic ---
+    async function checkAdPopup() {
       try {
         // 1. Fetch settings (Collection)
         // Note: In real app, maybe cache this or use a single config doc that has the list.
@@ -689,47 +689,47 @@
         const snap = await getDocs(collection(db, "settings", "ads", "items"));
         if (snap.empty) return;
 
-        const activeSystems = [];
+        const activeAds = [];
         snap.forEach(d => {
           const data = d.data();
           if (data.active && data.imageUrl) {
-            activeSystems.push(data);
+            activeAds.push(data);
           }
         });
 
-        if (activeSystems.length === 0) return;
-        availableSystems = activeSystems; // Store for corner system
+        if (activeAds.length === 0) return;
+        availableAds = activeAds; // Store for corner popup
 
-        // SHOW RANDOM SYSTEM ALWAYS
-        const randomSystem = activeSystems[Math.floor(Math.random() * activeSystems.length)];
+        // SHOW RANDOM AD ALWAYS
+        const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
 
-        els.sysImg.src = randomSystem.imageUrl;
-        els.sysLink.href = randomSystem.linkUrl || "#";
-        els.sysBtn.textContent = randomSystem.btnText || "Open";
+        els.adImg.src = randomAd.imageUrl;
+        els.adLink.href = randomAd.linkUrl || "#";
+        els.adBtn.textContent = randomAd.btnText || "Open";
 
-        els.sysModal.classList.add("visible");
+        els.adModal.classList.add("visible");
 
       } catch (e) {
-        console.warn("System check failed:", e);
+        console.warn("Ad check failed:", e);
       }
     }
 
-    els.btnCloseSys.onclick = () => {
-      els.sysModal.classList.remove("visible");
+    els.btnCloseAd.onclick = () => {
+      els.adModal.classList.remove("visible");
 
-      // Trigger Corner System after 3s
+      // Trigger Corner Popup after 3s
       setTimeout(() => {
-          if (availableSystems.length > 0) {
-              const randomSystem = availableSystems[Math.floor(Math.random() * availableSystems.length)];
-              els.sysImgToast.src = randomSystem.imageUrl;
-              els.sysLinkToast.href = randomSystem.linkUrl || "#";
-              els.sysToast.classList.remove("hidden");
+          if (availableAds.length > 0) {
+              const randomAd = availableAds[Math.floor(Math.random() * availableAds.length)];
+              els.cornerImg.src = randomAd.imageUrl;
+              els.cornerLink.href = randomAd.linkUrl || "#";
+              els.cornerPopup.classList.remove("hidden");
           }
       }, 3000);
     };
 
-    els.btnCloseSysToast.onclick = () => {
-        els.sysToast.classList.add("hidden");
+    els.btnCloseCorner.onclick = () => {
+        els.cornerPopup.classList.add("hidden");
     };
 
     // --- Worker API ---

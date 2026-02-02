@@ -1491,8 +1491,8 @@ input:-webkit-autofill:active {
     color: var(--success);
 }
 
-/* System Modal (Renamed from Banner/Promo/Ad) */
-.sys-modal {
+/* Ad Modal (Restored) */
+.ad-modal {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.85);
@@ -1508,12 +1508,12 @@ input:-webkit-autofill:active {
     transition: all 0.3s ease;
 }
 
-.sys-modal.visible {
+.ad-modal.visible {
     opacity: 1;
     pointer-events: auto;
 }
 
-.sys-card {
+.ad-card {
     background: #1e293b;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
@@ -1526,11 +1526,11 @@ input:-webkit-autofill:active {
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sys-modal.visible .sys-card {
+.ad-modal.visible .ad-card {
     transform: scale(1) translateY(0);
 }
 
-.sys-image {
+.ad-image {
     width: 100%;
     height: auto;
     display: block;
@@ -1539,13 +1539,13 @@ input:-webkit-autofill:active {
     background: #0f172a;
 }
 
-.sys-body {
+.ad-body {
     padding: 16px 20px 20px;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.sys-label {
+.ad-label {
     position: absolute;
     top: 12px;
     left: 12px;
@@ -1563,7 +1563,7 @@ input:-webkit-autofill:active {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sys-close {
+.ad-close {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -1584,13 +1584,13 @@ input:-webkit-autofill:active {
     transition: all 0.2s;
 }
 
-.sys-close:hover {
+.ad-close:hover {
     background: rgba(239, 68, 68, 0.9);
     transform: rotate(90deg);
     border-color: rgba(239, 68, 68, 1);
 }
 
-.sys-btn-action {
+.ad-btn-action {
     display: block;
     width: 100%;
     padding: 12px;
@@ -1605,16 +1605,16 @@ input:-webkit-autofill:active {
     transition: filter 0.2s, transform 0.1s;
 }
 
-.sys-btn-action:hover {
+.ad-btn-action:hover {
     filter: brightness(1.1);
 }
 
-.sys-btn-action:active {
+.ad-btn-action:active {
     transform: scale(0.98);
 }
 
-/* System Toast (Renamed from Corner Banner) */
-.sys-toast {
+/* Corner Popup (New Neutral Name) */
+.corner-popup {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -1630,7 +1630,7 @@ input:-webkit-autofill:active {
     flex-direction: column;
 }
 
-.sys-toast.hidden {
+.corner-popup.hidden {
     display: none !important;
 }
 
@@ -1639,7 +1639,7 @@ input:-webkit-autofill:active {
     to { transform: translateY(0); opacity: 1; }
 }
 
-.sys-close-toast {
+.corner-close {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -1661,18 +1661,19 @@ input:-webkit-autofill:active {
     padding: 0;
 }
 
-.sys-close-toast:hover {
+.corner-close:hover {
     background: rgba(239, 68, 68, 0.9);
     border-color: rgba(239, 68, 68, 1);
 }
 
-.sys-toast-img {
+.corner-image {
     width: 100%;
     height: auto;
     display: block;
     max-height: 200px;
     object-fit: cover;
 }
+
 
 /* --- MISSING ADMIN LAYOUT --- */
 .admin-login-container {
