@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Arufkuy Mailbox - Secure Inbox</title>
+  <meta name="theme-color" content="#F2F4F8" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- Login View -->
+  <div id="loginView" class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="logo.png" alt="Logo">
+      </div>
+      <h1 class="login-title">Welcome Back</h1>
+      <p class="login-subtitle">Sign in to access your secure inbox</p>
+
+      <div class="input-group">
+        <input id="emailInput" class="login-input" placeholder="Email address" type="email" autocomplete="username">
+      </div>
+      <div class="input-group">
+        <input id="passwordInput" class="login-input" placeholder="Password" type="password"
+          autocomplete="current-password">
+      </div>
+
+      <div style="margin-top:20px;">
+        <button id="btnLogin" class="btn-primary">Sign In</button>
+      </div>
+
+      <div id="loginError" style="color:var(--danger); margin-top:15px; font-size:0.9rem;"></div>
+
+      <div class="login-footer">
+        <p>Don't have an account? <a href="#" style="color:var(--primary); font-weight:600;">Contact Support</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- App View -->
+  <div id="appView" class="app-shell hidden">
+
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="logo.png" alt="Logo">
+        <span>Arufkuy Mailbox</span>
+      </div>
+
+      <nav class="nav-links">
+        <a class="nav-link active" onclick="switchTab('inbox')">
+          <i class="bi bi-inbox-fill"></i> Inbox
+        </a>
+        <div class="nav-divider"></div>
+        <div
+          style="padding: 0 16px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+          Receive Only
+        </div>
+        <div style="flex:1;"></div>
+        <a id="btnSidebarLogout" class="nav-link" style="color:var(--danger);">
+          <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- Top Header -->
+      <header class="top-header">
+        <div>
+          <div class="page-title">Inbox</div>
+          <div id="inboxAddress" style="font-size:0.85rem; color:var(--text-muted); font-family:monospace;">loading...
+          </div>
+        </div>
+
+        <div class="flex" style="gap:15px; align-items:center;">
+          <button id="btnNotif" class="btn-icon" title="Notifications" style="position:relative;">
+            <i class="bi bi-bell"></i>
+            <span id="notifBadge" class="badge badge-danger hidden"
+              style="position:absolute; top:-5px; right:-5px; font-size:9px; padding:2px 5px;">0</span>
+          </button>
+
+          <button id="btnRefresh" class="btn-icon" title="Refresh">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+
+          <!-- User Profile -->
+          <div id="btnUserAvatar" class="user-profile-ring">
+            <div class="user-img-wrapper" id="avatarLetter">U</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Search & Filters -->
+      <div style="margin-bottom:20px;">
+        <input id="searchBox" class="login-input" style="padding:12px 20px; border-radius:30px;"
+          placeholder="Search messages...">
+      </div>
+
+      <!-- Message List -->
+      <div id="emptyState" class="empty-state hidden">
+        <i class="bi bi-inbox"></i>
+        <h3>No messages yet</h3>
+        <p>Your inbox is empty. New messages will appear here.</p>
+      </div>
+
+      <div id="msgList" class="msg-list-wrapper">
+        <!-- JS will inject .msg-card items here -->
+      </div>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <div class="b-nav-item active" onclick="switchTab('inbox')">
+        <i class="bi bi-house-door-fill"></i>
+        <span>Home</span>
+      </div>
+      <div class="b-nav-item">
+        <div class="b-fab" onclick="document.getElementById('btnRefresh').click()">
+          <i class="bi bi-arrow-clockwise"></i>
+        </div>
+      </div>
+      <div class="b-nav-item" onclick="switchTab('profile')">
+        <i class="bi bi-person"></i>
+        <span>Profile</span>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- READING MODAL (Full Screen Overlay) -->
+  <div id="readView" class="modal-view">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button id="btnCloseRead" class="btn-icon">
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        <div class="modal-actions">
+          <button id="btnDelete" class="btn-icon" style="color:var(--danger); background:#FEF2F2;">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body-scroll">
+        <h2 id="rSubject" class="mail-subject">Subject</h2>
+
+        <div class="mail-meta">
+          <div id="rAvatar" class="mail-meta-avatar">?</div>
+          <div class="mail-meta-info">
+            <div id="rFrom" class="meta-name">Sender Name</div>
+            <div id="rDate" class="meta-detail">Time</div>
+          </div>
+        </div>
+
+        <div id="rBody" class="mail-content-frame">
+          <!-- Content -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsView" class="modal-view">
+    <div class="modal-content" style="height:auto; min-height:50vh;">
+      <div class="modal-header">
+        <h2 style="font-size:1.2rem; font-weight:700;">Settings</h2>
+        <button id="btnCloseSettings" class="btn-icon">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body-scroll">
+        <h3 style="font-size:1rem; margin-bottom:15px;">Change Password</h3>
+        <div class="input-group">
+          <input id="setCurrPass" class="login-input" type="password" placeholder="Current Password">
+        </div>
+        <div class="input-group">
+          <input id="setNewPass" class="login-input" type="password" placeholder="New Password">
+        </div>
+        <div class="input-group">
+          <input id="setConfPass" class="login-input" type="password" placeholder="Confirm New Password">
+        </div>
+        <div id="setMsg" style="margin-bottom:15px; font-size:0.85rem;"></div>
+        <button id="btnSaveSettings" class="btn-primary">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS VIEW (Overlay) -->
+  <div id="notifView" class="modal-view">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="font-size:1.2rem; font-weight:700;">Notifications</h2>
+        <button id="btnCloseNotif" class="btn-icon">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div id="notifList" class="modal-body-scroll">
+        <!-- Notifications injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div id="profileView" class="modal-view">
+    <div class="modal-content" style="height:auto; min-height:40vh;">
+      <div class="modal-header">
+        <h2 style="font-size:1.2rem; font-weight:700;">Account</h2>
+        <button id="btnCloseProfile" class="btn-icon">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body-scroll" style="text-align:center;">
+        <div class="user-profile-ring" style="width:80px; height:80px; margin:0 auto 15px;">
+          <div class="user-img-wrapper" id="profileLetter" style="font-size:2rem;">U</div>
+        </div>
+        <div id="profileEmail" style="font-weight:600; font-size:1.1rem; margin-bottom:5px;">user@example.com</div>
+        <div style="color:var(--text-muted); font-size:0.9rem; margin-bottom:30px;">Logged in via Firebase</div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button id="btnOpenSettings" class="btn-primary"
+            style="background:var(--bg-body); color:var(--primary); border:1px solid #E5E7EB;">
+            <i class="bi bi-key"></i> Change Password
+          </button>
+          <button id="btnRealLogout" class="btn-primary"
+            style="background:#FEF2F2; color:var(--danger); border:1px solid #FECACA;">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Module -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, onSnapshot, query, orderBy, limit, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
+      authDomain: "webmail-arufkuy.firebaseapp.com",
+      projectId: "webmail-arufkuy",
+      storageBucket: "webmail-arufkuy.firebasestorage.app",
+      messagingSenderId: "608495162500",
+      appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
+      measurementId: "G-JXST3Z88R7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const WORKER_API = "https://api.arufkuy.workers.dev";
+
+    // State
+    let fbUser = null;
+    let messagesCache = [];
+    let selectedMessageId = null;
+
+    // Elements
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      loginView: $("loginView"),
+      appView: $("appView"),
+      readView: $("readView"),
+      settingsView: $("settingsView"),
+      notifView: $("notifView"),
+      profileView: $("profileView"),
+
+      emailInput: $("emailInput"),
+      passwordInput: $("passwordInput"),
+      btnLogin: $("btnLogin"),
+      loginError: $("loginError"),
+      msgList: $("msgList"),
+      emptyState: $("emptyState"),
+      btnRefresh: $("btnRefresh"),
+      btnSidebarLogout: $("btnSidebarLogout"),
+
+      // Header
+      btnUserAvatar: $("btnUserAvatar"),
+      btnNotif: $("btnNotif"),
+      notifBadge: $("notifBadge"),
+
+      // Profile
+      btnCloseProfile: $("btnCloseProfile"),
+      profileLetter: $("profileLetter"),
+      profileEmail: $("profileEmail"),
+      btnOpenSettings: $("btnOpenSettings"),
+      btnRealLogout: $("btnRealLogout"),
+
+      // Reading Pane
+      btnCloseRead: $("btnCloseRead"),
+      rSubject: $("rSubject"),
+      rFrom: $("rFrom"),
+      rDate: $("rDate"),
+      rBody: $("rBody"),
+      rAvatar: $("rAvatar"),
+      btnDelete: $("btnDelete"),
+
+      // Info
+      inboxAddress: $("inboxAddress"),
+      avatarLetter: $("avatarLetter"),
+      searchBox: $("searchBox"),
+
+      // Settings
+      btnCloseSettings: $("btnCloseSettings"),
+      btnSaveSettings: $("btnSaveSettings"),
+      setCurrPass: $("setCurrPass"),
+
+      // Notifications
+      btnCloseNotif: $("btnCloseNotif"),
+      notifList: $("notifList")
+    };
+
+    // --- Auth ---
+    async function ensureToken() {
+      if (!auth.currentUser) throw new Error("Not authenticated");
+      return await auth.currentUser.getIdToken();
+    }
+
+    async function login() {
+      els.loginError.textContent = "";
+      els.btnLogin.textContent = "Signing in...";
+      els.btnLogin.disabled = true;
+      try {
+        await signInWithEmailAndPassword(auth, els.emailInput.value, els.passwordInput.value);
+        // Auth listener handles the rest
+      } catch (e) {
+        els.loginError.textContent = "Sign in failed: " + e.message;
+        els.btnLogin.disabled = false;
+        els.btnLogin.textContent = "Sign In";
+      }
+    }
+
+    // --- Notification Logic ---
+    function initNotifications(uid) {
+      const qGlobal = query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(20));
+      onSnapshot(qGlobal, (snap) => renderNotifs(snap.docs));
+    }
+
+    function renderNotifs(docs) {
+      const count = docs.length;
+      if (count > 0) {
+        els.notifBadge.textContent = count > 9 ? '9+' : count;
+        els.notifBadge.classList.remove("hidden");
+      } else {
+        els.notifBadge.classList.add("hidden");
+      }
+
+      els.notifList.innerHTML = "";
+      if (count === 0) {
+        els.notifList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No notifications</div>';
+        return;
+      }
+      docs.forEach(d => {
+        const n = d.data();
+        const div = document.createElement("div");
+        div.className = "card";
+        div.style.marginBottom = "10px";
+        div.style.padding = "15px";
+        div.innerHTML = `
+                <div style="font-weight:700; font-size:0.9rem;">${n.title}</div>
+                <div style="font-size:0.85rem; color:#666; margin-top:4px;">${n.body}</div>
+                <div style="font-size:0.75rem; color:#999; margin-top:8px;">${n.createdAt?.toDate().toLocaleDateString()}</div>
+            `;
+        els.notifList.appendChild(div);
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        fbUser = user;
+        els.loginView.classList.add("hidden");
+        els.appView.classList.remove("hidden");
+
+        // Load Profile
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          if (snap.exists()) {
+            const data = snap.data();
+            els.inboxAddress.textContent = data.email || user.email;
+            els.avatarLetter.textContent = (data.inboxUser || "U")[0].toUpperCase();
+          }
+        } catch (e) { console.error(e); }
+
+        loadInbox();
+        initNotifications(user.uid);
+      } else {
+        els.loginView.classList.remove("hidden");
+        els.appView.classList.add("hidden");
+        fbUser = null;
+        els.btnLogin.disabled = false;
+        els.btnLogin.textContent = "Sign In";
+      }
+    });
+
+    els.btnLogin.onclick = login;
+    els.btnSidebarLogout.onclick = () => signOut(auth);
+
+    // --- Settings Logic ---
+    window.openSettings = () => els.settingsView.classList.add("active");
+    els.btnCloseSettings.onclick = () => els.settingsView.classList.remove("active");
+
+    // --- Notifications UI ---
+    window.openNotifs = () => els.notifView.classList.add("active");
+    els.btnCloseNotif.onclick = () => els.notifView.classList.remove("active");
+
+    // --- Inbox Logic ---
+    async function api(path, method = "GET") {
+      const token = await ensureToken();
+      const res = await fetch(`${WORKER_API}${path}`, {
+        method, headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("API Error");
+      return res.json();
+    }
+
+    async function loadInbox() {
+      els.btnRefresh.classList.add("spin"); // Optional: Add spin class to CSS if wanted
+      try {
+        const data = await api("/inbox");
+        messagesCache = data.messages || [];
+        renderList();
+      } catch (e) {
+        console.error(e);
+      }
+      els.btnRefresh.classList.remove("spin");
+    }
+
+    els.btnRefresh.onclick = () => loadInbox();
+
+    function renderList() {
+      const q = els.searchBox.value.toLowerCase();
+      const list = messagesCache.filter(m => !q || (m.subject + m.from).toLowerCase().includes(q));
+
+      els.msgList.innerHTML = "";
+      if (list.length === 0) {
+        els.emptyState.classList.remove("hidden");
+      } else {
+        els.emptyState.classList.add("hidden");
+        list.forEach(m => {
+          const div = document.createElement("div");
+          // Check local read status
+          const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
+          const isRead = readList.includes(m.id);
+
+          div.className = `msg-card ${!isRead ? 'unread' : ''}`;
+          div.innerHTML = `
+                   <div class="msg-avatar">${(m.from || "?")[0].toUpperCase()}</div>
+                   <div class="msg-content">
+                      <div class="msg-header-row">
+                         <div class="msg-sender">${m.from}</div>
+                         <div class="msg-time">${new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      </div>
+                      <div class="msg-subject">${m.subject || "(No Subject)"}</div>
+                      <div class="msg-snippet">${m.snippet || "..."}</div>
+                   </div>
+                `;
+          div.onclick = () => openMessage(m);
+          els.msgList.appendChild(div);
+        });
+      }
+    }
+
+    els.searchBox.oninput = renderList;
+
+    // --- Reading Logic ---
+    async function openMessage(m) {
+      selectedMessageId = m.id;
+
+      // Mark as read locally
+      const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
+      if (!readList.includes(m.id)) {
+        readList.push(m.id);
+        localStorage.setItem("readMessages", JSON.stringify(readList));
+        renderList(); // Update UI
+      }
+
+      // Populate Modal
+      els.rSubject.textContent = m.subject;
+      els.rFrom.textContent = m.from;
+      els.rDate.textContent = new Date(m.date).toLocaleString();
+      els.rAvatar.textContent = (m.from || "?")[0].toUpperCase();
+      els.rBody.innerHTML = '<div class="center" style="padding:20px;">Loading content...</div>';
+
+      // Open Modal
+      els.readView.classList.add("active");
+
+      // Fetch Content
+      try {
+        const res = await api(`/message?id=${m.id}&format=json`);
+        // The worker returns { ok:true, message: { ... } }
+        const details = res.message || {};
+
+        // Prefer HTML, fallback to text
+        const body = details.html || details.text || "(No content)";
+        els.rBody.innerHTML = body;
+      } catch (e) {
+        els.rBody.textContent = "Failed to load: " + e.message;
+      }
+    }
+
+    els.btnCloseRead.onclick = () => {
+      els.readView.classList.remove("active");
+    };
+
+    els.btnDelete.onclick = async () => {
+      if (!selectedMessageId) return;
+      if (!confirm("Delete this message?")) return;
+
+      try {
+        // Optimistic removal
+        messagesCache = messagesCache.filter(m => m.id !== selectedMessageId);
+        renderList();
+        els.readView.classList.remove("active");
+
+        await api(`/messages/${selectedMessageId}`, "DELETE");
+      } catch (e) {
+        alert("Delete failed");
+        loadInbox(); // Revert
+      }
+    };
+
+    // --- Settings Logic (Password Change) ---
+    els.btnSaveSettings.onclick = async () => {
+      const curr = els.setCurrPass.value;
+      const newP = els.setNewPass.value;
+      const conf = els.setConfPass.value;
+      const msg = (txt, color = "red") => { els.setMsg.textContent = txt; els.setMsg.style.color = color; };
+
+      if (!curr || !newP || !conf) return msg("Please fill all fields");
+      if (newP !== conf) return msg("New passwords do not match");
+      if (newP.length < 6) return msg("Password must be at least 6 characters");
+
+      els.btnSaveSettings.disabled = true;
+      els.btnSaveSettings.textContent = "Updating...";
+
+      try {
+        const cred = EmailAuthProvider.credential(fbUser.email, curr);
+        await reauthenticateWithCredential(fbUser, cred);
+        await updatePassword(fbUser, newP);
+        msg("Password updated successfully!", "green");
+        els.setCurrPass.value = ""; els.setNewPass.value = ""; els.setConfPass.value = "";
+        setTimeout(() => els.settingsView.classList.remove("active"), 1500);
+      } catch (e) {
+        console.error(e);
+        msg("Error: " + e.message);
+      }
+      els.btnSaveSettings.disabled = false;
+      els.btnSaveSettings.textContent = "Update Password";
+    };
+
+    // --- Profile Logic ---
+    window.openProfile = () => {
+      els.profileLetter.textContent = els.avatarLetter.textContent;
+      els.profileEmail.textContent = fbUser.email;
+      els.profileView.classList.add("active");
+    };
+    els.btnCloseProfile.onclick = () => els.profileView.classList.remove("active");
+    els.btnUserAvatar.onclick = window.openProfile;
+    els.btnRealLogout.onclick = () => signOut(auth);
+    els.btnOpenSettings.onclick = () => {
+      els.profileView.classList.remove("active");
+      setTimeout(window.openSettings, 200);
+    };
+
+    // --- Notification Logic Hooks ---
+    els.btnNotif.onclick = window.openNotifs;
+
+    // --- Tab Switching (Global for onClick) ---
+    window.switchTab = (tab) => {
+      if (tab === 'inbox') {
+        els.settingsView.classList.remove("active");
+        els.notifView.classList.remove("active");
+        els.readView.classList.remove("active");
+        els.profileView.classList.remove("active");
+      }
+      if (tab === 'settings') window.openSettings();
+      if (tab === 'notifs') window.openNotifs();
+      if (tab === 'profile') window.openProfile();
+    };
+
+  </script>
+</body>
+
+</html>
