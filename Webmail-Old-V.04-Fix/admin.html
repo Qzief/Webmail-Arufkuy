@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Console - Arufkuy Webmail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="bg-ambient"></div>
+  <div class="grid-bg"></div>
+
+  <!-- VIEW: LOGIN -->
+  <div id="loginView" class="admin-login-container">
+    <div class="admin-login-card glass">
+      <div class="admin-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      </div>
+      <div class="brand-logo">Admin Console</div>
+      <div class="muted mb-4" style="font-size: 0.9rem;">Restricted Access Only</div>
+
+      <form id="loginForm" onsubmit="return false;">
+        <div class="flex-col" style="gap: 16px;">
+          <input id="emailInput" type="email" placeholder="Admin Email" autocomplete="username" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          <button id="btnLogin" type="submit" class="btn-primary w-full mt-4" style="justify-content: center; font-size: 1rem; padding: 14px;">Authenticate</button>
+        </div>
+      </form>
+
+      <div id="loginMsg" class="status-msg text-center" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <!-- VIEW: DASHBOARD -->
+  <div id="dashboardView" class="hidden" style="height: 100vh; display: flex; flex-direction: column;">
+    <header>
+      <div class="header-title">
+        <span>Webmail Admin</span>
+        <span class="admin-badge">SUPERUSER</span>
+      </div>
+      <div class="flex">
+        <div class="text-right" style="line-height: 1.2;">
+          <div id="adminEmailDisplay" style="font-size: 0.875rem; font-weight: 500;">...</div>
+          <div class="muted" style="font-size: 0.75rem;">Logged in</div>
+        </div>
+        <button id="btnLogout" class="btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Logout</button>
+      </div>
+    </header>
+
+    <div class="main-content" style="flex: 1; overflow: hidden; padding: 20px;">
+
+      <div class="grid-layout">
+
+        <!-- Left: Create/Edit User -->
+        <div class="flex-col" style="overflow-y: auto;">
+          <div class="card">
+            <!-- Tabs -->
+            <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <button id="tabMap" class="active-tab" style="font-size: 0.8rem; padding: 6px 12px;">Map Existing</button>
+              <button id="tabCreate"
+                style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Create
+                New</button>
+              <button id="tabAds"
+                style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Add
+                Ad</button>
+              <button id="tabNotifs"
+                style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Send
+                Notif</button>
+            </div>
+
+            <!-- VIEW: MAP EXISTING -->
+            <div id="viewMap">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">User Mapping</h3>
+              <div class="muted mb-4">Map Firebase UID to Inbox Address.</div>
+
+              <div class="flex-col">
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Firebase UID</label>
+                  <div class="input-group">
+                    <input id="targetUid" class="mono" placeholder="Paste User UID" />
+                    <button id="btnCheckUid" title="Check if UID exists">Check</button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Username (a-z, 0-9, ., _, -)</label>
+                  <div class="input-group">
+                    <input id="targetLocalPart" placeholder="username" />
+                    <div class="addon">@arufkuy.me</div>
+                  </div>
+                </div>
+
+                <div class="preview-box">
+                  <div class="flex space-between mb-4">
+                    <span class="muted">Inbox User:</span>
+                    <span id="previewUser" class="mono" style="color: #fff;">-</span>
+                  </div>
+                  <div class="flex space-between">
+                    <span class="muted">Address:</span>
+                    <span id="previewAddress" class="mono" style="color: #fff;">-</span>
+                  </div>
+                </div>
+
+                <div class="flex mt-4">
+                  <button id="btnSave" class="btn-primary w-full">Save & Sync</button>
+                  <button id="btnDelete" class="btn-danger" disabled title="Delete Mapping">Del</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- VIEW: CREATE NEW -->
+            <div id="viewCreate" class="hidden">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">Create & Register</h3>
+              <div class="muted mb-4">Create Auth User + Map + Sync.</div>
+
+              <div class="flex-col">
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Username</label>
+                  <div class="input-group">
+                    <input id="newUsername" placeholder="username" />
+                    <div class="addon">@arufkuy.me</div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Password</label>
+                  <div class="input-group">
+                    <input id="newPassword" type="text" placeholder="min 6 chars" />
+                    <button id="btnGenPass" title="Generate Random">Gen</button>
+                  </div>
+                </div>
+
+                <div class="flex mt-4">
+                  <button id="btnCreateUser" class="btn-primary w-full">Create User</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- VIEW: AD CONFIG -->
+            <div id="viewAds" class="hidden">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">Ad Manager</h3>
+
+              <div class="flex-col" style="gap:10px;">
+                <label class="muted">Add New Pop-up</label>
+                <input id="adImage" placeholder="Image URL (http://...)" />
+                <div class="flex" style="gap:10px;">
+                  <input id="adLink" placeholder="Target Link" style="flex:1;" />
+                  <input id="adBtnText" placeholder="Btn Text (Open)" style="width:120px;" />
+                </div>
+                <button id="btnAddAd" class="btn-primary" style="padding:8px;">Add Ad</button>
+              </div>
+            </div>
+
+            <!-- VIEW: NOTIFICATIONS (NEW) -->
+            <div id="viewNotifs" class="hidden">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 600;">Send Notification</h3>
+              <div class="muted mb-4">Send Broadcast or Personal Alert.</div>
+
+              <div class="flex-col">
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Type</label>
+                  <select id="notifType">
+                    <option value="broadcast">Broadcast (All Users)</option>
+                    <option value="personal">Personal (Specific UID)</option>
+                  </select>
+                </div>
+
+                <div id="notifUidGroup" class="hidden">
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Target UID</label>
+                  <input id="notifTargetUid" class="mono" placeholder="User UID" />
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Title</label>
+                  <input id="notifTitle" placeholder="Notification Title" />
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Message Body</label>
+                  <textarea id="notifBody" rows="3" placeholder="Message content..."></textarea>
+                </div>
+
+                <div>
+                  <label class="muted" style="display:block; margin-bottom:0.5rem;">Badge Style</label>
+                  <select id="notifBadge">
+                    <option value="info">Info (Blue)</option>
+                    <option value="success">Success (Green)</option>
+                    <option value="warning">Warning (Orange)</option>
+                    <option value="danger">Danger (Red)</option>
+                  </select>
+                </div>
+
+                <button id="btnSendNotif" class="btn-primary w-full mt-4">Send Notification</button>
+              </div>
+            </div>
+
+            <div id="actionMsg" class="status-msg text-center" style="margin-top: 12px;"></div>
+          </div>
+        </div>
+
+        <!-- Right: User List & Ads List & Notifs List -->
+        <div class="right-col" style="height: 100%; overflow: hidden;">
+          <div class="card table-card">
+
+            <!-- Right Tabs -->
+            <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+              <button id="tabListUsers" class="active-tab"
+                style="font-size: 0.9rem; padding: 6px 12px; margin-right:10px;">Registered Users</button>
+              <button id="tabListAds"
+                style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6; margin-right:10px;">Active
+                Campaigns</button>
+              <button id="tabListNotifs"
+                style="font-size: 0.9rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Notifications</button>
+            </div>
+
+            <!-- TAB: USERS -->
+            <div id="viewListUsers" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+              <div class="table-header-area flex-col">
+                <div class="flex space-between">
+                  <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">
+                    <span id="totalUsersCount" class="muted" style="font-size: 0.8rem;">Loading...</span>
+                  </h3>
+                  <button id="btnRefresh" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+                </div>
+                <input id="searchUserInput" type="text" placeholder="Search users by UID or email..." />
+              </div>
+
+              <div class="table-container" style="flex: 1; overflow: auto; min-height: 0;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>UID</th>
+                      <th>Email Address</th>
+                      <th>Inbox User</th>
+                      <th style="text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center muted" style="padding: 20px;">Loading data...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB: ADS -->
+            <div id="viewListAds" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+              <div class="flex space-between mb-4">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ad Campaigns</h3>
+                <button id="btnRefreshAds" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+              </div>
+              <div class="table-container" style="flex: 1; overflow: auto; min-height: 0;">
+                <table style="font-size:0.9rem;">
+                  <thead>
+                    <tr>
+                      <th style="width:80px;">Preview</th>
+                      <th>Links & Content</th>
+                      <th style="width:100px;">Status</th>
+                      <th style="width:50px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="adsTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center muted">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB: NOTIFICATIONS (NEW) -->
+            <div id="viewListNotifs" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+              <div class="flex space-between mb-4">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Recent Notifications</h3>
+                <button id="btnRefreshNotifs" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
+              </div>
+              <div class="table-container" style="flex: 1; overflow: auto; min-height: 0;">
+                <table style="font-size:0.9rem;">
+                  <thead>
+                    <tr>
+                      <th style="width:100px;">Type</th>
+                      <th>Content</th>
+                      <th style="width:120px;">Date</th>
+                      <th style="width:50px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="notifsTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center muted">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Info Modal -->
+  <div id="infoModal" class="modal-overlay hidden">
+    <div class="modal-box wide">
+      <div class="flex space-between">
+        <h3 style="margin:0; font-size: 1.1rem;">Raw Data Inspector</h3>
+        <button id="btnCloseModal"
+          style="background:transparent; border:none; color:var(--text-muted); padding:0; font-size:1.2rem;">✕</button>
+      </div>
+      <div class="muted">Data stored in Firestore for this user:</div>
+      <pre id="jsonContent" class="mono"></pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp, collectionGroup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
+      authDomain: "webmail-arufkuy.firebaseapp.com",
+      projectId: "webmail-arufkuy",
+      storageBucket: "webmail-arufkuy.firebasestorage.app",
+      messagingSenderId: "608495162500",
+      appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
+      measurementId: "G-JXST3Z88R7"
+    };
+
+    const WORKER_API = "https://api.arufkuy.workers.dev";
+
+    // Initialize Admin App (Isolated Auth)
+    const app = initializeApp(firebaseConfig, "AdminApp");
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // UI References
+    const $ = (id) => document.getElementById(id);
+    const views = {
+      login: $("loginView"),
+      dashboard: $("dashboardView")
+    };
+
+    const els = {
+      email: $("emailInput"),
+      pass: $("passwordInput"),
+      btnLogin: $("btnLogin"),
+      loginMsg: $("loginMsg"),
+      btnLogout: $("btnLogout"),
+      adminEmail: $("adminEmailDisplay"),
+
+      // Form
+      uid: $("targetUid"),
+      btnCheckUid: $("btnCheckUid"),
+      localPart: $("targetLocalPart"),
+      previewUser: $("previewUser"),
+      previewAddress: $("previewAddress"),
+      btnSave: $("btnSave"),
+      btnDelete: $("btnDelete"),
+      actionMsg: $("actionMsg"),
+
+      // List
+      btnRefresh: $("btnRefresh"),
+      searchUserInput: $("searchUserInput"),
+      totalUsersCount: $("totalUsersCount"),
+      tableBody: $("usersTableBody"),
+
+      // Modal
+      infoModal: $("infoModal"),
+      jsonContent: $("jsonContent"),
+      btnCloseModal: $("btnCloseModal"),
+
+      // Tabs & Create
+      tabMap: $("tabMap"),
+      tabCreate: $("tabCreate"),
+      tabAds: $("tabAds"),
+      tabNotifs: $("tabNotifs"), // NEW
+
+      viewMap: $("viewMap"),
+      viewCreate: $("viewCreate"),
+      viewAds: $("viewAds"),
+      viewNotifs: $("viewNotifs"), // NEW
+
+      // Ads
+      adImage: $("adImage"),
+      adLink: $("adLink"),
+      adBtnText: $("adBtnText"),
+      btnAddAd: $("btnAddAd"),
+
+      // Notifications (NEW)
+      notifType: $("notifType"),
+      notifUidGroup: $("notifUidGroup"),
+      notifTargetUid: $("notifTargetUid"),
+      notifTitle: $("notifTitle"),
+      notifBody: $("notifBody"),
+      notifBadge: $("notifBadge"),
+      btnSendNotif: $("btnSendNotif"),
+
+      // Right Tabs
+      tabListUsers: $("tabListUsers"),
+      tabListAds: $("tabListAds"),
+      tabListNotifs: $("tabListNotifs"), // NEW
+
+      viewListUsers: $("viewListUsers"),
+      viewListAds: $("viewListAds"),
+      viewListNotifs: $("viewListNotifs"), // NEW
+
+      adsTableBody: $("adsTableBody"),
+      btnRefreshAds: $("btnRefreshAds"),
+
+      notifsTableBody: $("notifsTableBody"), // NEW
+      btnRefreshNotifs: $("btnRefreshNotifs"), // NEW
+
+      newPassword: $("newPassword"),
+      btnGenPass: $("btnGenPass"),
+      newUsername: $("newUsername"),
+      btnCreateUser: $("btnCreateUser")
+    };
+
+    let currentUser = null;
+    let fbToken = null;
+    let allUsers = [];
+
+    // --- AUTH FLOW ---
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        els.loginMsg.textContent = "Verifying privileges...";
+        els.btnLogin.disabled = true;
+
+        try {
+          const isAdmin = await checkAdmin(user.uid);
+          if (isAdmin) {
+            currentUser = user;
+            fbToken = await user.getIdToken();
+            enterDashboard();
+          } else {
+            throw new Error("Access Denied: Not an admin.");
+          }
+        } catch (e) {
+          console.error(e);
+          els.loginMsg.textContent = e.message;
+          els.loginMsg.className = "status-msg error";
+          await signOut(auth);
+          els.btnLogin.disabled = false;
+        }
+      } else {
+        currentUser = null;
+        showLogin();
+      }
+    });
+
+    async function checkAdmin(uid) {
+      const snap = await getDoc(doc(db, "admins", uid));
+      return snap.exists() && snap.data().isAdmin === true;
+    }
+
+    function showLogin() {
+      views.dashboard.classList.add("hidden");
+      views.login.classList.remove("hidden");
+      els.email.value = "";
+      els.pass.value = "";
+      els.loginMsg.textContent = "";
+      els.btnLogin.disabled = false;
+      els.btnLogin.textContent = "Authenticate";
+    }
+
+    function enterDashboard() {
+      views.login.classList.add("hidden");
+      views.dashboard.classList.remove("hidden");
+      els.adminEmail.textContent = currentUser.email;
+      loadUsers();
+      loadAdSettings();
+      loadNotifications(); // NEW
+      els.searchUserInput.addEventListener('input', filterUsers);
+
+      // Setup Right Tabs
+      els.tabListUsers.onclick = () => switchRightTab('users');
+      els.tabListAds.onclick = () => switchRightTab('ads');
+      els.tabListNotifs.onclick = () => switchRightTab('notifs');
+    }
+
+    function switchRightTab(mode) {
+      // Reset
+      [els.tabListUsers, els.tabListAds, els.tabListNotifs].forEach(t => {
+        t.classList.remove("active-tab");
+        t.style.opacity = "0.6";
+        t.style.borderBottom = "none";
+      });
+      [els.viewListUsers, els.viewListAds, els.viewListNotifs].forEach(v => v.classList.add("hidden"));
+
+      // Activate
+      if (mode === 'users') {
+        activateTab(els.tabListUsers, els.viewListUsers);
+      } else if (mode === 'ads') {
+        activateTab(els.tabListAds, els.viewListAds);
+        loadAdSettings();
+      } else if (mode === 'notifs') {
+        activateTab(els.tabListNotifs, els.viewListNotifs);
+        loadNotifications();
+      }
+    }
+
+    // --- WORKER SYNC ---
+    async function syncToWorker(uid, inboxUser) {
+      const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
+      const res = await fetch(url, { method: "PUT" });
+      if (!res.ok) throw new Error(`Worker Sync Failed: ${res.status}`);
+      return res.json();
+    }
+
+    async function deleteFromWorker(uid, inboxUser) {
+      const url = `${WORKER_API}/admin/allow?uid=${encodeURIComponent(uid)}&inboxUser=${encodeURIComponent(inboxUser)}`;
+      const res = await fetch(url, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Worker Delete Failed: ${res.status}`);
+      return res.json();
+    }
+
+    // --- ACTIONS ---
+
+    els.btnLogin.onclick = async () => {
+      const email = els.email.value;
+      const pass = els.pass.value;
+      if (!email || !pass) return;
+
+      els.btnLogin.disabled = true;
+      els.btnLogin.textContent = "Signing in...";
+      els.loginMsg.textContent = "";
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        els.loginMsg.textContent = "Login Failed: " + e.message;
+        els.loginMsg.className = "status-msg error";
+        els.btnLogin.disabled = false;
+        els.btnLogin.textContent = "Authenticate";
+      }
+    };
+
+    els.btnLogout.onclick = () => signOut(auth);
+
+    // Form Logic
+    els.localPart.oninput = () => {
+      let val = els.localPart.value.toLowerCase();
+      val = val.replace(/[^a-z0-9._-]/g, "");
+      els.localPart.value = val;
+
+      if (val) {
+        els.previewUser.textContent = val;
+        els.previewAddress.textContent = `${val}@arufkuy.me`;
+      } else {
+        els.previewUser.textContent = "-";
+        els.previewAddress.textContent = "-";
+      }
+    };
+
+    els.btnCheckUid.onclick = async () => {
+      const uid = els.uid.value.trim();
+      if (!uid) {
+        setStatus("Please enter a UID first.", "error");
+        return;
+      }
+
+      els.btnCheckUid.disabled = true;
+      els.btnCheckUid.textContent = "...";
+
+      try {
+        const snap = await getDoc(doc(db, "users", uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          setStatus("User found! Loaded data.", "success");
+          if (data.email) {
+            els.localPart.value = data.email.split('@')[0];
+          } else if (data.inboxUser) {
+            els.localPart.value = data.inboxUser;
+          }
+          els.localPart.dispatchEvent(new Event('input'));
+          els.btnDelete.disabled = false;
+        } else {
+          setStatus("User NOT found. Please create mapping.", "error");
+          els.localPart.value = "";
+          els.localPart.dispatchEvent(new Event('input'));
+          els.btnDelete.disabled = true;
+        }
+      } catch (e) {
+        setStatus("Error checking UID: " + e.message, "error");
+      } finally {
+        els.btnCheckUid.disabled = false;
+        els.btnCheckUid.textContent = "Check";
+      }
+    };
+
+    els.btnSave.onclick = async () => {
+      const uid = els.uid.value.trim();
+      const local = els.localPart.value.trim().toLowerCase();
+
+      if (!uid || !local) {
+        setStatus("All fields required", "error");
+        return;
+      }
+
+      setStatus("Saving to Firestore...", "");
+      els.btnSave.disabled = true;
+
+      try {
+        await setDoc(doc(db, "users", uid), {
+          uid: uid,
+          email: `${local}@arufkuy.me`,
+          inboxUser: local,
+          username: local,
+          inboxAddress: `${local}@arufkuy.me`,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        }, { merge: true });
+
+        setStatus("Syncing to Worker...", "");
+        await syncToWorker(uid, local);
+
+        setStatus("User mapped & synced successfully!", "success");
+        els.uid.value = "";
+        els.localPart.value = "";
+        els.localPart.dispatchEvent(new Event('input'));
+        els.btnDelete.disabled = true;
+        loadUsers();
+      } catch (e) {
+        setStatus(e.message, "error");
+      } finally {
+        els.btnSave.disabled = false;
+      }
+    };
+
+    els.btnDelete.onclick = async () => {
+      const uid = els.uid.value.trim();
+      const local = els.localPart.value.trim();
+
+      if (!uid || !confirm("Delete mapping for this UID?")) return;
+
+      setStatus("Deleting...", "");
+      try {
+        await deleteDoc(doc(db, "users", uid));
+
+        if (local) {
+          setStatus("Deleting from Worker...", "");
+          await deleteFromWorker(uid, local);
+        }
+
+        setStatus("Mapping deleted.", "success");
+        els.uid.value = "";
+        els.localPart.value = "";
+        els.localPart.dispatchEvent(new Event('input'));
+        els.btnDelete.disabled = true;
+        loadUsers();
+      } catch (e) {
+        setStatus(e.message, "error");
+      }
+    };
+
+    // --- TAB LOGIC ---
+    switchTab('map');
+
+    function switchTab(mode) {
+      // Reset all
+      [els.tabMap, els.tabCreate, els.tabAds, els.tabNotifs].forEach(t => {
+        t.classList.remove("active-tab");
+        t.style.opacity = "0.6";
+        t.style.borderBottom = "none";
+      });
+      [els.viewMap, els.viewCreate, els.viewAds, els.viewNotifs].forEach(v => v.classList.add("hidden"));
+
+      // Activate selected
+      if (mode === 'map') {
+        activateTab(els.tabMap, els.viewMap);
+      } else if (mode === 'create') {
+        activateTab(els.tabCreate, els.viewCreate);
+      } else if (mode === 'ads') {
+        activateTab(els.tabAds, els.viewAds);
+      } else if (mode === 'notifs') {
+        activateTab(els.tabNotifs, els.viewNotifs);
+      }
+      els.actionMsg.textContent = "";
+    }
+
+    function activateTab(tab, view) {
+      tab.classList.add("active-tab");
+      tab.style.opacity = "1";
+      tab.style.borderBottom = "2px solid var(--accent-primary)";
+      view.classList.remove("hidden");
+    }
+
+    // --- ADS LIST LOGIC ---
+    async function loadAdSettings() {
+      els.adsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">Loading ads...</td></tr>`;
+
+      try {
+        const q = query(collection(db, "settings", "ads", "items"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          els.adsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">No ads created.</td></tr>`;
+          return;
+        }
+
+        els.adsTableBody.innerHTML = "";
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+             <td>
+               <div style="width:60px; height:40px; background:#000; border-radius:4px; overflow:hidden;">
+                 <img src="${d.imageUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'"/>
+               </div>
+             </td>
+             <td style="font-size:0.85rem;">
+               <div style="font-weight:600; margin-bottom:2px;">${d.btnText}</div>
+               <a href="${d.linkUrl}" target="_blank" style="color:var(--text-muted); text-decoration:none; display:block; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${d.linkUrl}</a>
+             </td>
+             <td>
+               <button class="status-toggle" style="background:transparent; border:1px solid ${d.active ? 'var(--success)' : 'var(--border-color)'}; color:${d.active ? 'var(--success)' : 'var(--text-muted)'}; border-radius:4px; padding:4px 8px; font-size:0.75rem; cursor:pointer;">
+                 ${d.active ? 'ACTIVE' : 'INACTIVE'}
+               </button>
+             </td>
+             <td style="text-align:right;">
+               <button class="del-ad" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:1.1rem;">×</button>
+             </td>
+           `;
+
+          tr.querySelector(".status-toggle").onclick = async () => {
+            await updateDoc(doc(db, "settings", "ads", "items", docSnap.id), { active: !d.active });
+            loadAdSettings();
+          };
+
+          tr.querySelector(".del-ad").onclick = async () => {
+            if (!confirm("Delete this ad?")) return;
+            await deleteDoc(doc(db, "settings", "ads", "items", docSnap.id));
+            loadAdSettings();
+          };
+
+          els.adsTableBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error("Ad Load Error", e);
+        els.adsTableBody.innerHTML = `<tr><td colspan="4" class="text-center error">Error loading ads</td></tr>`;
+      }
+    }
+
+    els.btnAddAd.onclick = async () => {
+      const imageUrl = els.adImage.value.trim();
+      const linkUrl = els.adLink.value.trim();
+      const btnText = els.adBtnText.value.trim() || "Open";
+
+      if (!imageUrl) {
+        setStatus("Image URL required", "error");
+        return;
+      }
+
+      els.btnAddAd.disabled = true;
+      setStatus("Adding Ad...", "");
+
+      try {
+        await addDoc(collection(db, "settings", "ads", "items"), {
+          imageUrl,
+          linkUrl,
+          btnText,
+          active: true,
+          createdAt: serverTimestamp()
+        });
+
+        setStatus("Ad Added!", "success");
+        els.adImage.value = "";
+        els.adLink.value = "";
+        els.adBtnText.value = "";
+        loadAdSettings();
+      } catch (e) {
+        setStatus("Error: " + e.message, "error");
+      } finally {
+        els.btnAddAd.disabled = false;
+      }
+    };
+
+    // --- NOTIFICATIONS LOGIC (NEW) ---
+
+    // Toggle UID input based on type
+    els.notifType.onchange = () => {
+      if (els.notifType.value === 'personal') {
+        els.notifUidGroup.classList.remove('hidden');
+      } else {
+        els.notifUidGroup.classList.add('hidden');
+      }
+    };
+
+    els.btnSendNotif.onclick = async () => {
+      const type = els.notifType.value;
+      const title = els.notifTitle.value.trim();
+      const body = els.notifBody.value.trim();
+      const badge = els.notifBadge.value;
+      const targetUid = els.notifTargetUid.value.trim();
+
+      if (!title || !body) {
+        setStatus("Title and Body required", "error");
+        return;
+      }
+
+      if (type === 'personal' && !targetUid) {
+        setStatus("Target UID required for personal notif", "error");
+        return;
+      }
+
+      els.btnSendNotif.disabled = true;
+      setStatus("Sending Notification...", "");
+
+      try {
+        const notifData = {
+          title,
+          body,
+          badge, // info, success, warning, danger
+          read: false,
+          createdAt: serverTimestamp(),
+          type: type
+        };
+
+        if (type === 'broadcast') {
+          // Send to Global Collection
+          await addDoc(collection(db, "notifications"), notifData);
+        } else {
+          // Send to User Subcollection
+          await addDoc(collection(db, "users", targetUid, "notifications"), notifData);
+        }
+
+        setStatus("Notification Sent!", "success");
+        els.notifTitle.value = "";
+        els.notifBody.value = "";
+        els.notifTargetUid.value = "";
+        loadNotifications(); // Refresh list
+      } catch (e) {
+        console.error(e);
+        setStatus("Error: " + e.message, "error");
+      } finally {
+        els.btnSendNotif.disabled = false;
+      }
+    };
+
+    async function loadNotifications() {
+      els.notifsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">Loading notifications...</td></tr>`;
+
+      try {
+        // Use Collection Group Query to fetch ALL notifications (Global + Personal)
+        // Note: This requires an index in Firestore. If it fails, check console.
+        const q = query(collectionGroup(db, "notifications"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          els.notifsTableBody.innerHTML = `<tr><td colspan="4" class="text-center muted">No notifications found.</td></tr>`;
+          return;
+        }
+
+        els.notifsTableBody.innerHTML = "";
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const isPersonal = d.type === 'personal' || docSnap.ref.path.includes('/users/');
+
+          // Format Date
+          let dateStr = "-";
+          if (d.createdAt && d.createdAt.toDate) {
+             dateStr = d.createdAt.toDate().toLocaleDateString() + " " + d.createdAt.toDate().toLocaleTimeString();
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+             <td>
+               <span class="badge-${isPersonal ? 'personal' : 'broadcast'}">${isPersonal ? 'PERSONAL' : 'BROADCAST'}</span>
+             </td>
+             <td style="font-size:0.85rem;">
+               <div style="font-weight:600; color:#fff;">${d.title}</div>
+               <div class="muted" style="font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px;">${d.body}</div>
+             </td>
+             <td style="font-size:0.75rem; color:var(--text-muted);">
+               ${dateStr}
+             </td>
+             <td style="text-align:right;">
+               <button class="del-notif" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:1.1rem;">×</button>
+             </td>
+           `;
+
+          // Delete Logic
+          tr.querySelector(".del-notif").onclick = async () => {
+            if (!confirm("Delete this notification?")) return;
+            await deleteDoc(docSnap.ref); // Delete using the reference directly
+            loadNotifications();
+          };
+
+          els.notifsTableBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error("Notif Load Error", e);
+        els.notifsTableBody.innerHTML = `<tr><td colspan="4" class="text-center error">Error (Index missing?): ${e.message}</td></tr>`;
+      }
+    }
+
+    els.btnRefreshNotifs.onclick = loadNotifications;
+
+    // Init Tabs styles
+    els.tabMap.onclick = () => switchTab('map');
+    els.tabCreate.onclick = () => switchTab('create');
+    els.tabAds.onclick = () => switchTab('ads');
+    els.tabNotifs.onclick = () => switchTab('notifs');
+
+    // --- CREATE USER LOGIC ---
+
+    els.btnGenPass.onclick = () => {
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+      let pass = "";
+      for (let i = 0; i < 12; i++) {
+        pass += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      els.newPassword.value = pass;
+    };
+
+    els.newUsername.addEventListener("input", () => {
+      const val = els.newUsername.value;
+      const clean = val.replace(/[^a-z0-9._-]/g, "").toLowerCase();
+      if (val !== clean) els.newUsername.value = clean;
+    });
+
+    els.btnCreateUser.onclick = async () => {
+      const username = els.newUsername.value.trim().toLowerCase();
+      const pass = els.newPassword.value.trim();
+      const fullEmail = `${username}@arufkuy.me`;
+
+      if (!username || !pass) {
+        setStatus("Please fill all fields.", "error");
+        return;
+      }
+
+      if (username.length < 3) {
+        setStatus("Username too short.", "error");
+        return;
+      }
+
+      els.btnCreateUser.disabled = true;
+      setStatus(`Creating ${fullEmail}...`, "");
+
+      let secondaryApp = null;
+      try {
+        secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getAuth(secondaryApp);
+
+        const userCred = await createUserWithEmailAndPassword(secondaryAuth, fullEmail, pass);
+        const newUid = userCred.user.uid;
+
+        await signOut(secondaryAuth);
+
+        setStatus("Auth created. Saving to DB...", "");
+
+        await setDoc(doc(db, "users", newUid), {
+          uid: newUid,
+          email: `${username}@arufkuy.me`,
+          inboxUser: username,
+          username: username,
+          inboxAddress: `${username}@arufkuy.me`,
+          originalEmail: fullEmail,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid
+        }, { merge: true });
+
+        setStatus("Syncing to Worker...", "");
+        await syncToWorker(newUid, username);
+
+        setStatus(`User ${username} created & synced!`, "success");
+
+        els.newPassword.value = "";
+        els.newUsername.value = "";
+
+        loadUsers();
+
+      } catch (e) {
+        console.error(e);
+        setStatus("Error: " + e.message, "error");
+      } finally {
+        if (secondaryApp) {
+          try { await deleteApp(secondaryApp); } catch (e) { }
+        }
+        els.btnCreateUser.disabled = false;
+      }
+    };
+
+    // List Logic
+    els.btnRefresh.onclick = loadUsers;
+    els.btnRefreshAds.onclick = loadAdSettings;
+
+    async function loadUsers() {
+      els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">Loading all users...</td></tr>`;
+      els.totalUsersCount.textContent = "(...)";
+      els.searchUserInput.value = "";
+
+      try {
+        const q = query(collection(db, "users"), orderBy("updatedAt", "desc"));
+        const snap = await getDocs(q);
+
+        allUsers = [];
+        snap.forEach(d => {
+          allUsers.push({ id: d.id, ...d.data() });
+        });
+
+        els.totalUsersCount.textContent = `(${allUsers.length})`;
+        renderUsers(allUsers);
+
+      } catch (e) {
+        els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center error" style="padding:20px;">Error loading users: ${e.message}</td></tr>`;
+        els.totalUsersCount.textContent = "(Error)";
+      }
+    }
+
+    function renderUsers(usersToRender) {
+      els.tableBody.innerHTML = "";
+
+      if (usersToRender.length === 0) {
+        els.tableBody.innerHTML = `<tr><td colspan="4" class="text-center muted" style="padding:20px;">No users found.</td></tr>`;
+        return;
+      }
+
+      usersToRender.forEach(data => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td class="mono" style="font-size:0.8rem; opacity:0.8;">${data.id}</td>
+        <td>${data.email || '-'}</td>
+        <td class="mono" style="color:var(--accent-primary);">${data.inboxUser || '-'}</td>
+        <td style="text-align:right;">
+          <button class="info-btn" style="padding:4px 8px; font-size:0.7rem; margin-right:4px;">Info</button>
+          <button class="edit-btn" style="padding:4px 10px; font-size:0.7rem;">Edit</button>
+        </td>
+      `;
+
+        row.querySelector(".edit-btn").onclick = () => {
+          els.uid.value = data.id;
+          els.btnCheckUid.click();
+        };
+
+        row.querySelector(".info-btn").onclick = () => {
+          showInfo(data);
+        };
+
+        els.tableBody.appendChild(row);
+      });
+    }
+
+    function filterUsers() {
+      const searchTerm = els.searchUserInput.value.toLowerCase().trim();
+      if (!searchTerm) {
+        renderUsers(allUsers);
+        return;
+      }
+
+      const filtered = allUsers.filter(user => {
+        const uidMatch = user.id.toLowerCase().includes(searchTerm);
+        const emailMatch = user.email && user.email.toLowerCase().includes(searchTerm);
+        const inboxUserMatch = user.inboxUser && user.inboxUser.toLowerCase().includes(searchTerm);
+        return uidMatch || emailMatch || inboxUserMatch;
+      });
+
+      renderUsers(filtered);
+    }
+
+    function showInfo(data) {
+      const displayData = { ...data };
+      if (displayData.updatedAt && displayData.updatedAt.toDate) {
+        displayData.updatedAt = displayData.updatedAt.toDate().toISOString();
+      }
+      els.jsonContent.textContent = JSON.stringify(displayData, null, 2);
+      els.infoModal.classList.remove("hidden");
+    }
+
+    els.btnCloseModal.onclick = () => {
+      els.infoModal.classList.add("hidden");
+    };
+
+    function setStatus(msg, type) {
+      els.actionMsg.textContent = msg;
+      els.actionMsg.className = `status-msg ${type}`;
+      if (type === 'success') setTimeout(() => els.actionMsg.textContent = "", 3000);
+    }
+
+  </script>
+</body>
+
+</html>
