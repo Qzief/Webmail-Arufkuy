@@ -68,8 +68,20 @@
           Receive Only
         </div>
         <div style="flex:1;"></div>
-        <a id="btnSidebarLogout" class="nav-link" style="color:var(--danger);">
-          <i class="bi bi-box-arrow-left"></i> Logout
+
+        <div
+          style="padding: 0 16px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+          Community & Support
+        </div>
+        <a class="nav-link" href="https://store.arufkuy.me/" target="_blank">
+          <i class="bi bi-shop"></i> Arufkuy Store
+        </a>
+        <a class="nav-link" href="https://discord.gg/3sDGqtZBcW" target="_blank" style="color:#5865F2;">
+          <i class="bi bi-discord"></i> Discord
+        </a>
+        <a class="nav-link" href="https://tawk.to/chat/698a62f02fb5be1c3a2b2e1e/1jh294vin" target="_blank"
+          style="color:#00C853;">
+          <i class="bi bi-headset"></i> Support
         </a>
       </nav>
     </aside>
@@ -86,15 +98,18 @@
         </div>
 
         <div class="flex" style="gap:15px; align-items:center;">
+          <div id="autoRefreshInd"
+            style="font-size:0.75rem; color:var(--primary); font-weight:500; display:flex; align-items:center; gap:4px; opacity:0; transition:opacity 0.3s;">
+            <i class="bi bi-arrow-repeat spin"></i> Syncing...
+          </div>
+
           <button id="btnNotif" class="btn-icon" title="Notifications" style="position:relative;">
             <i class="bi bi-bell"></i>
             <span id="notifBadge" class="badge badge-danger hidden"
               style="position:absolute; top:-5px; right:-5px; font-size:9px; padding:2px 5px;">0</span>
           </button>
 
-          <button id="btnRefresh" class="btn-icon" title="Refresh">
-            <i class="bi bi-arrow-clockwise"></i>
-          </button>
+
 
           <!-- User Profile -->
           <div id="btnUserAvatar" class="user-profile-ring">
@@ -103,39 +118,70 @@
         </div>
       </header>
 
-      <!-- Search & Filters -->
-      <div style="margin-bottom:20px;">
-        <input id="searchBox" class="login-input" style="padding:12px 20px; border-radius:30px;"
-          placeholder="Search messages...">
-      </div>
+      <!-- Split View Container -->
+      <div class="split-container">
+        <!-- Left Pane: Search & List -->
+        <div class="split-list-pane">
+          <!-- Search & Filters -->
+          <div style="margin-bottom:20px;">
+            <input id="searchBox" class="login-input" style="padding:12px 20px; border-radius:30px;"
+              placeholder="Search messages...">
+          </div>
 
-      <!-- Message List -->
-      <div id="emptyState" class="empty-state hidden">
-        <i class="bi bi-inbox"></i>
-        <h3>No messages yet</h3>
-        <p>Your inbox is empty. New messages will appear here.</p>
-      </div>
+          <!-- Message List -->
+          <div id="emptyState" class="empty-state hidden">
+            <i class="bi bi-inbox"></i>
+            <h3>No messages yet</h3>
+            <p>Your inbox is empty. New messages will appear here.</p>
+          </div>
 
-      <div id="msgList" class="msg-list-wrapper">
-        <!-- JS will inject .msg-card items here -->
+          <div id="msgList" class="msg-list-wrapper">
+            <!-- JS will inject .msg-card items here -->
+          </div>
+        </div>
+
+        <!-- Right Pane: Reading (Desktop Only) -->
+        <div id="desktopReadPane" class="split-content-pane">
+          <div class="empty-split-state">
+            <i class="bi bi-envelope-open"
+              style="font-size:3rem; color:var(--text-muted); opacity:0.3; margin-bottom:15px;"></i>
+            <div style="color:var(--text-muted);">Select a message to read</div>
+          </div>
+        </div>
       </div>
 
     </main>
 
     <!-- MOBILE BOTTOM NAV -->
     <nav class="bottom-nav">
-      <div class="b-nav-item active" onclick="switchTab('inbox')">
-        <i class="bi bi-house-door-fill"></i>
-        <span>Home</span>
+      <!-- 1. Inbox -->
+      <div class="b-nav-item active" onclick="switchTab('inbox')" title="Inbox">
+        <i class="bi bi-inbox-fill" style="font-size:1.3rem;"></i>
       </div>
+
+      <!-- 2. Discord -->
+      <a href="https://discord.gg/3sDGqtZBcW" target="_blank" class="b-nav-item"
+        style="color: var(--text-muted); text-decoration: none;" title="Discord">
+        <i class="bi bi-discord" style="font-size:1.3rem;"></i>
+      </a>
+
+      <!-- 3. Store (Center FAB) -->
       <div class="b-nav-item">
-        <div class="b-fab" onclick="document.getElementById('btnRefresh').click()">
-          <i class="bi bi-arrow-clockwise"></i>
-        </div>
+        <a href="https://store.arufkuy.me/" target="_blank" class="b-fab"
+          style="background:#000; color:#fff; display:flex; align-items:center; justify-content:center; text-decoration:none; width:50px; height:50px; border-radius:50%; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
+          <i class="bi bi-shop-window" style="font-size:1.2rem;"></i>
+        </a>
       </div>
-      <div class="b-nav-item" onclick="switchTab('profile')">
-        <i class="bi bi-person"></i>
-        <span>Profile</span>
+
+      <!-- 4. Support -->
+      <a href="https://tawk.to/chat/698a62f02fb5be1c3a2b2e1e/1jh294vin" target="_blank" class="b-nav-item"
+        style="color: var(--text-muted); text-decoration: none;" title="Support">
+        <i class="bi bi-headset" style="font-size:1.3rem;"></i>
+      </a>
+
+      <!-- 5. Profile -->
+      <div class="b-nav-item" onclick="switchTab('profile')" title="Profile">
+        <i class="bi bi-person-fill" style="font-size:1.3rem;"></i>
       </div>
     </nav>
 
@@ -145,11 +191,18 @@
   <div id="readView" class="modal-view">
     <div class="modal-content">
       <div class="modal-header">
-        <button id="btnCloseRead" class="btn-icon">
+        <button id="btnCloseRead" class="btn-icon" title="Close">
           <i class="bi bi-chevron-down"></i>
         </button>
+        <div class="modal-title" style="font-weight:600; font-size:1rem;">Message</div>
         <div class="modal-actions">
-          <button id="btnDelete" class="btn-icon" style="color:var(--danger); background:#FEF2F2;">
+          <button id="btnPrint" class="btn-icon" title="Print">
+            <i class="bi bi-printer"></i>
+          </button>
+          <button id="btnMarkUnread" class="btn-icon" title="Mark as Unread">
+            <i class="bi bi-envelope"></i>
+          </button>
+          <button id="btnDelete" class="btn-icon" title="Delete" style="color:var(--danger); background:#FEF2F2;">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -286,11 +339,12 @@
       loginError: $("loginError"),
       msgList: $("msgList"),
       emptyState: $("emptyState"),
-      btnRefresh: $("btnRefresh"),
-      btnSidebarLogout: $("btnSidebarLogout"),
+      autoRefreshInd: $("autoRefreshInd"),
+
 
       // Header
       btnUserAvatar: $("btnUserAvatar"),
+      avatarLetter: $("avatarLetter"),
       btnNotif: $("btnNotif"),
       notifBadge: $("notifBadge"),
 
@@ -308,7 +362,10 @@
       rDate: $("rDate"),
       rBody: $("rBody"),
       rAvatar: $("rAvatar"),
+      rAvatar: $("rAvatar"),
       btnDelete: $("btnDelete"),
+      btnPrint: $("btnPrint"),
+      btnMarkUnread: $("btnMarkUnread"),
 
       // Info
       inboxAddress: $("inboxAddress"),
@@ -336,7 +393,7 @@
       els.btnLogin.textContent = "Signing in...";
       els.btnLogin.disabled = true;
       try {
-        await signInWithEmailAndPassword(auth, els.emailInput.value, els.passwordInput.value);
+        await signInWithEmailAndPassword(auth, els.emailInput.value.trim(), els.passwordInput.value.trim());
         // Auth listener handles the rest
       } catch (e) {
         els.loginError.textContent = "Sign in failed: " + e.message;
@@ -347,35 +404,73 @@
 
     // --- Notification Logic ---
     function initNotifications(uid) {
-      const qGlobal = query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(20));
-      onSnapshot(qGlobal, (snap) => renderNotifs(snap.docs));
+      // Simple query to avoid index/permission issues if possible
+      // If "notifications" collection doesn't exist or is restricted, this will fail gracefully
+      try {
+        const qGlobal = query(collection(db, "notifications"), limit(20));
+        onSnapshot(qGlobal,
+          (snap) => renderNotifs(snap.docs),
+          (error) => {
+            console.warn("Notification permission/index error:", error);
+            els.notifList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Notifications unavailable</div>';
+          }
+        );
+      } catch (err) {
+        console.warn("Failed to init notifications:", err);
+      }
     }
 
     function renderNotifs(docs) {
-      const count = docs.length;
-      if (count > 0) {
-        els.notifBadge.textContent = count > 9 ? '9+' : count;
+      const readIds = JSON.parse(localStorage.getItem("readNotifs") || "[]");
+
+      // Calculate unread count
+      const unreadCount = docs.filter(d => !readIds.includes(d.id)).length;
+
+      if (unreadCount > 0) {
+        els.notifBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
         els.notifBadge.classList.remove("hidden");
       } else {
         els.notifBadge.classList.add("hidden");
       }
 
       els.notifList.innerHTML = "";
-      if (count === 0) {
+      if (docs.length === 0) {
         els.notifList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No notifications</div>';
         return;
       }
+
       docs.forEach(d => {
         const n = d.data();
+        const isRead = readIds.includes(d.id);
         const div = document.createElement("div");
-        div.className = "card";
+        div.className = `card notif-card ${!isRead ? 'unread' : ''}`;
         div.style.marginBottom = "10px";
         div.style.padding = "15px";
+        div.style.cursor = "pointer";
+        div.style.position = "relative";
+
+        // Unread indicator dot
+        const dotHtml = !isRead ? `<span style="position:absolute; top:15px; right:15px; width:8px; height:8px; background:var(--primary); border-radius:50%;"></span>` : '';
+
         div.innerHTML = `
-                <div style="font-weight:700; font-size:0.9rem;">${n.title}</div>
-                <div style="font-size:0.85rem; color:#666; margin-top:4px;">${n.body}</div>
+                ${dotHtml}
+                <div style="font-weight:${!isRead ? '700' : '500'}; font-size:0.9rem; padding-right:15px;">${n.title}</div>
+                <div style="font-size:0.85rem; color:${!isRead ? 'var(--text-main)' : 'var(--text-muted)'}; margin-top:4px;">${n.body}</div>
                 <div style="font-size:0.75rem; color:#999; margin-top:8px;">${n.createdAt?.toDate().toLocaleDateString()}</div>
             `;
+
+        div.onclick = () => {
+          if (!isRead) {
+            const newReadIds = JSON.parse(localStorage.getItem("readNotifs") || "[]");
+            if (!newReadIds.includes(d.id)) {
+              newReadIds.push(d.id);
+              localStorage.setItem("readNotifs", JSON.stringify(newReadIds));
+              // Re-render to update UI
+              renderNotifs(docs);
+            }
+          }
+        };
+
         els.notifList.appendChild(div);
       });
     }
@@ -408,7 +503,7 @@
     });
 
     els.btnLogin.onclick = login;
-    els.btnSidebarLogout.onclick = () => signOut(auth);
+
 
     // --- Settings Logic ---
     window.openSettings = () => els.settingsView.classList.add("active");
@@ -417,6 +512,9 @@
     // --- Notifications UI ---
     window.openNotifs = () => els.notifView.classList.add("active");
     els.btnCloseNotif.onclick = () => els.notifView.classList.remove("active");
+
+    // --- Theme Logic ---
+
 
     // --- Inbox Logic ---
     async function api(path, method = "GET") {
@@ -428,19 +526,39 @@
       return res.json();
     }
 
-    async function loadInbox() {
-      els.btnRefresh.classList.add("spin"); // Optional: Add spin class to CSS if wanted
+    async function loadInbox(silent = false) {
+      if (!silent) els.autoRefreshInd.style.opacity = "1";
+
       try {
         const data = await api("/inbox");
-        messagesCache = data.messages || [];
-        renderList();
+        const newMessages = data.messages || [];
+
+        // Simple check: if ID list changed or unread status changed
+        // For now, just check if length or top message ID is different to avoid full re-render
+        // But to be safe and simple, let's just re-render if JSON is different
+        // Performance hit is negligible for small lists
+
+        const isDiff = JSON.stringify(newMessages) !== JSON.stringify(messagesCache);
+
+        if (isDiff) {
+          messagesCache = newMessages;
+          renderList();
+        }
       } catch (e) {
         console.error(e);
       }
-      els.btnRefresh.classList.remove("spin");
+
+      if (!silent) setTimeout(() => els.autoRefreshInd.style.opacity = "0", 1000);
     }
 
-    els.btnRefresh.onclick = () => loadInbox();
+    // Auto Refresh Loop
+    setInterval(() => {
+      if (fbUser && !document.hidden) {
+        loadInbox(false);
+      }
+    }, 5000);
+
+
 
     function renderList() {
       const q = els.searchBox.value.toLowerCase();
@@ -457,7 +575,7 @@
           const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
           const isRead = readList.includes(m.id);
 
-          div.className = `msg-card ${!isRead ? 'unread' : ''}`;
+          div.className = `msg-card ${!isRead ? 'unread' : ''} ${m.id === selectedMessageId ? 'active-card' : ''}`;
           div.innerHTML = `
                    <div class="msg-avatar">${(m.from || "?")[0].toUpperCase()}</div>
                    <div class="msg-content">
@@ -481,57 +599,187 @@
     async function openMessage(m) {
       selectedMessageId = m.id;
 
+      // Highlight in list
+      document.querySelectorAll('.msg-card').forEach(c => c.classList.remove('active-card'));
+      // We need a way to find the specific card. Re-rendering list is expensive. 
+      // For now, let's just re-render list or add an ID to cards.
+      // Re-rendering list updates the 'unread' status anyway, so it's simplest.
+
       // Mark as read locally
       const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
       if (!readList.includes(m.id)) {
         readList.push(m.id);
         localStorage.setItem("readMessages", JSON.stringify(readList));
-        renderList(); // Update UI
+        renderList();
+      } else {
+        // Even if read, we want to highlight it.
+        // Let's manually find it or just re-render.
+        // Let's add IDs to cards in renderList later. For now, re-render is fine.
+        renderList();
       }
 
-      // Populate Modal
+      // Check Layout Mode
+      if (window.innerWidth >= 992) {
+        renderDesktopPane(m);
+      } else {
+        openMobileModal(m);
+      }
+    }
+
+    function openMobileModal(m) {
       els.rSubject.textContent = m.subject;
       els.rFrom.textContent = m.from;
       els.rDate.textContent = new Date(m.date).toLocaleString();
       els.rAvatar.textContent = (m.from || "?")[0].toUpperCase();
       els.rBody.innerHTML = '<div class="center" style="padding:20px;">Loading content...</div>';
 
-      // Open Modal
       els.readView.classList.add("active");
+      fetchAndRender(m, els.rBody);
+    }
 
-      // Fetch Content
+    function renderDesktopPane(m) {
+      const pane = document.getElementById("desktopReadPane");
+      pane.innerHTML = `
+            <div class="d-read-header">
+                <div>
+                   <h2 style="font-size:1.2rem; margin-bottom:5px;">${m.subject}</h2>
+                   <div style="font-size:0.9rem; color:var(--text-muted);">
+                      <i class="bi bi-person-circle"></i> ${m.from} &bull; ${new Date(m.date).toLocaleString()}
+                   </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-icon" onclick="copyToClipboard('${m.id}')" title="Copy ID"><i class="bi bi-hash"></i></button>
+                    <button class="btn-icon" id="dBtnDelete" title="Delete" style="color:var(--danger);"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
+            <div class="d-read-scroll" id="dReadBody">
+                <div class="center" style="padding:20px;">Loading content...</div>
+            </div>
+        `;
+
+      // Bind Delete
+      document.getElementById("dBtnDelete").onclick = () => confirmDelete(m.id);
+
+      const bodyContainer = document.getElementById("dReadBody");
+      fetchAndRender(m, bodyContainer);
+    }
+
+    async function fetchAndRender(m, container) {
       try {
         const res = await api(`/message?id=${m.id}&format=json`);
-        // The worker returns { ok:true, message: { ... } }
         const details = res.message || {};
-
-        // Prefer HTML, fallback to text
         const body = details.html || details.text || "(No content)";
-        els.rBody.innerHTML = body;
+
+        // Render Shadow DOM
+        container.innerHTML = "";
+        const host = document.createElement("div");
+        host.style.all = "initial";
+        host.style.display = "block";
+        host.style.width = "100%";
+        host.style.overflowX = "auto";
+        host.style.fontFamily = "sans-serif";
+        container.appendChild(host);
+
+        const shadow = host.attachShadow({ mode: "open" });
+        shadow.innerHTML = `
+           <style>
+             :host { display: block; font-family: sans-serif; color: #111; line-height: 1.5; }
+             a { color: #2563EB; text-decoration: underline; }
+             p { margin-bottom: 1em; }
+             img { max-width: 100%; height: auto; }
+             body { margin: 0; padding: 0; }
+             blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 10px; color: #555; }
+           </style>
+           ${body}
+        `;
       } catch (e) {
-        els.rBody.textContent = "Failed to load: " + e.message;
+        container.innerHTML = `<div style="color:red; padding:20px;">Failed to load: ${e.message}</div>`;
       }
+    }
+
+    // Helper to render email in Shadow DOM
+    function renderEmailBody(body) {
+      els.rBody.innerHTML = "";
+      const host = document.createElement("div");
+      host.style.all = "initial";
+      host.style.display = "block";
+      host.style.width = "100%";
+      host.style.overflowX = "auto";
+      host.style.fontFamily = "sans-serif";
+      els.rBody.appendChild(host);
+
+      const shadow = host.attachShadow({ mode: "open" });
+      shadow.innerHTML = `
+           <style>
+             :host { display: block; font-family: sans-serif; color: #111; line-height: 1.5; }
+             a { color: #2563EB; text-decoration: underline; }
+             p { margin-bottom: 1em; }
+             img { max-width: 100%; height: auto; }
+             body { margin: 0; padding: 0; }
+             blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 10px; color: #555; }
+           </style>
+           ${body}
+        `;
     }
 
     els.btnCloseRead.onclick = () => {
       els.readView.classList.remove("active");
     };
 
-    els.btnDelete.onclick = async () => {
-      if (!selectedMessageId) return;
+    // Helper for delete processing
+    async function confirmDelete(id) {
       if (!confirm("Delete this message?")) return;
 
-      try {
-        // Optimistic removal
-        messagesCache = messagesCache.filter(m => m.id !== selectedMessageId);
-        renderList();
-        els.readView.classList.remove("active");
+      // Optimistic UI update
+      messagesCache = messagesCache.filter(m => m.id !== id);
+      renderList();
 
-        await api(`/messages/${selectedMessageId}`, "DELETE");
-      } catch (e) {
-        alert("Delete failed");
-        loadInbox(); // Revert
+      // Reset Right Pane if deleted message was open
+      if (selectedMessageId === id) {
+        selectedMessageId = null;
+        if (window.innerWidth >= 992) {
+          document.getElementById("desktopReadPane").innerHTML = `
+                  <div class="empty-split-state">
+                    <i class="bi bi-envelope-open" style="font-size:3rem; color:var(--text-muted); opacity:0.3; margin-bottom:15px;"></i>
+                    <div style="color:var(--text-muted);">Select a message to read</div>
+                  </div>`;
+        } else {
+          els.readView.classList.remove("active");
+        }
       }
+
+      try {
+        await api(`/message?id=${id}`, "DELETE");
+      } catch (e) {
+        console.error("Delete failed", e);
+        // Ideally revert UI, but for simple app warn user
+        alert("Failed to delete message");
+      }
+    }
+
+    els.btnDelete.onclick = () => {
+      if (selectedMessageId) confirmDelete(selectedMessageId);
+    };
+
+
+
+    els.btnPrint.onclick = () => {
+      // Simple window print - in a real app might want to print just the email body
+      // For now, this is a quick implementation
+      window.print();
+    };
+
+    els.btnMarkUnread.onclick = () => {
+      if (!selectedMessageId) return;
+
+      // Remove from local read list
+      let readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
+      readList = readList.filter(id => id !== selectedMessageId);
+      localStorage.setItem("readMessages", JSON.stringify(readList));
+
+      // Update UI
+      renderList();
+      els.readView.classList.remove("active");
     };
 
     // --- Settings Logic (Password Change) ---

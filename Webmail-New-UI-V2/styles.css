@@ -26,7 +26,11 @@
 
     /* Transitions */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    /* Transitions */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* Dark Mode Removed */
 
 * {
     margin: 0;
@@ -37,7 +41,10 @@
 }
 
 body {
-    background-color: var(--bg-body);
+    background: var(--bg-body);
+    /* Changed from background-color to background to support gradients */
+    background-attachment: fixed;
+    /* fix gradient on scroll */
     color: var(--text-main);
     min-height: 100vh;
     overflow-x: hidden;
@@ -356,15 +363,15 @@ body {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
-    background: white;
-    padding: 12px 24px 24px;
+    right: 0;
+    height: 70px;
+    background: var(--bg-card);
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
-    border-radius: 24px 24px 0 0;
-    z-index: 100;
+    align-items: center;
+    padding: 0 10px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
 }
 
 @media (min-width: 768px) {
@@ -546,11 +553,15 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s var(--ease-out), visibility 0.3s;
+    pointer-events: none;
+    /* Prevent clicks when hidden */
 }
 
 .modal-view.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
+    /* Enable clicks when visible */
 }
 
 @media (min-width: 768px) {
@@ -742,4 +753,110 @@ body {
 .badge-success {
     background: #D1FAE5;
     color: #10B981;
+}
+
+/* Notification Card Styles */
+.notif-card {
+    transition: background-color 0.2s;
+}
+
+.notif-card.unread {
+    background: #F0F9FF;
+    /* Light blue tint */
+    border-left: 3px solid var(--primary);
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* --- Split View Layout --- */
+.split-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 100px);
+    /* Adjust for header */
+}
+
+.split-list-pane {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+
+.split-content-pane {
+    display: none;
+    /* Hidden on mobile */
+}
+
+/* Desktop Split View */
+@media (min-width: 992px) {
+    .split-container {
+        flex-direction: row;
+        gap: 24px;
+        height: calc(100vh - 120px);
+    }
+
+    .split-list-pane {
+        flex: 0 0 380px;
+        /* Fixed width for list */
+        overflow-y: auto;
+        padding-right: 5px;
+        /* Space for scrollbar */
+    }
+
+    .split-content-pane {
+        display: block;
+        flex: 1;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-card);
+        padding: 0;
+        overflow: hidden;
+        height: 100%;
+        position: relative;
+    }
+
+    /* Hide scrollbar for cleaner look if desired, or style it */
+    .split-list-pane::-webkit-scrollbar {
+        width: 4px;
+    }
+}
+
+.empty-split-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+}
+
+/* Desktop Read Pane Inner Layout */
+.d-read-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #F1F5F9;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.d-read-scroll {
+    padding: 24px;
+    overflow-y: auto;
+    height: calc(100% - 90px);
+    /* Adjust based on header height */
+}
+
+.msg-card.active-card {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.1);
 }
