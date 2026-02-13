@@ -46,8 +46,10 @@ body {
     background-attachment: fixed;
     /* fix gradient on scroll */
     color: var(--text-main);
-    min-height: 100vh;
-    overflow-x: hidden;
+    height: 100vh;
+    /* Fixed height to prevent global scroll */
+    overflow: hidden;
+    /* Hide global scroll */
     /* Mobile bottom padding for nav */
     padding-bottom: 90px;
 }
@@ -288,7 +290,8 @@ body {
 /* Content Area */
 .main-content {
     flex: 1;
-    padding: 20px;
+    padding: 10px 20px 20px;
+    /* Reduced top padding */
     max-width: 100%;
 }
 
@@ -296,7 +299,8 @@ body {
     .main-content {
         margin-left: 280px;
         /* Sidebar width */
-        padding: 40px;
+        padding: 20px 40px 40px;
+        /* Reduced top padding */
     }
 }
 
@@ -786,6 +790,13 @@ body {
 
 .split-list-pane {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.list-scroll-area {
+    flex: 1;
     overflow-y: auto;
     padding-bottom: 20px;
 }
@@ -806,9 +817,11 @@ body {
     .split-list-pane {
         flex: 0 0 380px;
         /* Fixed width for list */
-        overflow-y: auto;
-        padding-right: 5px;
         /* Space for scrollbar */
+    }
+
+    .list-scroll-area {
+        padding-right: 5px;
     }
 
     .split-content-pane {
@@ -824,7 +837,7 @@ body {
     }
 
     /* Hide scrollbar for cleaner look if desired, or style it */
-    .split-list-pane::-webkit-scrollbar {
+    .list-scroll-area::-webkit-scrollbar {
         width: 4px;
     }
 }

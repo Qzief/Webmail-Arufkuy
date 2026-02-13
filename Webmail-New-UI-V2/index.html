@@ -128,15 +128,18 @@
               placeholder="Search messages...">
           </div>
 
-          <!-- Message List -->
-          <div id="emptyState" class="empty-state hidden">
-            <i class="bi bi-inbox"></i>
-            <h3>No messages yet</h3>
-            <p>Your inbox is empty. New messages will appear here.</p>
-          </div>
+          <!-- Scrollable Area -->
+          <div class="list-scroll-area">
+            <!-- Message List -->
+            <div id="emptyState" class="empty-state hidden">
+              <i class="bi bi-inbox"></i>
+              <h3>No messages yet</h3>
+              <p>Your inbox is empty. New messages will appear here.</p>
+            </div>
 
-          <div id="msgList" class="msg-list-wrapper">
-            <!-- JS will inject .msg-card items here -->
+            <div id="msgList" class="msg-list-wrapper">
+              <!-- JS will inject .msg-card items here -->
+            </div>
           </div>
         </div>
 
@@ -583,7 +586,7 @@
                          <div class="msg-sender">${m.from}</div>
                          <div class="msg-time">${new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
-                      <div class="msg-subject">${m.subject || "(No Subject)"}</div>
+                      <div class="msg-subject">${decodeSubject(m.subject)}</div>
                       <div class="msg-snippet">${m.snippet || "..."}</div>
                    </div>
                 `;
@@ -593,17 +596,31 @@
       }
     }
 
-    els.searchBox.oninput = renderList;
-
     // --- Reading Logic ---
+    function decodeSubject(subject) {
+      if (!subject) return "(No Subject)";
+      // Regex for MIME encoded words
+      try {
+        return subject.replace(/=\?([^?]+)\?([BQ])\?([^?]*)\?=/gi, (match, charset, encoding, text) => {
+          if (encoding.toUpperCase() === 'B') {
+            // Base64
+            try {
+              return atob(text);
+            } catch (e) { return match; }
+          } else if (encoding.toUpperCase() === 'Q') {
+            // Quoted-Printable
+            return text.replace(/_/g, ' ').replace(/=([0-9A-F]{2})/gi, (m, p1) => String.fromCharCode(parseInt(p1, 16)));
+          }
+          return match;
+        });
+      } catch (e) { return subject; }
+    }
+
     async function openMessage(m) {
       selectedMessageId = m.id;
 
       // Highlight in list
       document.querySelectorAll('.msg-card').forEach(c => c.classList.remove('active-card'));
-      // We need a way to find the specific card. Re-rendering list is expensive. 
-      // For now, let's just re-render list or add an ID to cards.
-      // Re-rendering list updates the 'unread' status anyway, so it's simplest.
 
       // Mark as read locally
       const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
@@ -612,9 +629,6 @@
         localStorage.setItem("readMessages", JSON.stringify(readList));
         renderList();
       } else {
-        // Even if read, we want to highlight it.
-        // Let's manually find it or just re-render.
-        // Let's add IDs to cards in renderList later. For now, re-render is fine.
         renderList();
       }
 
@@ -627,7 +641,7 @@
     }
 
     function openMobileModal(m) {
-      els.rSubject.textContent = m.subject;
+      els.rSubject.textContent = decodeSubject(m.subject);
       els.rFrom.textContent = m.from;
       els.rDate.textContent = new Date(m.date).toLocaleString();
       els.rAvatar.textContent = (m.from || "?")[0].toUpperCase();
@@ -642,7 +656,7 @@
       pane.innerHTML = `
             <div class="d-read-header">
                 <div>
-                   <h2 style="font-size:1.2rem; margin-bottom:5px;">${m.subject}</h2>
+                   <h2 style="font-size:1.2rem; margin-bottom:5px;">${decodeSubject(m.subject)}</h2>
                    <div style="font-size:0.9rem; color:var(--text-muted);">
                       <i class="bi bi-person-circle"></i> ${m.from} &bull; ${new Date(m.date).toLocaleString()}
                    </div>
