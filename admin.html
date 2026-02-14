@@ -10,7 +10,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles-admin.css">
 </head>
 
 <body>
@@ -21,16 +21,22 @@
   <div id="loginView" class="admin-login-container">
     <div class="admin-login-card glass">
       <div class="admin-icon-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
       </div>
       <div class="brand-logo">Admin Console</div>
       <div class="muted mb-4" style="font-size: 0.9rem;">Restricted Access Only</div>
 
       <form id="loginForm" onsubmit="return false;">
         <div class="flex-col" style="gap: 16px;">
-          <input id="emailInput" type="email" placeholder="Admin Email" autocomplete="username" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
-          <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
-          <button id="btnLogin" type="submit" class="btn-primary w-full mt-4" style="justify-content: center; font-size: 1rem; padding: 14px;">Authenticate</button>
+          <input id="emailInput" type="email" placeholder="Admin Email" autocomplete="username" required
+            style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required
+            style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          <button id="btnLogin" type="submit" class="btn-primary w-full mt-4"
+            style="justify-content: center; font-size: 1rem; padding: 14px;">Authenticate</button>
         </div>
       </form>
 
@@ -62,7 +68,8 @@
         <div class="flex-col" style="overflow-y: auto;">
           <div class="card">
             <!-- Tabs -->
-            <div class="flex mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div class="flex mb-4"
+              style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
               <button id="tabMap" class="active-tab" style="font-size: 0.8rem; padding: 6px 12px;">Map Existing</button>
               <button id="tabCreate"
                 style="font-size: 0.8rem; padding: 6px 12px; background: transparent; border: none; opacity: 0.6;">Create
@@ -221,7 +228,8 @@
             </div>
 
             <!-- TAB: USERS -->
-            <div id="viewListUsers" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+            <div id="viewListUsers"
+              style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
               <div class="table-header-area flex-col">
                 <div class="flex space-between">
                   <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">
@@ -252,7 +260,8 @@
             </div>
 
             <!-- TAB: ADS -->
-            <div id="viewListAds" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+            <div id="viewListAds" class="hidden"
+              style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
               <div class="flex space-between mb-4">
                 <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ad Campaigns</h3>
                 <button id="btnRefreshAds" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
@@ -277,7 +286,8 @@
             </div>
 
             <!-- TAB: NOTIFICATIONS (NEW) -->
-            <div id="viewListNotifs" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
+            <div id="viewListNotifs" class="hidden"
+              style="display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0;">
               <div class="flex space-between mb-4">
                 <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Recent Notifications</h3>
                 <button id="btnRefreshNotifs" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Refresh</button>
@@ -872,7 +882,7 @@
           // Format Date
           let dateStr = "-";
           if (d.createdAt && d.createdAt.toDate) {
-             dateStr = d.createdAt.toDate().toLocaleDateString() + " " + d.createdAt.toDate().toLocaleTimeString();
+            dateStr = d.createdAt.toDate().toLocaleDateString() + " " + d.createdAt.toDate().toLocaleTimeString();
           }
 
           const tr = document.createElement("tr");
