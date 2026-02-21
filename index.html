@@ -275,7 +275,7 @@
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.3-4.3" />
           </svg>
-          <input type="text" id="searchBox" placeholder="Search emails, contacts, events...">
+          <input type="text" id="searchBox" placeholder="Search emails, contacts, events..." autocomplete="off">
         </div>
       </header>
 
@@ -575,7 +575,12 @@
         });
 
       } else {
-        window.location.href = "login.html";
+        // Wait 1 second before kicking to login. Firebase IndexedDB might still be loading in Edge.
+        setTimeout(() => {
+          if (!auth.currentUser) {
+            window.location.href = "login.html";
+          }
+        }, 1000);
       }
     });
 

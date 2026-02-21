@@ -36,7 +36,7 @@
                             </path>
                             <polyline points="22,6 12,13 2,6"></polyline>
                         </svg>
-                        <input type="email" id="emailInput" placeholder="name@example.com" required>
+                        <input type="email" id="emailInput" placeholder="name@example.com" required autocomplete="off">
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                         </svg>
                         <input type="password" id="passwordInput" placeholder="••••••••" required
-                            style="padding-right: 44px;">
+                            style="padding-right: 44px;" autocomplete="new-password">
                         <svg class="password-toggle" id="toggle-password" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round"
@@ -93,7 +93,7 @@
     <!-- MAIN FIREBASE MODULE & DOM LOGIC -->
     <script type="module">
         import { auth } from './config.js';
-        import { signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const $ = (id) => document.getElementById(id);
         const els = {
@@ -124,8 +124,6 @@
             els.btnLogin.textContent = "Signing in...";
             els.btnLogin.disabled = true;
             try {
-                // Ensure session survives page refresh and redirects properly
-                await setPersistence(auth, browserLocalPersistence);
                 await signInWithEmailAndPassword(auth, els.emailInput.value.trim(), els.passwordInput.value.trim());
             } catch (e) {
                 let errorMessage = "An unexpected error occurred. Please try again.";
