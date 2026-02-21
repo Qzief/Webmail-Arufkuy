@@ -1,443 +1,825 @@
-<!doctype html>
-<html lang="id">
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Arufkuy Mailbox - Secure Inbox</title>
-  <meta name="theme-color" content="#F2F4F8" />
-
-  <!-- Fonts & Icons -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MailKuy - Smart Personal Inbox</title>
+  <link rel="icon" type="image/png" href="logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Refrensi/style.css">
+  <style>
+    /* Modals for Settings and Notifications that match Refrensi theme */
+    .custom-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
 
-  <link rel="stylesheet" href="styles.css">
+    .custom-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content-box {
+      background: var(--bg-card);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .custom-modal.active .modal-content-box {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .btn-close:hover {
+      color: var(--text-primary);
+    }
+
+    .form-input-modal {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      background: var(--bg-body);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .form-input-modal:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+
+    /* Notification Badge on Sidebar */
+    .notif-menu-item {
+      position: relative;
+    }
+
+    .notif-badge-small {
+      position: absolute;
+      top: 8px;
+      left: 18px;
+      width: 8px;
+      height: 8px;
+      background: var(--brand-primary);
+      border-radius: 50%;
+    }
+
+    /* Unread indicator: left border on the card */
+    .email-item {
+      position: relative;
+      border-left: 3px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+
+    .email-item.unread {
+      border-left: 3px solid var(--brand-primary, #3B5BDB) !important;
+    }
+
+    /* Sync indicator */
+    .sync-ind {
+      font-size: 12px;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: opacity 0.3s;
+      margin-left: 10px;
+    }
+
+    .sync-ind.active {
+      opacity: 1;
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- Login View -->
-  <div id="loginView" class="login-container">
-    <div class="login-card">
-      <div class="login-logo">
-        <img src="logo.png" alt="Logo">
-      </div>
-      <h1 class="login-title">Welcome Back</h1>
-      <p class="login-subtitle">Sign in to access your secure inbox</p>
+  <!-- APP VIEW -->
+  <div id="app">
+    <div id="sidebar-overlay" class="overlay hidden"></div>
 
-      <div class="input-group">
-        <input id="emailInput" class="login-input" placeholder="Email address" type="email" autocomplete="username">
-      </div>
-      <div class="input-group">
-        <input id="passwordInput" class="login-input" placeholder="Password" type="password"
-          autocomplete="current-password">
-      </div>
-
-      <div style="margin-top:20px;">
-        <button id="btnLogin" class="btn-primary">Sign In</button>
-      </div>
-
-      <div id="loginError" style="color:var(--danger); margin-top:15px; font-size:0.9rem;"></div>
-
-      <div class="login-footer">
-        <p>Don't have an account? <a href="#" style="color:var(--primary); font-weight:600;">Contact Support</a></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- App View -->
-  <div id="appView" class="app-shell hidden">
-
-    <!-- DESKTOP SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <img src="logo.png" alt="Logo">
-        <span>Arufkuy Mailbox</span>
-      </div>
-
-      <nav class="nav-links">
-        <a class="nav-link active" onclick="switchTab('inbox')">
-          <i class="bi bi-inbox-fill"></i> Inbox
-        </a>
-        <div class="nav-divider"></div>
-        <div
-          style="padding: 0 16px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-          Receive Only
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="logo.png" alt="MailKuy Logo"
+            style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; margin-right: 6px;">
+          <span>MailKuy</span>
         </div>
-        <div style="flex:1;"></div>
+      </div>
 
-        <div
-          style="padding: 0 16px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-          Community & Support
-        </div>
-        <a class="nav-link" href="https://store.arufkuy.me/" target="_blank">
-          <i class="bi bi-shop"></i> Arufkuy Store
+      <div class="nav-links">
+        <a href="#" class="nav-item active" id="btnTabInbox">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+            <path
+              d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+          </svg>
+          <span>Inbox</span>
+          <span class="badge" id="inboxBadge" style="display:none;">0</span>
         </a>
-        <a class="nav-link" href="https://discord.gg/3sDGqtZBcW" target="_blank" style="color:#5865F2;">
-          <i class="bi bi-discord"></i> Discord
+        <a href="https://store.arufkuy.me/" target="_blank" class="nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span>Store</span>
         </a>
-        <a class="nav-link" href="https://tawk.to/chat/698a62f02fb5be1c3a2b2e1e/1jh294vin" target="_blank"
-          style="color:#00C853;">
-          <i class="bi bi-headset"></i> Support
-        </a>
-      </nav>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-
-      <!-- Top Header -->
-      <header class="top-header">
-        <div>
-          <div class="page-title">Inbox</div>
-          <div id="inboxAddress" style="font-size:0.85rem; color:var(--text-muted); font-family:monospace;">loading...
+        <div class="nav-dropdown-wrapper">
+          <a href="#" class="nav-item" id="btnToggleSettingsDrop">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+              </path>
+            </svg>
+            <span>Setting</span>
+            <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              style="margin-left:auto; transition: transform 0.3s ease;">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </a>
+          <div id="settings-dropdown" class="nav-dropdown hidden">
+            <a href="#" class="dropdown-item" id="btnOpenSettingsDrop">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Change password
+            </a>
           </div>
         </div>
 
-        <div class="flex" style="gap:15px; align-items:center;">
-          <div id="autoRefreshInd"
-            style="font-size:0.75rem; color:var(--primary); font-weight:500; display:flex; align-items:center; gap:4px; opacity:0; transition:opacity 0.3s;">
-            <i class="bi bi-arrow-repeat spin"></i> Syncing...
-          </div>
+        <a href="#" class="nav-item notif-menu-item" id="btnOpenNotifs">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span>Notifications</span>
+          <div id="notifBadgeSidebar" class="notif-badge-small hidden"></div>
+        </a>
 
-          <button id="btnNotif" class="btn-icon" title="Notifications" style="position:relative;">
-            <i class="bi bi-bell"></i>
-            <span id="notifBadge" class="badge badge-danger hidden"
-              style="position:absolute; top:-5px; right:-5px; font-size:9px; padding:2px 5px;">0</span>
-          </button>
+        <a href="https://discord.gg/3sDGqtZBcW" target="_blank" class="nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>Support</span>
+        </a>
+      </div>
 
-
-
-          <!-- User Profile -->
-          <div id="btnUserAvatar" class="user-profile-ring">
-            <div class="user-img-wrapper" id="avatarLetter">U</div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Split View Container -->
-      <div class="split-container">
-        <!-- Left Pane: Search & List -->
-        <div class="split-list-pane">
-          <!-- Search & Filters -->
-          <div style="margin-bottom:20px;">
-            <input id="searchBox" class="login-input" style="padding:12px 20px; border-radius:30px;"
-              placeholder="Search messages...">
-          </div>
-
-          <!-- Scrollable Area -->
-          <div class="list-scroll-area">
-            <!-- Message List -->
-            <div id="emptyState" class="empty-state hidden">
-              <i class="bi bi-inbox"></i>
-              <h3>No messages yet</h3>
-              <p>Your inbox is empty. New messages will appear here.</p>
+      <div class="sidebar-footer">
+        <div class="user-profile-wrapper">
+          <div class="user-profile" id="btnToggleProfileDrop">
+            <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=3B5BDB&color=fff&rounded=true"
+              alt="User">
+            <div class="user-info" style="min-width:0; overflow:hidden;">
+              <span class="name" id="profileName"
+                style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">User</span>
+              <span class="plan" id="inboxAddress"
+                style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">user@email.com</span>
             </div>
-
-            <div id="msgList" class="msg-list-wrapper">
-              <!-- JS will inject .msg-card items here -->
-            </div>
+            <svg class="profile-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              style="margin-left:auto; transition: transform 0.3s ease;">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div id="profile-dropdown" class="profile-dropdown hidden">
+            <a href="#" class="dropdown-item text-danger" id="btnRealLogoutDrop">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              Logout
+            </a>
           </div>
         </div>
-
-        <!-- Right Pane: Reading (Desktop Only) -->
-        <div id="desktopReadPane" class="split-content-pane">
-          <div class="empty-split-state">
-            <i class="bi bi-envelope-open"
-              style="font-size:3rem; color:var(--text-muted); opacity:0.3; margin-bottom:15px;"></i>
-            <div style="color:var(--text-muted);">Select a message to read</div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-
-    <!-- MOBILE BOTTOM NAV -->
-    <nav class="bottom-nav">
-      <!-- 1. Inbox -->
-      <div class="b-nav-item active" onclick="switchTab('inbox')" title="Inbox">
-        <i class="bi bi-inbox-fill" style="font-size:1.3rem;"></i>
-      </div>
-
-      <!-- 2. Discord -->
-      <a href="https://discord.gg/3sDGqtZBcW" target="_blank" class="b-nav-item"
-        style="color: var(--text-muted); text-decoration: none;" title="Discord">
-        <i class="bi bi-discord" style="font-size:1.3rem;"></i>
-      </a>
-
-      <!-- 3. Store (Center FAB) -->
-      <div class="b-nav-item">
-        <a href="https://store.arufkuy.me/" target="_blank" class="b-fab"
-          style="background:#000; color:#fff; display:flex; align-items:center; justify-content:center; text-decoration:none; width:50px; height:50px; border-radius:50%; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
-          <i class="bi bi-shop-window" style="font-size:1.2rem;"></i>
-        </a>
-      </div>
-
-      <!-- 4. Support -->
-      <a href="https://tawk.to/chat/698a62f02fb5be1c3a2b2e1e/1jh294vin" target="_blank" class="b-nav-item"
-        style="color: var(--text-muted); text-decoration: none;" title="Support">
-        <i class="bi bi-headset" style="font-size:1.3rem;"></i>
-      </a>
-
-      <!-- 5. Profile -->
-      <div class="b-nav-item" onclick="switchTab('profile')" title="Profile">
-        <i class="bi bi-person-fill" style="font-size:1.3rem;"></i>
       </div>
     </nav>
 
-  </div>
+    <main id="mailbox">
+      <header class="mailbox-header">
+        <div class="header-top">
+          <button id="mobile-menu-btn" class="icon-btn mobile-only">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="20" y1="12" y2="12" />
+              <line x1="4" x2="20" y1="6" y2="6" />
+              <line x1="4" x2="20" y1="18" y2="18" />
+            </svg>
+          </button>
+          <h1 style="display:flex; align-items:center;">
+            Messages <span id="autoRefreshInd" class="sync-ind">Syncing...</span>
+          </h1>
+        </div>
+        <div class="search-bar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <input type="text" id="searchBox" placeholder="Search emails, contacts, events...">
+        </div>
+      </header>
 
-  <!-- READING MODAL (Full Screen Overlay) -->
-  <div id="readView" class="modal-view">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button id="btnCloseRead" class="btn-icon" title="Close">
-          <i class="bi bi-chevron-down"></i>
-        </button>
-        <div class="modal-title" style="font-weight:600; font-size:1rem;">Message</div>
-        <div class="modal-actions">
-          <button id="btnPrint" class="btn-icon" title="Print">
-            <i class="bi bi-printer"></i>
-          </button>
-          <button id="btnMarkUnread" class="btn-icon" title="Mark as Unread">
-            <i class="bi bi-envelope"></i>
-          </button>
-          <button id="btnDelete" class="btn-icon" title="Delete" style="color:var(--danger); background:#FEF2F2;">
-            <i class="bi bi-trash"></i>
-          </button>
+      <div class="email-list" id="msgList">
+        <!-- Javascript will populate this -->
+      </div>
+
+      <div id="emptyState" style="text-align:center; padding: 40px; color: var(--text-muted);" class="hidden">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5; margin-bottom:10px;">
+          <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+          <path
+            d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+        </svg>
+        <h3>No messages yet</h3>
+        <p style="font-size:14px; opacity:0.8;">Your inbox is empty. New messages will appear here.</p>
+      </div>
+    </main>
+
+    <article id="email-viewer" class="hidden-mobile">
+      <div id="viewerEmpty" class="viewer-empty">
+        <div class="empty-state">
+          <div class="icon-wrapper glass">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+          </div>
+          <h2>Select an email to view</h2>
+          <p>Smart parsed data cards will appear here.</p>
         </div>
       </div>
 
-      <div class="modal-body-scroll">
-        <h2 id="rSubject" class="mail-subject">Subject</h2>
-
-        <div class="mail-meta">
-          <div id="rAvatar" class="mail-meta-avatar">?</div>
-          <div class="mail-meta-info">
-            <div id="rFrom" class="meta-name">Sender Name</div>
-            <div id="rDate" class="meta-detail">Time</div>
+      <div id="viewerContent" class="viewer-content" style="display: none;">
+        <header class="viewer-header">
+          <div class="viewer-actions-top">
+            <button id="btnCloseRead" class="icon-btn mobile-only">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+            <div class="actions-right">
+              <button class="icon-btn" id="btnMarkUnread" title="Mark Unread">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                </svg>
+              </button>
+              <button class="icon-btn" id="btnPrint" title="Print">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+              </button>
+              <button class="icon-btn delete-btn" id="btnDelete" title="Delete">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  <line x1="10" x2="10" y1="11" y2="17" />
+                  <line x1="14" x2="14" y1="11" y2="17" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div id="rBody" class="mail-content-frame">
+          <h1 class="email-subject" id="rSubject">Subject goes here</h1>
+          <div class="email-meta">
+            <div class="sender-info">
+              <div class="avatar" id="rAvatar">S</div>
+              <div class="sender-details">
+                <span class="sender-name" id="rFrom">Sender Name</span>
+                <span class="sender-email">via MailKuy</span>
+              </div>
+            </div>
+            <div class="time-stamp" id="rDate">Time</div>
+          </div>
+        </header>
+        <div class="email-body" id="rBody">
           <!-- Content -->
         </div>
       </div>
-    </div>
+    </article>
   </div>
 
   <!-- SETTINGS MODAL -->
-  <div id="settingsView" class="modal-view">
-    <div class="modal-content" style="height:auto; min-height:50vh;">
+  <div id="settingsModal" class="custom-modal">
+    <div class="modal-content-box">
       <div class="modal-header">
-        <h2 style="font-size:1.2rem; font-weight:700;">Settings</h2>
-        <button id="btnCloseSettings" class="btn-icon">
-          <i class="bi bi-x-lg"></i>
+        <h2>Change Password</h2>
+        <button id="btnCloseSettingsModal" class="btn-close">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
         </button>
       </div>
-      <div class="modal-body-scroll">
-        <h3 style="font-size:1rem; margin-bottom:15px;">Change Password</h3>
-        <div class="input-group">
-          <input id="setCurrPass" class="login-input" type="password" placeholder="Current Password">
-        </div>
-        <div class="input-group">
-          <input id="setNewPass" class="login-input" type="password" placeholder="New Password">
-        </div>
-        <div class="input-group">
-          <input id="setConfPass" class="login-input" type="password" placeholder="Confirm New Password">
-        </div>
-        <div id="setMsg" style="margin-bottom:15px; font-size:0.85rem;"></div>
-        <button id="btnSaveSettings" class="btn-primary">Update Password</button>
+      <div>
+        <input id="setCurrPass" class="form-input-modal" type="password" placeholder="Current Password">
+        <input id="setNewPass" class="form-input-modal" type="password" placeholder="New Password">
+        <input id="setConfPass" class="form-input-modal" type="password" placeholder="Confirm New Password">
+        <div id="setMsg" style="margin-bottom:15px; font-size:14px;"></div>
+        <button id="btnSaveSettings" class="btn-login" style="width:100%;">Update Password</button>
       </div>
     </div>
   </div>
 
-  <!-- NOTIFICATIONS VIEW (Overlay) -->
-  <div id="notifView" class="modal-view">
-    <div class="modal-content">
+  <!-- NOTIFICATIONS MODAL -->
+  <div id="notifsModal" class="custom-modal">
+    <div class="modal-content-box" style="height:60vh; display:flex; flex-direction:column;">
       <div class="modal-header">
-        <h2 style="font-size:1.2rem; font-weight:700;">Notifications</h2>
-        <button id="btnCloseNotif" class="btn-icon">
-          <i class="bi bi-x-lg"></i>
+        <h2>Notifications</h2>
+        <button id="btnCloseNotifsModal" class="btn-close">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
         </button>
       </div>
-      <div id="notifList" class="modal-body-scroll">
+      <div id="notifList" style="flex:1; overflow-y:auto; padding-right:8px;">
         <!-- Notifications injected here -->
       </div>
     </div>
   </div>
 
-  <!-- PROFILE MODAL -->
-  <div id="profileView" class="modal-view">
-    <div class="modal-content" style="height:auto; min-height:40vh;">
-      <div class="modal-header">
-        <h2 style="font-size:1.2rem; font-weight:700;">Account</h2>
-        <button id="btnCloseProfile" class="btn-icon">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-      <div class="modal-body-scroll" style="text-align:center;">
-        <div class="user-profile-ring" style="width:80px; height:80px; margin:0 auto 15px;">
-          <div class="user-img-wrapper" id="profileLetter" style="font-size:2rem;">U</div>
-        </div>
-        <div id="profileEmail" style="font-weight:600; font-size:1.1rem; margin-bottom:5px;">user@example.com</div>
-        <div style="color:var(--text-muted); font-size:0.9rem; margin-bottom:30px;">Logged in via Firebase</div>
-
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <button id="btnOpenSettings" class="btn-primary"
-            style="background:var(--bg-body); color:var(--primary); border:1px solid #E5E7EB;">
-            <i class="bi bi-key"></i> Change Password
-          </button>
-          <button id="btnRealLogout" class="btn-primary"
-            style="background:#FEF2F2; color:var(--danger); border:1px solid #FECACA;">
-            <i class="bi bi-box-arrow-right"></i> Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- JS Module -->
+  <!-- MAIN FIREBASE MODULE & DOM LOGIC -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs, onSnapshot, query, orderBy, limit, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { auth, db, WORKER_API } from './config.js';
+    import { onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { doc, getDoc, collection, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAElga8j8thxNtSqFzgfqECu6E6eT8RZFY",
-      authDomain: "webmail-arufkuy.firebaseapp.com",
-      projectId: "webmail-arufkuy",
-      storageBucket: "webmail-arufkuy.firebasestorage.app",
-      messagingSenderId: "608495162500",
-      appId: "1:608495162500:web:b70eb55061305f83ef5ed1",
-      measurementId: "G-JXST3Z88R7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const WORKER_API = "https://api.arufkuy.workers.dev";
-
-    // State
     let fbUser = null;
     let messagesCache = [];
     let selectedMessageId = null;
 
-    // Elements
     const $ = (id) => document.getElementById(id);
     const els = {
-      loginView: $("loginView"),
-      appView: $("appView"),
-      readView: $("readView"),
-      settingsView: $("settingsView"),
-      notifView: $("notifView"),
-      profileView: $("profileView"),
-
-      emailInput: $("emailInput"),
-      passwordInput: $("passwordInput"),
-      btnLogin: $("btnLogin"),
-      loginError: $("loginError"),
       msgList: $("msgList"),
       emptyState: $("emptyState"),
       autoRefreshInd: $("autoRefreshInd"),
+      searchBox: $("searchBox"),
 
+      inboxAddress: $("inboxAddress"),
+      profileName: $("profileName"),
 
-      // Header
-      btnUserAvatar: $("btnUserAvatar"),
-      avatarLetter: $("avatarLetter"),
-      btnNotif: $("btnNotif"),
-      notifBadge: $("notifBadge"),
-
-      // Profile
-      btnCloseProfile: $("btnCloseProfile"),
-      profileLetter: $("profileLetter"),
-      profileEmail: $("profileEmail"),
-      btnOpenSettings: $("btnOpenSettings"),
-      btnRealLogout: $("btnRealLogout"),
-
-      // Reading Pane
+      emailViewer: $("email-viewer"),
+      viewerEmpty: $("viewerEmpty"),
+      viewerContent: $("viewerContent"),
       btnCloseRead: $("btnCloseRead"),
+      btnMarkUnread: $("btnMarkUnread"),
+      btnPrint: $("btnPrint"),
+      btnDelete: $("btnDelete"),
+
       rSubject: $("rSubject"),
+      rAvatar: $("rAvatar"),
       rFrom: $("rFrom"),
       rDate: $("rDate"),
       rBody: $("rBody"),
-      rAvatar: $("rAvatar"),
-      rAvatar: $("rAvatar"),
-      btnDelete: $("btnDelete"),
-      btnPrint: $("btnPrint"),
-      btnMarkUnread: $("btnMarkUnread"),
 
-      // Info
-      inboxAddress: $("inboxAddress"),
-      avatarLetter: $("avatarLetter"),
-      searchBox: $("searchBox"),
-
-      // Settings
-      btnCloseSettings: $("btnCloseSettings"),
+      settingsModal: $("settingsModal"),
       btnSaveSettings: $("btnSaveSettings"),
       setCurrPass: $("setCurrPass"),
       setNewPass: $("setNewPass"),
       setConfPass: $("setConfPass"),
       setMsg: $("setMsg"),
 
-      // Notifications
-      btnCloseNotif: $("btnCloseNotif"),
-      notifList: $("notifList")
+      notifsModal: $("notifsModal"),
+      notifList: $("notifList"),
+      notifBadgeSidebar: $("notifBadgeSidebar")
     };
 
-    // --- Auth ---
+    // Dropdowns & Sidebar logic
+    $("btnToggleSettingsDrop").onclick = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      $("settings-dropdown").classList.toggle("hidden");
+      $("btnToggleSettingsDrop").querySelector('.dropdown-chevron').classList.toggle("open");
+    };
+    $("btnToggleProfileDrop").onclick = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      $("profile-dropdown").classList.toggle("hidden");
+      $("btnToggleProfileDrop").querySelector('.profile-chevron').classList.toggle("open");
+    };
+    document.addEventListener('click', (e) => {
+      const settingsWrapper = document.querySelector('.nav-dropdown-wrapper');
+      if (settingsWrapper && !settingsWrapper.contains(e.target)) {
+        $("settings-dropdown").classList.add('hidden');
+        settingsWrapper.querySelector('.dropdown-chevron')?.classList.remove('open');
+      }
+      const profileWrapper = document.querySelector('.user-profile-wrapper');
+      if (profileWrapper && !profileWrapper.contains(e.target)) {
+        $("profile-dropdown").classList.add('hidden');
+        profileWrapper.querySelector('.profile-chevron')?.classList.remove('open');
+      }
+    });
+
+    $("mobile-menu-btn").onclick = () => {
+      $("sidebar").classList.add("open");
+      $("sidebar-overlay").classList.remove("hidden");
+    };
+    $("sidebar-overlay").onclick = () => {
+      $("sidebar").classList.remove("open");
+      $("sidebar-overlay").classList.add("hidden");
+    };
+    els.btnCloseRead.onclick = () => {
+      els.emailViewer.classList.remove("active");
+      document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+    };
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) els.emailViewer.classList.remove('active');
+    });
+
+    // Modals logic
+    $("btnOpenSettingsDrop").onclick = (e) => {
+      e.preventDefault();
+      els.settingsModal.classList.add("active");
+    };
+    $("btnCloseSettingsModal").onclick = () => els.settingsModal.classList.remove("active");
+
+    $("btnOpenNotifs").onclick = (e) => {
+      e.preventDefault();
+      els.notifsModal.classList.add("active");
+    };
+    $("btnCloseNotifsModal").onclick = () => els.notifsModal.classList.remove("active");
+
+    $("btnRealLogoutDrop").onclick = (e) => {
+      e.preventDefault();
+      signOut(auth);
+    };
+
+    // Firebase Auth logic
     async function ensureToken() {
       if (!auth.currentUser) throw new Error("Not authenticated");
       return await auth.currentUser.getIdToken();
     }
 
-    async function login() {
-      els.loginError.textContent = "";
-      els.btnLogin.textContent = "Signing in...";
-      els.btnLogin.disabled = true;
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        fbUser = user;
+        const defaultName = user.displayName || user.email.split('@')[0];
+        let assignedInboxUser = defaultName;
+        els.profileName.textContent = defaultName;
+        els.inboxAddress.textContent = user.email;
+        $("profileAvatar").src = `https://ui-avatars.com/api/?name=${defaultName}&background=3B5BDB&color=fff&rounded=true`;
+
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          if (snap.exists()) {
+            const data = snap.data();
+            els.inboxAddress.textContent = data.email || user.email;
+            assignedInboxUser = data.inboxUser || defaultName;
+
+            els.profileName.textContent = assignedInboxUser;
+            $("profileAvatar").src = `https://ui-avatars.com/api/?name=${assignedInboxUser}&background=3B5BDB&color=fff&rounded=true`;
+          }
+        } catch (e) { console.error(e); }
+
+        loadInbox();
+        initNotifications(user.uid);
+
+        // --- FIREBASE SIGNAL REALTIME LISTENER ---
+        // Instead of polling the API every 5 seconds, we wait for the Cloudflare Worker
+        // to ping the `signals` document for this inboxUser when a new email arrives.
+        const signalRef = doc(db, "signals", assignedInboxUser.toLowerCase());
+        let initialSignal = true;
+
+        onSnapshot(signalRef, (docSnap) => {
+          if (docSnap.exists()) {
+            if (initialSignal) {
+              initialSignal = false;
+              return; // Ignore the first immediate trigger on page load
+            }
+
+            console.log("Firebase Realtime Signal Received! Waiting for KV sync...");
+
+            // Cloudflare KV is eventually consistent (takes 1-3 seconds to propagate globally)
+            // We retry fetching up to 3 times if the new email hasn't appeared in the list yet.
+            let retries = 0;
+            const attemptSync = async () => {
+              const oldLen = messagesCache.length;
+              await loadInbox(true); // silent fetch
+
+              if (messagesCache.length === oldLen && retries < 3) {
+                retries++;
+                console.log(`KV not synced yet. Retry ${retries}/3 in 2 seconds...`);
+                setTimeout(attemptSync, 2000);
+              } else if (messagesCache.length > oldLen) {
+                console.log("KV Synced! New email loaded successfully.");
+              }
+            };
+
+            // Start first attempt after 1.5 seconds
+            setTimeout(attemptSync, 1500);
+          }
+        });
+
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // API
+    async function api(path, method = "GET") {
+      const token = await ensureToken();
+      const res = await fetch(`${WORKER_API}${path}`, { method, headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error("API Error");
+      return res.json();
+    }
+
+    async function loadInbox(silent = false) {
+      if (!silent) els.autoRefreshInd.classList.add("active");
       try {
-        await signInWithEmailAndPassword(auth, els.emailInput.value.trim(), els.passwordInput.value.trim());
-        // Auth listener handles the rest
-      } catch (e) {
-        els.loginError.textContent = "Sign in failed: " + e.message;
-        els.btnLogin.disabled = false;
-        els.btnLogin.textContent = "Sign In";
+        const data = await api("/inbox");
+        const newMessages = data.messages || [];
+        const isDiff = JSON.stringify(newMessages) !== JSON.stringify(messagesCache);
+        if (isDiff) {
+          messagesCache = newMessages;
+          renderList();
+        }
+      } catch (e) { console.error(e); }
+      if (!silent) setTimeout(() => els.autoRefreshInd.classList.remove("active"), 1000);
+    }
+
+    // --- DELETED: setInterval polling (Superseded by Firebase Signals) ---
+    // setInterval(() => {
+    //   if (fbUser && !document.hidden) loadInbox(false);
+    // }, 5000);
+
+    els.searchBox.addEventListener('input', renderList);
+
+    function renderList() {
+      const q = els.searchBox.value.toLowerCase();
+      const list = messagesCache.filter(m => !q || (m.subject + m.from).toLowerCase().includes(q));
+
+      // Always read fresh from localStorage after each inbox reload
+      const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
+      const unreadCount = messagesCache.filter(m => !readList.includes(m.id)).length;
+      const badgeEl = $("inboxBadge");
+      if (badgeEl) {
+        badgeEl.textContent = unreadCount;
+        badgeEl.style.display = unreadCount > 0 ? "inline-block" : "none";
+      }
+
+      els.msgList.innerHTML = "";
+      if (list.length === 0) {
+        els.emptyState.classList.remove("hidden");
+        els.msgList.style.display = "none";
+      } else {
+        els.emptyState.classList.add("hidden");
+        els.msgList.style.display = "flex";
+
+        list.forEach(m => {
+          const isRead = readList.includes(m.id);
+
+          const item = document.createElement("div");
+          item.className = `email-item ${!isRead ? 'unread' : ''} ${m.id === selectedMessageId ? 'active' : ''}`;
+          const avatarLetter = (m.from || "?")[0].toUpperCase();
+          item.innerHTML = `
+                        <div class="email-avatar">${avatarLetter}</div>
+                        <div class="email-item-content">
+                            <div class="email-item-header">
+                                <span class="email-sender">${m.from}</span>
+                                <span class="email-time">${new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <div class="email-subject">${decodeSubject(m.subject)}</div>
+                            <div class="email-preview">${m.snippet || "..."}</div>
+                        </div>
+                        ${!isRead ? '<span class="unread-dot"></span>' : ''}
+                    `;
+          item.onclick = () => openMessage(m, item);
+          els.msgList.appendChild(item);
+        });
       }
     }
 
-    // --- Notification Logic ---
+    function decodeSubject(subject) {
+      if (!subject) return "(No Subject)";
+      try {
+        // First try to decode standard MIME encoded-words
+        let decoded = subject.replace(/=\?([^?]+)\?([BQ])\?([^?]*)\?=/gi, (match, charset, encoding, text) => {
+          if (encoding.toUpperCase() === 'B') {
+            try {
+              // Convert Base64 to binary
+              const bin = atob(text);
+              // Convert binary to UTF-8 properly (handles emojis and special chars)
+              return decodeURIComponent(escape(bin));
+            } catch (e) { return match; }
+          } else if (encoding.toUpperCase() === 'Q') {
+            try {
+              const qStr = text.replace(/_/g, ' ').replace(/=([0-9A-F]{2})/gi, (m, p1) => String.fromCharCode(parseInt(p1, 16)));
+              return decodeURIComponent(escape(qStr));
+            } catch (e) { return match; }
+          }
+          return match;
+        });
+
+        // If the subject wasn't a MIME encoded word but still contains raw mojibake (like ISO->UTF8 issues)
+        // sometimes APIs send it as-is. We can try to decode URI component of escaped raw string.
+        try {
+          if (decoded.includes('ð')) { // Common mojibake sign
+            decoded = decodeURIComponent(escape(decoded));
+          }
+        } catch (e) { }
+
+        return decoded;
+      } catch (e) { return subject; }
+    }
+
+    async function openMessage(m, itemElement) {
+      selectedMessageId = m.id;
+
+      document.querySelectorAll('.email-item').forEach(c => c.classList.remove('active'));
+      if (itemElement) itemElement.classList.add('active');
+
+      const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
+      if (!readList.includes(m.id)) {
+        readList.push(m.id);
+        localStorage.setItem("readMessages", JSON.stringify(readList));
+        if (itemElement) itemElement.classList.remove('unread');
+
+        // Dynamically update the badge count
+        const unreadCount = messagesCache.filter(mx => !readList.includes(mx.id)).length;
+        const badgeEl = $("inboxBadge");
+        if (badgeEl) {
+          badgeEl.textContent = unreadCount;
+          badgeEl.style.display = unreadCount > 0 ? "inline-block" : "none";
+        }
+      }
+
+      els.viewerEmpty.style.display = 'none';
+      els.viewerContent.style.display = 'flex';
+
+      els.rSubject.textContent = decodeSubject(m.subject);
+      els.rFrom.textContent = m.from;
+      els.rAvatar.textContent = (m.from || "?")[0].toUpperCase();
+      els.rDate.textContent = new Date(m.date).toLocaleString();
+
+      els.rBody.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading content...</div>';
+
+      if (window.innerWidth <= 768) {
+        els.emailViewer.classList.add('active');
+      }
+
+      try {
+        const res = await api(`/message?id=${m.id}&format=json`);
+        const details = res.message || {};
+        const bodyHTML = details.html || details.text || "(No content)";
+
+        els.rBody.innerHTML = "";
+
+        // We enforce a solid white background and standard black text for all emails
+        // inside the shadow DOM so that external HTML renders explicitly and legibly.
+        const host = document.createElement("div");
+        host.style.all = "initial";
+        host.style.display = "block";
+        host.style.width = "100%";
+        host.style.overflowX = "auto";
+        host.style.backgroundColor = "#FFFFFF"; // Enforce white bg
+        host.style.borderRadius = "8px"; // Match our modern container style
+        host.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+        host.style.fontFamily = "sans-serif";
+        els.rBody.appendChild(host);
+
+        const shadow = host.attachShadow({ mode: "open" });
+        shadow.innerHTML = `
+                    <style>
+                        /* Base resets for the shadow root */
+                        :host { 
+                          display: block; 
+                          color: #111111; 
+                          background-color: #FFFFFF;
+                          line-height: 1.5; 
+                          padding: 24px;
+                        }
+                        * { color: inherit; } /* Force inheriting the black text unless overridden */
+                        a { color: #2563EB; text-decoration: underline; }
+                        p { margin-bottom: 1em; }
+                        img { max-width: 100%; height: auto; display: block; }
+                        body, html { margin: 0; padding: 0; background: #FFFFFF !important; color: #111111 !important; }
+                        blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 10px; color: #555; }
+                    </style>
+                    <div style="background:#ffffff; color:#111111; min-height:100%;">
+                        ${bodyHTML}
+                    </div>
+                `;
+      } catch (e) {
+        els.rBody.innerHTML = `<div style="color:red; padding:20px;">Failed to load: ${e.message}</div>`;
+      }
+    }
+
+    // Actions
+    els.btnDelete.onclick = async () => {
+      if (!selectedMessageId) return;
+      if (!confirm("Delete this message?")) return;
+
+      const id = selectedMessageId;
+      messagesCache = messagesCache.filter(m => m.id !== id);
+      renderList();
+
+      if (selectedMessageId === id) {
+        selectedMessageId = null;
+        els.viewerEmpty.style.display = 'flex';
+        els.viewerContent.style.display = 'none';
+        if (window.innerWidth <= 768) els.emailViewer.classList.remove("active");
+      }
+
+      try { await api(`/message?id=${id}`, "DELETE"); }
+      catch (e) { alert("Failed to delete message"); }
+    };
+
+    els.btnPrint.onclick = () => window.print();
+
+    els.btnMarkUnread.onclick = () => {
+      if (!selectedMessageId) return;
+      let readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
+      readList = readList.filter(id => id !== selectedMessageId);
+      localStorage.setItem("readMessages", JSON.stringify(readList));
+      renderList();
+
+      els.viewerEmpty.style.display = 'flex';
+      els.viewerContent.style.display = 'none';
+      if (window.innerWidth <= 768) els.emailViewer.classList.remove("active");
+      selectedMessageId = null;
+    };
+
+    // Notifications logic
     function initNotifications(uid) {
-      // Simple query to avoid index/permission issues if possible
-      // If "notifications" collection doesn't exist or is restricted, this will fail gracefully
       try {
         const qGlobal = query(collection(db, "notifications"), limit(20));
         onSnapshot(qGlobal,
           (snap) => renderNotifs(snap.docs),
-          (error) => {
-            console.warn("Notification permission/index error:", error);
-            els.notifList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Notifications unavailable</div>';
-          }
+          (e) => console.warn(e)
         );
-      } catch (err) {
-        console.warn("Failed to init notifications:", err);
-      }
+      } catch (err) { }
     }
 
     function renderNotifs(docs) {
       const readIds = JSON.parse(localStorage.getItem("readNotifs") || "[]");
-
-      // Calculate unread count
       const unreadCount = docs.filter(d => !readIds.includes(d.id)).length;
 
-      if (unreadCount > 0) {
-        els.notifBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-        els.notifBadge.classList.remove("hidden");
-      } else {
-        els.notifBadge.classList.add("hidden");
-      }
+      if (unreadCount > 0) els.notifBadgeSidebar.classList.remove("hidden");
+      else els.notifBadgeSidebar.classList.add("hidden");
 
       els.notifList.innerHTML = "";
       if (docs.length === 0) {
@@ -449,21 +831,22 @@
         const n = d.data();
         const isRead = readIds.includes(d.id);
         const div = document.createElement("div");
-        div.className = `card notif-card ${!isRead ? 'unread' : ''}`;
         div.style.marginBottom = "10px";
         div.style.padding = "15px";
         div.style.cursor = "pointer";
         div.style.position = "relative";
+        div.style.background = isRead ? "transparent" : "rgba(59, 91, 219, 0.05)";
+        div.style.border = "1px solid var(--border-color)";
+        div.style.borderRadius = "8px";
 
-        // Unread indicator dot
-        const dotHtml = !isRead ? `<span style="position:absolute; top:15px; right:15px; width:8px; height:8px; background:var(--primary); border-radius:50%;"></span>` : '';
+        const dotHtml = !isRead ? `<span style="position:absolute; top:15px; right:15px; width:8px; height:8px; background:var(--brand-primary); border-radius:50%;"></span>` : '';
 
         div.innerHTML = `
-                ${dotHtml}
-                <div style="font-weight:${!isRead ? '700' : '500'}; font-size:0.9rem; padding-right:15px;">${n.title}</div>
-                <div style="font-size:0.85rem; color:${!isRead ? 'var(--text-main)' : 'var(--text-muted)'}; margin-top:4px;">${n.body}</div>
-                <div style="font-size:0.75rem; color:#999; margin-top:8px;">${n.createdAt?.toDate().toLocaleDateString()}</div>
-            `;
+                    ${dotHtml}
+                    <div style="font-weight:${!isRead ? '700' : '500'}; font-size:14px; padding-right:15px; color:var(--text-primary);">${n.title}</div>
+                    <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">${n.body}</div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">${n.createdAt?.toDate().toLocaleDateString()}</div>
+                `;
 
         div.onclick = () => {
           if (!isRead) {
@@ -471,340 +854,20 @@
             if (!newReadIds.includes(d.id)) {
               newReadIds.push(d.id);
               localStorage.setItem("readNotifs", JSON.stringify(newReadIds));
-              // Re-render to update UI
               renderNotifs(docs);
             }
           }
         };
-
         els.notifList.appendChild(div);
       });
     }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        fbUser = user;
-        els.loginView.classList.add("hidden");
-        els.appView.classList.remove("hidden");
-
-        // Load Profile
-        try {
-          const snap = await getDoc(doc(db, "users", user.uid));
-          if (snap.exists()) {
-            const data = snap.data();
-            els.inboxAddress.textContent = data.email || user.email;
-            els.avatarLetter.textContent = (data.inboxUser || "U")[0].toUpperCase();
-          }
-        } catch (e) { console.error(e); }
-
-        loadInbox();
-        initNotifications(user.uid);
-      } else {
-        els.loginView.classList.remove("hidden");
-        els.appView.classList.add("hidden");
-        fbUser = null;
-        els.btnLogin.disabled = false;
-        els.btnLogin.textContent = "Sign In";
-      }
-    });
-
-    els.btnLogin.onclick = login;
-
-
-    // --- Settings Logic ---
-    window.openSettings = () => els.settingsView.classList.add("active");
-    els.btnCloseSettings.onclick = () => els.settingsView.classList.remove("active");
-
-    // --- Notifications UI ---
-    window.openNotifs = () => els.notifView.classList.add("active");
-    els.btnCloseNotif.onclick = () => els.notifView.classList.remove("active");
-
-    // --- Theme Logic ---
-
-
-    // --- Inbox Logic ---
-    async function api(path, method = "GET") {
-      const token = await ensureToken();
-      const res = await fetch(`${WORKER_API}${path}`, {
-        method, headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error("API Error");
-      return res.json();
-    }
-
-    async function loadInbox(silent = false) {
-      if (!silent) els.autoRefreshInd.style.opacity = "1";
-
-      try {
-        const data = await api("/inbox");
-        const newMessages = data.messages || [];
-
-        // Simple check: if ID list changed or unread status changed
-        // For now, just check if length or top message ID is different to avoid full re-render
-        // But to be safe and simple, let's just re-render if JSON is different
-        // Performance hit is negligible for small lists
-
-        const isDiff = JSON.stringify(newMessages) !== JSON.stringify(messagesCache);
-
-        if (isDiff) {
-          messagesCache = newMessages;
-          renderList();
-        }
-      } catch (e) {
-        console.error(e);
-      }
-
-      if (!silent) setTimeout(() => els.autoRefreshInd.style.opacity = "0", 1000);
-    }
-
-    // Auto Refresh Loop
-    setInterval(() => {
-      if (fbUser && !document.hidden) {
-        loadInbox(false);
-      }
-    }, 5000);
-
-
-
-    function renderList() {
-      const q = els.searchBox.value.toLowerCase();
-      const list = messagesCache.filter(m => !q || (m.subject + m.from).toLowerCase().includes(q));
-
-      els.msgList.innerHTML = "";
-      if (list.length === 0) {
-        els.emptyState.classList.remove("hidden");
-      } else {
-        els.emptyState.classList.add("hidden");
-        list.forEach(m => {
-          const div = document.createElement("div");
-          // Check local read status
-          const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
-          const isRead = readList.includes(m.id);
-
-          div.className = `msg-card ${!isRead ? 'unread' : ''} ${m.id === selectedMessageId ? 'active-card' : ''}`;
-          div.innerHTML = `
-                   <div class="msg-avatar">${(m.from || "?")[0].toUpperCase()}</div>
-                   <div class="msg-content">
-                      <div class="msg-header-row">
-                         <div class="msg-sender">${m.from}</div>
-                         <div class="msg-time">${new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                      </div>
-                      <div class="msg-subject">${decodeSubject(m.subject)}</div>
-                      <div class="msg-snippet">${m.snippet || "..."}</div>
-                   </div>
-                `;
-          div.onclick = () => openMessage(m);
-          els.msgList.appendChild(div);
-        });
-      }
-    }
-
-    // --- Reading Logic ---
-    function decodeSubject(subject) {
-      if (!subject) return "(No Subject)";
-      // Regex for MIME encoded words
-      try {
-        return subject.replace(/=\?([^?]+)\?([BQ])\?([^?]*)\?=/gi, (match, charset, encoding, text) => {
-          if (encoding.toUpperCase() === 'B') {
-            // Base64
-            try {
-              return atob(text);
-            } catch (e) { return match; }
-          } else if (encoding.toUpperCase() === 'Q') {
-            // Quoted-Printable
-            return text.replace(/_/g, ' ').replace(/=([0-9A-F]{2})/gi, (m, p1) => String.fromCharCode(parseInt(p1, 16)));
-          }
-          return match;
-        });
-      } catch (e) { return subject; }
-    }
-
-    async function openMessage(m) {
-      selectedMessageId = m.id;
-
-      // Highlight in list
-      document.querySelectorAll('.msg-card').forEach(c => c.classList.remove('active-card'));
-
-      // Mark as read locally
-      const readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
-      if (!readList.includes(m.id)) {
-        readList.push(m.id);
-        localStorage.setItem("readMessages", JSON.stringify(readList));
-        renderList();
-      } else {
-        renderList();
-      }
-
-      // Check Layout Mode
-      if (window.innerWidth >= 992) {
-        renderDesktopPane(m);
-      } else {
-        openMobileModal(m);
-      }
-    }
-
-    function openMobileModal(m) {
-      els.rSubject.textContent = decodeSubject(m.subject);
-      els.rFrom.textContent = m.from;
-      els.rDate.textContent = new Date(m.date).toLocaleString();
-      els.rAvatar.textContent = (m.from || "?")[0].toUpperCase();
-      els.rBody.innerHTML = '<div class="center" style="padding:20px;">Loading content...</div>';
-
-      els.readView.classList.add("active");
-      fetchAndRender(m, els.rBody);
-    }
-
-    function renderDesktopPane(m) {
-      const pane = document.getElementById("desktopReadPane");
-      pane.innerHTML = `
-            <div class="d-read-header">
-                <div>
-                   <h2 style="font-size:1.2rem; margin-bottom:5px;">${decodeSubject(m.subject)}</h2>
-                   <div style="font-size:0.9rem; color:var(--text-muted);">
-                      <i class="bi bi-person-circle"></i> ${m.from} &bull; ${new Date(m.date).toLocaleString()}
-                   </div>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-icon" onclick="copyToClipboard('${m.id}')" title="Copy ID"><i class="bi bi-hash"></i></button>
-                    <button class="btn-icon" id="dBtnDelete" title="Delete" style="color:var(--danger);"><i class="bi bi-trash"></i></button>
-                </div>
-            </div>
-            <div class="d-read-scroll" id="dReadBody">
-                <div class="center" style="padding:20px;">Loading content...</div>
-            </div>
-        `;
-
-      // Bind Delete
-      document.getElementById("dBtnDelete").onclick = () => confirmDelete(m.id);
-
-      const bodyContainer = document.getElementById("dReadBody");
-      fetchAndRender(m, bodyContainer);
-    }
-
-    async function fetchAndRender(m, container) {
-      try {
-        const res = await api(`/message?id=${m.id}&format=json`);
-        const details = res.message || {};
-        const body = details.html || details.text || "(No content)";
-
-        // Render Shadow DOM
-        container.innerHTML = "";
-        const host = document.createElement("div");
-        host.style.all = "initial";
-        host.style.display = "block";
-        host.style.width = "100%";
-        host.style.overflowX = "auto";
-        host.style.fontFamily = "sans-serif";
-        container.appendChild(host);
-
-        const shadow = host.attachShadow({ mode: "open" });
-        shadow.innerHTML = `
-           <style>
-             :host { display: block; font-family: sans-serif; color: #111; line-height: 1.5; }
-             a { color: #2563EB; text-decoration: underline; }
-             p { margin-bottom: 1em; }
-             img { max-width: 100%; height: auto; }
-             body { margin: 0; padding: 0; }
-             blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 10px; color: #555; }
-           </style>
-           ${body}
-        `;
-      } catch (e) {
-        container.innerHTML = `<div style="color:red; padding:20px;">Failed to load: ${e.message}</div>`;
-      }
-    }
-
-    // Helper to render email in Shadow DOM
-    function renderEmailBody(body) {
-      els.rBody.innerHTML = "";
-      const host = document.createElement("div");
-      host.style.all = "initial";
-      host.style.display = "block";
-      host.style.width = "100%";
-      host.style.overflowX = "auto";
-      host.style.fontFamily = "sans-serif";
-      els.rBody.appendChild(host);
-
-      const shadow = host.attachShadow({ mode: "open" });
-      shadow.innerHTML = `
-           <style>
-             :host { display: block; font-family: sans-serif; color: #111; line-height: 1.5; }
-             a { color: #2563EB; text-decoration: underline; }
-             p { margin-bottom: 1em; }
-             img { max-width: 100%; height: auto; }
-             body { margin: 0; padding: 0; }
-             blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 10px; color: #555; }
-           </style>
-           ${body}
-        `;
-    }
-
-    els.btnCloseRead.onclick = () => {
-      els.readView.classList.remove("active");
-    };
-
-    // Helper for delete processing
-    async function confirmDelete(id) {
-      if (!confirm("Delete this message?")) return;
-
-      // Optimistic UI update
-      messagesCache = messagesCache.filter(m => m.id !== id);
-      renderList();
-
-      // Reset Right Pane if deleted message was open
-      if (selectedMessageId === id) {
-        selectedMessageId = null;
-        if (window.innerWidth >= 992) {
-          document.getElementById("desktopReadPane").innerHTML = `
-                  <div class="empty-split-state">
-                    <i class="bi bi-envelope-open" style="font-size:3rem; color:var(--text-muted); opacity:0.3; margin-bottom:15px;"></i>
-                    <div style="color:var(--text-muted);">Select a message to read</div>
-                  </div>`;
-        } else {
-          els.readView.classList.remove("active");
-        }
-      }
-
-      try {
-        await api(`/message?id=${id}`, "DELETE");
-      } catch (e) {
-        console.error("Delete failed", e);
-        // Ideally revert UI, but for simple app warn user
-        alert("Failed to delete message");
-      }
-    }
-
-    els.btnDelete.onclick = () => {
-      if (selectedMessageId) confirmDelete(selectedMessageId);
-    };
-
-
-
-    els.btnPrint.onclick = () => {
-      // Simple window print - in a real app might want to print just the email body
-      // For now, this is a quick implementation
-      window.print();
-    };
-
-    els.btnMarkUnread.onclick = () => {
-      if (!selectedMessageId) return;
-
-      // Remove from local read list
-      let readList = JSON.parse(localStorage.getItem("readMessages") || "[]");
-      readList = readList.filter(id => id !== selectedMessageId);
-      localStorage.setItem("readMessages", JSON.stringify(readList));
-
-      // Update UI
-      renderList();
-      els.readView.classList.remove("active");
-    };
-
-    // --- Settings Logic (Password Change) ---
+    // Settings Password
     els.btnSaveSettings.onclick = async () => {
       const curr = els.setCurrPass.value;
       const newP = els.setNewPass.value;
       const conf = els.setConfPass.value;
-      const msg = (txt, color = "red") => { els.setMsg.textContent = txt; els.setMsg.style.color = color; };
+      const msg = (txt, color = "var(--danger)") => { els.setMsg.textContent = txt; els.setMsg.style.color = color; };
 
       if (!curr || !newP || !conf) return msg("Please fill all fields");
       if (newP !== conf) return msg("New passwords do not match");
@@ -817,45 +880,14 @@
         const cred = EmailAuthProvider.credential(fbUser.email, curr);
         await reauthenticateWithCredential(fbUser, cred);
         await updatePassword(fbUser, newP);
-        msg("Password updated successfully!", "green");
+        msg("Password updated successfully!", "var(--success)");
         els.setCurrPass.value = ""; els.setNewPass.value = ""; els.setConfPass.value = "";
-        setTimeout(() => els.settingsView.classList.remove("active"), 1500);
+        setTimeout(() => els.settingsModal.classList.remove("active"), 1500);
       } catch (e) {
-        console.error(e);
         msg("Error: " + e.message);
       }
       els.btnSaveSettings.disabled = false;
       els.btnSaveSettings.textContent = "Update Password";
-    };
-
-    // --- Profile Logic ---
-    window.openProfile = () => {
-      els.profileLetter.textContent = els.avatarLetter.textContent;
-      els.profileEmail.textContent = fbUser.email;
-      els.profileView.classList.add("active");
-    };
-    els.btnCloseProfile.onclick = () => els.profileView.classList.remove("active");
-    els.btnUserAvatar.onclick = window.openProfile;
-    els.btnRealLogout.onclick = () => signOut(auth);
-    els.btnOpenSettings.onclick = () => {
-      els.profileView.classList.remove("active");
-      setTimeout(window.openSettings, 200);
-    };
-
-    // --- Notification Logic Hooks ---
-    els.btnNotif.onclick = window.openNotifs;
-
-    // --- Tab Switching (Global for onClick) ---
-    window.switchTab = (tab) => {
-      if (tab === 'inbox') {
-        els.settingsView.classList.remove("active");
-        els.notifView.classList.remove("active");
-        els.readView.classList.remove("active");
-        els.profileView.classList.remove("active");
-      }
-      if (tab === 'settings') window.openSettings();
-      if (tab === 'notifs') window.openNotifs();
-      if (tab === 'profile') window.openProfile();
     };
 
   </script>
