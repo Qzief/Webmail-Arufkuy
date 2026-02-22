@@ -536,6 +536,16 @@
       return res.json();
     }
 
+    async function deleteAuthFromWorker(uid) {
+      const url = `${WORKER_API}/admin/auth?uid=${encodeURIComponent(uid)}`;
+      const res = await fetch(url, { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(`Worker Auth Delete Failed: ${err.error || res.status}`);
+      }
+      return res.json();
+    }
+
     // --- ACTIONS ---
 
     els.btnLogin.onclick = async () => {
@@ -655,16 +665,23 @@
 
       if (!uid || !confirm("Delete mapping for this UID?")) return;
 
-      setStatus("Deleting...", "");
+      setStatus("Deleting from Firestore...", "");
       try {
         await deleteDoc(doc(db, "users", uid));
 
         if (local) {
-          setStatus("Deleting from Worker...", "");
+          setStatus("Deleting from Worker mapping...", "");
           await deleteFromWorker(uid, local);
         }
 
-        setStatus("Mapping deleted.", "success");
+        setStatus("Deleting Firebase Auth via Worker...", "");
+        try {
+          await deleteAuthFromWorker(uid);
+        } catch (authErr) {
+          console.warn("Auth delete failed, user may not exist in Auth:", authErr);
+        }
+
+        setStatus("User completely deleted.", "success");
         els.uid.value = "";
         els.localPart.value = "";
         els.localPart.dispatchEvent(new Event('input'));
