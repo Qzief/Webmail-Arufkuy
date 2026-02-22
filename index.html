@@ -564,24 +564,28 @@
 
             console.log("Firebase Realtime Signal Received! Waiting for KV sync...");
 
-            // Cloudflare KV is eventually consistent (takes 1-3 seconds to propagate globally)
-            // We retry fetching up to 3 times if the new email hasn't appeared in the list yet.
+            // Cloudflare KV is eventually consistent (takes 1-10 seconds to propagate globally)
+            // We retry fetching up to 10 times if the new email hasn't appeared in the list yet.
             let retries = 0;
             const attemptSync = async () => {
               const oldLen = messagesCache.length;
               await loadInbox(true); // silent fetch
 
-              if (messagesCache.length === oldLen && retries < 3) {
+              if (messagesCache.length === oldLen && retries < 10) {
                 retries++;
-                console.log(`KV not synced yet. Retry ${retries}/3 in 2 seconds...`);
-                setTimeout(attemptSync, 2000);
+                console.log(`KV not synced yet. Retry ${retries}/10 in 3 seconds...`);
+                setTimeout(attemptSync, 3000);
               } else if (messagesCache.length > oldLen) {
                 console.log("KV Synced! New email loaded successfully.");
+                renderList(); // Force render just in case loadInbox silent skip got triggered
+              } else {
+                // Exhausted retries without seeing a length change, but let's refresh UI anyway
+                renderList();
               }
             };
 
-            // Start first attempt after 1.5 seconds
-            setTimeout(attemptSync, 1500);
+            // Start first attempt after 2.5 seconds since Worker now awaits KV puts locally
+            setTimeout(attemptSync, 2500);
           }
         });
 
@@ -598,7 +602,16 @@
     // API
     async function api(path, method = "GET") {
       const token = await ensureToken();
-      const res = await fetch(`${WORKER_API}${path}`, { method, headers: { Authorization: `Bearer ${token}` } });
+      // Add a cache buster parameter to strictly bypass browser HTTP cache on GET
+      const suffix = method === "GET" ? (path.includes("?") ? `&_t=${Date.now()}` : `?_t=${Date.now()}`) : "";
+      const url = `${WORKER_API}${path}${suffix}`;
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       if (!res.ok) throw new Error("API Error");
       return res.json();
     }
@@ -611,7 +624,7 @@
         const isDiff = JSON.stringify(newMessages) !== JSON.stringify(messagesCache);
         if (isDiff) {
           messagesCache = newMessages;
-          if (!silent) renderList(); // Only auto-render on non-silent (background/refresh) loads
+          renderList();
         }
       } catch (e) { console.error(e); }
       if (!silent) setTimeout(() => els.autoRefreshInd.classList.remove("active"), 1000);
