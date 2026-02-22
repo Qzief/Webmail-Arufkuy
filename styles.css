@@ -277,6 +277,36 @@ input:-webkit-autofill:active {
     color: rgba(255, 107, 107, 0.9);
 }
 
+/* ======== NATIVE AD ITEM (INBOX LIST) ======== */
+.native-ad-item {
+    background: linear-gradient(145deg, rgba(59, 91, 219, 0.05) 0%, rgba(59, 91, 219, 0.01) 100%);
+    border-left: 3px solid var(--brand-primary);
+}
+
+.native-ad-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    border: 1px solid rgba(59, 91, 219, 0.15);
+    border-radius: var(--border-radius-md);
+    z-index: 1;
+}
+
+.native-ad-item:hover {
+    background: linear-gradient(145deg, rgba(59, 91, 219, 0.08) 0%, rgba(59, 91, 219, 0.02) 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.native-ad-item .ad-avatar {
+    background: var(--brand-primary) !important;
+    color: white !important;
+    font-weight: 800;
+}
+
 /* ======== MAILBOX LIST ======== */
 #mailbox {
     width: var(--list-width);
@@ -363,7 +393,8 @@ input:-webkit-autofill:active {
     transition: all var(--transition-smooth);
     display: grid;
     grid-template-columns: 40px 1fr;
-    gap: 16px;
+    column-gap: 16px;
+    row-gap: 0;
     position: relative;
 }
 
@@ -378,17 +409,7 @@ input:-webkit-autofill:active {
     border-color: var(--brand-primary);
 }
 
-.email-item.unread::before {
-    content: '';
-    position: absolute;
-    top: 24px;
-    left: -4px;
-    width: 10px;
-    height: 10px;
-    background-color: var(--brand-primary);
-    border-radius: 50%;
-    box-shadow: 0 0 10px var(--brand-primary);
-}
+
 
 .email-avatar {
     width: 40px;
