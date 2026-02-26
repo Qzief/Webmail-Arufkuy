@@ -762,7 +762,7 @@
                         <div class="email-avatar">${avatarLetter}</div>
                         <div class="email-item-content">
                             <div class="email-item-header">
-                                <span class="email-sender">${m.from}</span>
+                                <span class="email-sender">${decodeSubject(m.from)}</span>
                                 <span class="email-time">${new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                             <div class="email-subject">${decodeSubject(m.subject)}</div>
@@ -826,6 +826,60 @@
       } catch (e) { return subject; }
     }
 
+    // Convert plain text email to formatted HTML
+    // Handles: URLs → clickable links, *bold* → <b>, line breaks, horizontal rules
+    function plainTextToHtml(text) {
+      if (!text) return "(No content)";
+
+      // Escape HTML entities first
+      let html = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
+      // Convert URLs to clickable links (must be done before other formatting)
+      // Matches http/https URLs and also bare domain-like patterns
+      html = html.replace(
+        /(?:https?:\/\/)[^\s<>"{}|\\^`\[\]]+/gi,
+        (url) => {
+          // Clean trailing punctuation that's likely not part of the URL
+          let cleanUrl = url.replace(/[.,;:!?)]+$/, '');
+          let trailing = url.slice(cleanUrl.length);
+          return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${cleanUrl}</a>${trailing}`;
+        }
+      );
+
+      // Convert *text* patterns to bold (Microsoft uses these for emphasis)
+      // Only match *word(s)* patterns, not stray asterisks
+      html = html.replace(/\*([^\s*][^*]*[^\s*])\*/g, '<strong>$1</strong>');
+      // Also handle single-word bold: *word*
+      html = html.replace(/\*([^\s*]+)\*/g, '<strong>$1</strong>');
+
+      // Convert horizontal rules (--- or ___ or ***)
+      html = html.replace(/^[\s]*([-_*]{3,})[\s]*$/gm, '<hr style="border:none; border-top:1px solid #ddd; margin:16px 0;">');
+
+      // Convert line breaks: double newline = paragraph, single newline = <br>
+      // First normalize line endings
+      html = html.replace(/\r\n/g, '\n');
+
+      // Split into paragraphs on double newlines
+      const paragraphs = html.split(/\n{2,}/);
+      html = paragraphs
+        .map(p => {
+          const trimmed = p.trim();
+          if (!trimmed) return '';
+          // If it's already an <hr>, don't wrap in <p>
+          if (trimmed.startsWith('<hr')) return trimmed;
+          // Convert single newlines within paragraph to <br>
+          return `<p style="margin:0 0 12px 0;">${trimmed.replace(/\n/g, '<br>')}</p>`;
+        })
+        .filter(p => p)
+        .join('\n');
+
+      return html;
+    }
+
     async function openMessage(m, itemElement) {
       selectedMessageId = m.id;
 
@@ -851,7 +905,7 @@
       els.viewerContent.style.display = 'flex';
 
       els.rSubject.textContent = decodeSubject(m.subject);
-      els.rFrom.textContent = m.from;
+      els.rFrom.textContent = decodeSubject(m.from);
       els.rAvatar.textContent = (m.from || "?")[0].toUpperCase();
       els.rDate.textContent = new Date(m.date).toLocaleString();
 
@@ -864,7 +918,16 @@
       try {
         const res = await api(`/message?id=${m.id}&format=json`);
         const details = res.message || {};
-        const bodyHTML = details.html || details.text || "(No content)";
+
+        // Use HTML if available, otherwise convert plain text to formatted HTML
+        let bodyHTML;
+        if (details.html && details.html.trim().length > 0) {
+          bodyHTML = details.html;
+        } else if (details.text && details.text.trim().length > 0) {
+          bodyHTML = plainTextToHtml(details.text);
+        } else {
+          bodyHTML = "<p style='color:#999;'>(No content)</p>";
+        }
 
         els.rBody.innerHTML = "";
 
@@ -874,6 +937,8 @@
         host.style.all = "initial";
         host.style.display = "block";
         host.style.width = "100%";
+        host.style.maxWidth = "720px";
+        host.style.margin = "0 auto";
         host.style.overflowX = "auto";
         host.style.backgroundColor = "#FFFFFF"; // Enforce white bg
         host.style.borderRadius = "8px"; // Match our modern container style
@@ -889,17 +954,96 @@
                           display: block; 
                           color: #111111; 
                           background-color: #FFFFFF;
-                          line-height: 1.5; 
-                          padding: 24px;
+                          line-height: 1.6; 
+                          padding: 40px 48px;
+                          font-size: 14px;
+                          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
                         }
-                        * { color: inherit; } /* Force inheriting the black text unless overridden */
-                        a { color: #2563EB; text-decoration: underline; }
-                        p { margin-bottom: 1em; }
+                        * { 
+                          color: inherit;
+                          box-sizing: border-box;
+                        }
+                        /* Links: make them clearly visible and wrap long URLs */
+                        a { 
+                          color: #2563EB; 
+                          text-decoration: underline; 
+                          word-break: break-all;
+                          overflow-wrap: break-word;
+                        }
+                        a:hover { color: #1d4ed8; }
+                        p { margin: 0 0 12px 0; line-height: 1.6; }
                         img { max-width: 100%; height: auto; display: block; }
-                        body, html { margin: 0; padding: 0; background: #FFFFFF !important; color: #111111 !important; }
-                        blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 10px; color: #555; }
+                        body, html { 
+                          margin: 0; padding: 0; 
+                          background: #FFFFFF !important; 
+                          color: #111111 !important; 
+                        }
+                        blockquote { 
+                          border-left: 4px solid #ddd; 
+                          margin: 8px 0; 
+                          padding: 8px 16px; 
+                          color: #555; 
+                          background: #f9f9f9;
+                          border-radius: 0 4px 4px 0;
+                        }
+                        /* Tables: constrain width and allow scrolling */
+                        table { 
+                          max-width: 100% !important; 
+                          width: auto !important;
+                          border-collapse: collapse;
+                          table-layout: fixed;
+                        }
+                        td, th { 
+                          word-break: break-word; 
+                          overflow-wrap: break-word;
+                          max-width: 100%;
+                        }
+                        /* Pre-formatted text: wrap instead of overflow */
+                        pre, code {
+                          white-space: pre-wrap;
+                          word-wrap: break-word;
+                          word-break: break-all;
+                          max-width: 100%;
+                          overflow-x: auto;
+                          font-family: 'Consolas', 'Courier New', monospace;
+                          font-size: 13px;
+                        }
+                        pre {
+                          background: #f5f5f5;
+                          padding: 12px;
+                          border-radius: 6px;
+                          border: 1px solid #e0e0e0;
+                        }
+                        /* Horizontal rules */
+                        hr {
+                          border: none;
+                          border-top: 1px solid #e0e0e0;
+                          margin: 16px 0;
+                        }
+                        /* Bold / strong text */
+                        strong, b { font-weight: 700; }
+                        /* Lists */
+                        ul, ol { padding-left: 24px; margin: 8px 0; }
+                        li { margin-bottom: 4px; }
+                        /* Headings inside emails */
+                        h1, h2, h3, h4, h5, h6 {
+                          color: #111;
+                          margin: 16px 0 8px 0;
+                          line-height: 1.3;
+                        }
+                        /* Word wrapping for the entire container */
+                        div, span, p, td, th, li, a {
+                          overflow-wrap: break-word;
+                          word-wrap: break-word;
+                        }
+                        /* Microsoft-specific: handle their button-style links */
+                        a[style*="background"] {
+                          display: inline-block;
+                          border-radius: 4px;
+                          text-decoration: none !important;
+                        }
                     </style>
-                    <div style="background:#ffffff; color:#111111; min-height:100%;">
+                    <div style="background:#ffffff; color:#111111; min-height:100%; overflow-wrap:break-word; word-wrap:break-word;">
                         ${bodyHTML}
                     </div>
                 `;
